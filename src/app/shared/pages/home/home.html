@@ -1,0 +1,301 @@
+@if (auth.currentUser(); as user) {
+  <section class="home" [class.home--physio]="user.role === 'PHYSIOTHERAPIST'" aria-labelledby="home-title">
+    <header class="dashboard-header">
+      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
+        @if (user.role === 'PHYSIOTHERAPIST') {
+          <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/home" aria-current="page">
+            {{ 'home.physio.panelNav' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/agenda">
+            {{ 'home.physio.agendaNav' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/availability">
+            {{ 'home.physio.availabilityNav' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+        } @else {
+          <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/home" aria-current="page">
+            {{ 'home.navPanel' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/physiotherapists">
+            {{ 'home.navSpecialists' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/appointments">
+            {{ 'home.navSessions' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/appointments" [queryParams]="{ view: 'history' }">
+            {{ 'home.navHistory' | translate }}
+          </a>
+        }
+      </nav>
+      <div class="dashboard-actions">
+        <a
+          class="notification-indicator"
+          routerLink="/notifications"
+          [attr.aria-label]="'home.notificationsCount' | translate: { count: unreadNotifications() }"
+        >
+          <mat-icon aria-hidden="true">notifications</mat-icon>
+          @if (unreadNotifications() > 0) {
+            <span class="notification-indicator__count" aria-hidden="true">{{ unreadNotifications() }}</span>
+          }
+        </a>
+        <div class="profile">
+          <button
+            class="profile__avatar"
+            type="button"
+            (click)="profileMenuOpen.update((open) => !open)"
+            [attr.aria-label]="'home.profileMenu' | translate: { name: user.fullName }"
+            [attr.aria-expanded]="profileMenuOpen()"
+          >
+            {{ initials(user.fullName) }}
+          </button>
+          @if (profileMenuOpen()) {
+            <button class="profile__sign-out" type="button" (click)="signOut()">
+              {{ 'layout.signOut' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    @if (user.role === 'PATIENT') {
+      <div class="home__heading">
+        <p class="eyebrow"><span aria-hidden="true"></span>{{ 'home.eyebrow' | translate }}</p>
+        <h1 id="home-title">{{ 'home.welcome' | translate: { name: firstName(user.fullName) } }}</h1>
+        <p class="home__subtitle">{{ 'home.subtitle' | translate }}</p>
+      </div>
+      @if (loading()) {
+        <p class="state-message" role="status">{{ 'common.loading' | translate }}</p>
+      } @else if (errorMessage() || networkError()) {
+        <div class="error-message" role="alert">
+          @if (errorMessage()) {
+            {{ errorMessage() }}
+          } @else {
+            {{ 'errors.network' | translate }}
+          }
+        </div>
+      } @else {
+        <section class="stats" [attr.aria-label]="'home.summary' | translate">
+          <article class="stat">
+            <strong>{{ completedSessions() }}</strong>
+            <span>{{ 'home.completedSessions' | translate }}</span>
+          </article>
+          <article class="stat">
+            @if (progressPercent() !== null) {
+              <strong>{{ progressPercent() }}%</strong>
+              <span>{{ 'home.planProgress' | translate }}</span>
+            } @else {
+              <strong aria-hidden="true">—</strong>
+              <span>{{ 'home.noProgressYet' | translate }}</span>
+            }
+          </article>
+          <article class="stat">
+            @if (nextSession(); as session) {
+              <strong>{{ session.startTime | date: 'dd/MM/yyyy' }}</strong>
+              <span>{{ 'home.nextSession' | translate }}</span>
+            } @else {
+              <strong aria-hidden="true">—</strong>
+              <span>{{ 'home.noUpcomingSession' | translate }}</span>
+            }
+          </article>
+        </section>
+
+        <div class="dashboard-grid">
+          <div class="dashboard-main">
+            <section class="panel next-session" aria-labelledby="next-session-title">
+              <h2 id="next-session-title">{{ 'home.nextSessionTitle' | translate }}</h2>
+              @if (nextSession(); as session) {
+                <p class="session-date">
+                  <time [attr.datetime]="session.startTime">{{ session.startTime | date: 'dd/MM/yyyy · HH:mm' }}</time>
+                </p>
+                <p class="session-details">
+                  {{ session.physiotherapistName }} ·
+                  {{ 'home.sessionNumber' | translate: { number: session.sessionNumber, total: session.totalSessions } }}
+                </p>
+              } @else {
+                <p class="empty-message">{{ 'home.noUpcomingSessionMessage' | translate }}</p>
+              }
+            </section>
+
+            <section class="panel plans" aria-labelledby="plans-title">
+              <h2 id="plans-title">{{ 'home.plansTitle' | translate }}</h2>
+              @if (activePlans().length) {
+                @for (summary of activePlans(); track summary.plan.id) {
+                  <article class="plan">
+                    <div class="plan__heading">
+                      <h3>{{ summary.plan.diagnosis }}</h3>
+                      <span class="status">{{ 'home.activePlan' | translate }}</span>
+                    </div>
+                    <div
+                      class="progress-track"
+                      role="progressbar"
+                      [attr.aria-label]="'home.progressForPlan' | translate: { diagnosis: summary.plan.diagnosis }"
+                      [attr.aria-valuenow]="planProgressPercent(summary.plan)"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      <span [style.width.%]="planProgressPercent(summary.plan)"></span>
+                    </div>
+                    <p class="plan__details">
+                      {{ 'home.progressDetails' | translate: {
+                        completed: summary.plan.completedSessions,
+                        total: summary.plan.totalSessions,
+                        frequency: summary.plan.frequencyPerWeek
+                      } }}
+                    </p>
+                    <p class="plan__physiotherapist">{{ summary.plan.physiotherapistName }}</p>
+                  </article>
+                }
+              } @else {
+                <p class="empty-message">{{ 'home.noActivePlan' | translate }}</p>
+              }
+            </section>
+          </div>
+
+          <aside class="dashboard-aside">
+            <section class="panel notifications" aria-labelledby="notifications-title">
+              <h2 id="notifications-title">{{ 'home.notificationsTitle' | translate }}</h2>
+              @if (notifications().length) {
+                @for (notification of notifications().slice(0, 3); track notification.id) {
+                  <article class="notification">
+                    <p>{{ notification.message }}</p>
+                    <time [attr.datetime]="notification.createdAt">{{ notification.createdAt | date: 'dd/MM/yyyy · HH:mm' }}</time>
+                  </article>
+                }
+              } @else {
+                <p class="empty-message">{{ 'home.noNotifications' | translate }}</p>
+              }
+            </section>
+
+            @if (nextSession(); as session) {
+              <section class="panel upcoming" aria-labelledby="upcoming-title">
+                <h2 id="upcoming-title">{{ 'home.upcomingDetailsTitle' | translate }}</h2>
+                <p>{{ session.physiotherapistName }}</p>
+                <p>{{ session.diagnosis }}</p>
+                <p>
+                  {{ 'home.sessionNumber' | translate: { number: session.sessionNumber, total: session.totalSessions } }}
+                </p>
+              </section>
+            }
+          </aside>
+        </div>
+      }
+    } @else {
+      <div class="home__heading home__heading--physio">
+        <div>
+          <p class="eyebrow physio-eyebrow"><span aria-hidden="true"></span>{{ 'home.physio.eyebrow' | translate }}</p>
+          <h1 id="home-title">
+            {{ selectedAgendaDate() | date: 'EEEE' : undefined : language.current() }}
+            <strong>{{ selectedAgendaDate() | date: 'dd/MM/yyyy' : undefined : language.current() }}</strong>
+          </h1>
+          <div class="agenda-day-controls">
+            <button type="button" (click)="moveAgendaDay(-1)">
+              <mat-icon aria-hidden="true">chevron_left</mat-icon>
+              {{ 'home.physio.previousDay' | translate }}
+            </button>
+            <span aria-hidden="true">·</span>
+            <button type="button" (click)="moveAgendaDay(1)">
+              {{ 'home.physio.nextDay' | translate }}
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+        <a class="publish-availability" routerLink="/availability">
+          {{ 'home.physio.publishAvailability' | translate }}
+        </a>
+      </div>
+
+      @if (agendaLoading()) {
+        <p class="state-message" role="status">{{ 'common.loading' | translate }}</p>
+      } @else if (agendaErrorMessage() || agendaNetworkError()) {
+        <div class="error-message" role="alert">
+          {{ agendaErrorMessage() ?? ('errors.network' | translate) }}
+          <button type="button" (click)="loadAgenda()">{{ 'common.retry' | translate }}</button>
+        </div>
+      } @else {
+        <div class="physio-dashboard">
+          <section class="agenda-list" [attr.aria-label]="'home.physio.dailyAgenda' | translate">
+            @for (item of agendaItems(); track item.slotId) {
+              <article
+                class="agenda-slot"
+                [class.agenda-slot--cancelled]="item.status === 'FREE_CANCELLED'"
+                [class.agenda-slot--booked]="item.status === 'BOOKED'"
+              >
+                <time class="agenda-slot__time" [attr.datetime]="item.startTime">
+                  {{ item.startTime | date: 'HH:mm' : undefined : language.current() }}
+                </time>
+                <div class="agenda-slot__details">
+                  @if (item.status === 'BOOKED') {
+                    <strong>{{ item.patientName }}</strong>
+                    <span>
+                      {{ 'appointments.session' | translate: { number: item.sessionNumber, total: item.totalSessions } }}
+                    </span>
+                  } @else if (item.status === 'FREE_CANCELLED') {
+                    <strong>{{ 'home.physio.freeBlock' | translate }}</strong>
+                    <span>{{ 'home.physio.cancelledDescription' | translate }}</span>
+                  } @else {
+                    <strong>{{ 'home.physio.freeBlock' | translate }}</strong>
+                  }
+                </div>
+                <span
+                  class="agenda-slot__status"
+                  [class.agenda-slot__status--cancelled]="item.status === 'FREE_CANCELLED'"
+                >
+                  {{ agendaStatusKey(item) | translate }}
+                </span>
+              </article>
+            } @empty {
+              <div class="agenda-empty">
+                <span class="agenda-empty__status">{{ 'home.physio.dayWithoutSessions' | translate }}</span>
+                <strong>{{ 'home.physio.noSessions' | translate }}</strong>
+              </div>
+            }
+          </section>
+
+          <aside class="dashboard-aside">
+            <section class="panel agenda-summary" aria-labelledby="agenda-summary-title">
+              <h2 id="agenda-summary-title">{{ 'home.physio.summaryTitle' | translate }}</h2>
+              <p>
+                <span>{{ 'home.physio.reservedSessions' | translate }}</span>
+                <strong>{{ reservedAgendaItems().length }}</strong>
+              </p>
+              <p>
+                <span>{{ 'home.physio.cancelledSlots' | translate }}</span>
+                <strong>{{ cancelledAgendaItems().length }}</strong>
+              </p>
+            </section>
+
+            <section class="panel physio-alerts" aria-labelledby="physio-alerts-title">
+              <h2 id="physio-alerts-title">{{ 'home.physio.alertsTitle' | translate }}</h2>
+              @if (notificationsErrorMessage() || notificationsNetworkError()) {
+                <p class="empty-message">{{ notificationsErrorMessage() ?? ('errors.network' | translate) }}</p>
+              } @else if (notifications().length) {
+                @for (notification of notifications().slice(0, 3); track notification.id) {
+                  <article class="notification">
+                    <p>{{ notification.message }}</p>
+                    <time [attr.datetime]="notification.createdAt">
+                      {{ notification.createdAt | date: 'dd/MM/yyyy · HH:mm' : undefined : language.current() }}
+                    </time>
+                  </article>
+                }
+              } @else {
+                <p class="empty-message">{{ 'home.physio.noAlerts' | translate }}</p>
+              }
+            </section>
+          </aside>
+        </div>
+      }
+    }
+
+    @if (user.role === 'PATIENT') {
+      <a class="assistant-button" routerLink="/assistant">
+        <mat-icon aria-hidden="true">smart_toy</mat-icon>
+        {{ 'home.assistantButton' | translate }}
+      </a>
+    }
+  </section>
+}

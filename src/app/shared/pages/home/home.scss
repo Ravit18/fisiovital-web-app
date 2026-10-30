@@ -1,0 +1,317 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.home {
+  position: relative;
+  width: min(100%, 1200px);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 12px 24px 56px;
+}
+
+.home::before {
+  position: absolute;
+  z-index: -1;
+  top: 40px;
+  right: 0;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: #edf5e9;
+  content: '';
+}
+
+.home__heading {
+  margin: 36px 0 22px;
+}
+
+.home__heading--physio {
+  margin-top: 38px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+  color: #4d7d3b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #86b667;
+  }
+}
+
+h1 {
+  margin: 0;
+  color: #22352a;
+  font-size: clamp(34px, 5vw, 42px);
+  letter-spacing: -1.5px;
+}
+
+.home__subtitle {
+  margin: 8px 0 0;
+  color: #708078;
+}
+
+.home__role {
+  color: #708078;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+  border-radius: 22px;
+  padding: 22px 26px;
+  background: #88b568;
+  box-shadow: 0 12px 28px #456c3826;
+}
+
+.stat {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+
+  strong {
+    overflow-wrap: anywhere;
+    color: #23352a;
+    font-size: clamp(20px, 3vw, 28px);
+    line-height: 1.2;
+  }
+
+  span {
+    color: #314434;
+    font-size: 13px;
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(260px, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.dashboard-main,
+.dashboard-aside {
+  display: grid;
+  gap: 18px;
+}
+
+.panel {
+  min-width: 0;
+  border: 1px solid #edf1eb;
+  border-radius: 22px;
+  padding: 22px;
+  background: #fff;
+  box-shadow: 0 12px 32px #23352a0d;
+
+  h2 {
+    margin: 0 0 16px;
+    color: #34463a;
+    font-size: 19px;
+  }
+}
+
+.session-date {
+  margin: 0 0 10px;
+  color: #34463a;
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 700;
+}
+
+.session-details,
+.plan__details,
+.plan__physiotherapist,
+.notification time {
+  color: #708078;
+  font-size: 14px;
+}
+
+.session-details {
+  margin: 0;
+}
+
+.plans {
+  display: grid;
+  gap: 18px;
+}
+
+.plan + .plan {
+  border-top: 1px solid #edf1eb;
+  padding-top: 18px;
+}
+
+.plan__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h3 {
+    margin: 0;
+    color: #34463a;
+    font-size: 17px;
+  }
+}
+
+.status {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #e7f2e3;
+  color: #4d7d3b;
+  font-size: 12px;
+}
+
+.progress-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e3e9e1;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #88b568;
+  }
+}
+
+.plan__details {
+  margin: 12px 0 0;
+}
+
+.plan__physiotherapist {
+  margin: 6px 0 0;
+}
+
+.notification {
+  padding: 0 0 16px;
+
+  & + & {
+    border-top: 1px solid #edf1eb;
+    padding-top: 16px;
+  }
+
+  p {
+    margin: 0 0 8px;
+    color: #34463a;
+    line-height: 1.5;
+  }
+
+  time {
+    display: block;
+  }
+}
+
+.empty-message,
+.state-message {
+  margin: 0;
+  color: #708078;
+  line-height: 1.6;
+}
+
+.error-message {
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fde9e7;
+  color: #9d2e25;
+}
+
+.assistant-button {
+  position: fixed;
+  z-index: 5;
+  right: max(24px, calc((100vw - 1200px) / 2 + 24px));
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 22px 0 18px;
+  background: #22352a;
+  box-shadow: 0 8px 20px #23352a30;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: #355e2a;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #598d45;
+    outline-offset: 3px;
+  }
+}
+
+@media (max-width: 760px) {
+  .home {
+    padding: 28px 16px 40px;
+  }
+
+  .home__heading {
+    margin-top: 28px;
+  }
+
+  .home__heading--physio {
+    margin-top: 38px;
+  }
+
+  .stats {
+    gap: 12px;
+    padding: 18px 16px;
+  }
+
+  .stat span {
+    font-size: 12px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .assistant-button {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .stat strong {
+    font-size: 21px;
+  }
+}

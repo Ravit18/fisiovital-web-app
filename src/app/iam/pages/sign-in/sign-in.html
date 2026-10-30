@@ -1,0 +1,90 @@
+<section class="sign-in" aria-labelledby="sign-in-title">
+  <section class="welcome-panel" [attr.aria-label]="'iam.signIn.welcomeLabel' | translate">
+    <div class="brand" aria-label="FisioVital">
+      <img src="/images/fisiovital-logo.png" alt="" />
+      <span>FisioVital</span>
+    </div>
+    <div class="welcome-copy">
+      <p class="eyebrow"><span aria-hidden="true"></span>{{ 'iam.signIn.welcomeEyebrow' | translate }}</p>
+      <h2>
+        {{ 'iam.signIn.welcomeTitle' | translate }}
+        <strong>{{ 'iam.signIn.welcomeHighlight' | translate }}</strong>
+      </h2>
+      <p class="intro">{{ 'iam.signIn.welcomeIntro' | translate }}</p>
+    </div>
+    <img
+      class="hero-image"
+      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/inicio-YVy7CekfscfGofx2MdoXPexYzxtbAI.jpg"
+      [alt]="'iam.signIn.heroAlt' | translate"
+    />
+  </section>
+  <section class="login-panel">
+    <app-language-switcher class="language-switcher" />
+    <div class="login-card">
+      @if (loading()) {
+        <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+      }
+      <h1 id="sign-in-title">{{ 'iam.signIn.title' | translate }}</h1>
+      <p class="subtitle">{{ 'iam.signIn.subtitle' | translate }}</p>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-field">
+          <label for="email">{{ 'iam.signIn.email' | translate }}</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            required
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+            [attr.aria-describedby]="form.controls.email.invalid && form.controls.email.touched ? 'email-error' : null"
+          />
+          @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+            <span id="email-error" class="field-error">{{ 'validation.required' | translate }}</span>
+          } @else if (form.controls.email.hasError('email') && form.controls.email.touched) {
+            <span id="email-error" class="field-error">{{ 'validation.email' | translate }}</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="password">{{ 'iam.signIn.password' | translate }}</label>
+          <input
+            id="password"
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+            required
+            [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+            [attr.aria-describedby]="form.controls.password.invalid && form.controls.password.touched ? 'password-error' : null"
+          />
+          <button
+            class="password-toggle"
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="(hidePassword() ? 'iam.signIn.showPassword' : 'iam.signIn.hidePassword') | translate"
+            [attr.aria-pressed]="!hidePassword()"
+          >
+            <mat-icon aria-hidden="true">{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <span id="password-error" class="field-error">{{ 'validation.required' | translate }}</span>
+          }
+        </div>
+
+        @if (errorMessage() || networkError()) {
+          <div class="form-error" role="alert" aria-live="assertive">
+            @if (errorMessage()) {
+              {{ errorMessage() }}
+            } @else {
+              {{ 'errors.network' | translate }}
+            }
+          </div>
+        }
+
+        <button class="submit-button" type="submit" [disabled]="loading()">
+          {{ 'iam.signIn.submit' | translate }}
+        </button>
+      </form>
+      <p class="account-prompt">{{ 'iam.signIn.noAccount' | translate }}</p>
+      <a class="account-button" routerLink="/sign-up">{{ 'iam.signIn.createAccount' | translate }}</a>
+    </div>
+  </section>
+</section>
