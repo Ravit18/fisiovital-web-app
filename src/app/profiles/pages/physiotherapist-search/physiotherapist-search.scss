@@ -1,0 +1,275 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: #f7f9f5;
+}
+
+.search-page {
+  width: min(100%, 1200px);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 12px 24px 56px;
+}
+
+.search-content {
+  width: 100%;
+  margin: 36px 0 0;
+}
+
+.page-heading {
+  margin-bottom: 22px;
+
+  h1 {
+    margin: 0;
+    color: #22352a;
+    font-size: clamp(34px, 5vw, 42px);
+    letter-spacing: -1.5px;
+  }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+  color: #547b45;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #86b667;
+  }
+}
+
+.page-heading__subtitle {
+  margin: 8px 0 0;
+  color: #708078;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 8px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.results__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+
+  h2 {
+    margin: 0;
+    color: #34463a;
+    font-size: 18px;
+  }
+
+  span {
+    display: grid;
+    min-width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 20px;
+    background: #e8f0e3;
+    color: #456b37;
+    font-size: 12px;
+  }
+}
+
+.specialist-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.specialist-card {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #e9eee6;
+  border-radius: 18px;
+  padding: 20px 22px;
+  background: #fff;
+  box-shadow: 0 8px 24px #23352a0a;
+}
+
+.specialist-card__avatar {
+  display: grid;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f0e3;
+  color: #456b37;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.specialist-card__info {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    color: #2c4032;
+    font-size: 17px;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: #708078;
+    font-size: 13px;
+  }
+}
+
+.specialist-card__specialty {
+  font-weight: 600;
+}
+
+.specialist-card__experience {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  mat-icon {
+    width: 17px;
+    height: 17px;
+    color: #86a86f;
+    font-size: 17px;
+  }
+}
+
+.availability-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  color: #477b43;
+  font-size: 12px;
+  font-weight: 600;
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #69a763;
+  }
+}
+
+.profile-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  color: #456b37;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.empty-state {
+  display: flex;
+  min-height: 270px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  border: 1px dashed #cbd8c5;
+  border-radius: 20px;
+  padding: 24px;
+  background: #fff;
+  text-align: center;
+
+  h2 {
+    margin: 16px 0 6px;
+    color: #34463a;
+    font-size: 21px;
+  }
+
+  p {
+    max-width: 460px;
+    margin: 0;
+    color: #708078;
+    line-height: 1.6;
+  }
+
+  button {
+    margin-top: 14px;
+  }
+}
+
+.empty-state__icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f0e3;
+  color: #547b45;
+
+  mat-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 800px) {
+  .search-content {
+    margin-top: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .search-page {
+    padding: 28px 16px 40px;
+  }
+
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .specialist-card {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .specialist-card__avatar {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .profile-link {
+    align-self: center;
+    width: 22px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .profile-link mat-icon {
+    flex: 0 0 18px;
+  }
+}
