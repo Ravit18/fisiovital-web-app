@@ -1,0 +1,240 @@
+@if (auth.currentUser(); as user) {
+  <section class="appointments-page">
+    <header class="dashboard-header">
+      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
+        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
+        <a class="dashboard-nav__link" routerLink="/physiotherapists">{{ 'home.navSpecialists' | translate }}</a>
+        <a
+          class="dashboard-nav__link"
+          [class.dashboard-nav__link--active]="!historyView()"
+          routerLink="/appointments"
+          [attr.aria-current]="historyView() ? null : 'page'"
+        >
+          {{ 'home.navSessions' | translate }}
+        </a>
+        <a
+          class="dashboard-nav__link"
+          [class.dashboard-nav__link--active]="historyView()"
+          routerLink="/appointments"
+          [queryParams]="{ view: 'history' }"
+          [attr.aria-current]="historyView() ? 'page' : null"
+        >
+          {{ 'home.navHistory' | translate }}
+        </a>
+      </nav>
+      <div class="dashboard-actions">
+        <a
+          class="notification-indicator"
+          routerLink="/notifications"
+          [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
+        >
+          <mat-icon aria-hidden="true">notifications</mat-icon>
+          @if (notifications.unreadCount() > 0) {
+            <span class="notification-indicator__count" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+          }
+        </a>
+        <div class="profile">
+          <button
+            class="profile__avatar"
+            type="button"
+            (click)="profileMenuOpen.update((open) => !open)"
+            [attr.aria-label]="'home.profileMenu' | translate: { name: user.fullName }"
+            [attr.aria-expanded]="profileMenuOpen()"
+          >
+            {{ initials(user.fullName) }}
+          </button>
+          @if (profileMenuOpen()) {
+            <button class="profile__sign-out" type="button" (click)="signOut()">
+              {{ 'layout.signOut' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+  <section class="page" [class.page--history]="historyView()" aria-labelledby="appointments-title">
+    <header class="page__header">
+      <p class="eyebrow">
+        <span aria-hidden="true"></span>
+        {{ (historyView() ? 'appointments.historyEyebrow' : 'appointments.eyebrow') | translate }}
+      </p>
+      @if (historyView()) {
+        <h1 id="appointments-title">
+          {{ 'appointments.historyTitlePrefix' | translate }}
+          <span>{{ 'appointments.historyTitleAccent' | translate }}</span>
+        </h1>
+        <p>{{ 'appointments.historySubtitle' | translate }}</p>
+      } @else {
+        <h1 id="appointments-title">{{ 'appointments.title' | translate }}</h1>
+        <p>{{ 'appointments.subtitle' | translate }}</p>
+      }
+    </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+  } @else if (loadFailed()) {
+    @if (historyView()) {
+      <section class="history-state history-state--error" role="alert">
+        <p class="history-state__badge">{{ 'appointments.historyErrorBadge' | translate }}</p>
+        <h2>{{ 'appointments.historyErrorTitle' | translate }}</h2>
+        <p>{{ errorMessage() ?? ('errors.load' | translate) }}</p>
+        <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+      </section>
+    } @else {
+      <div class="state" role="alert">
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+      <p>{{ errorMessage() ?? ('errors.load' | translate) }}</p>
+      <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+      </div>
+    }
+  } @else if (historyView()) {
+    @if (history().length > 0) {
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'appointments.historyDate' | translate }}</th>
+              <th scope="col">{{ 'appointments.historySpecialist' | translate }}</th>
+              <th scope="col">{{ 'appointments.historySession' | translate }}</th>
+              <th scope="col">{{ 'appointments.historyStatus' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appointment of history(); track appointment.sessionId) {
+              <tr>
+                <td>
+                  <time [attr.datetime]="appointment.startTime">
+                    {{ appointment.startTime | date: 'dd/MM/yyyy · HH:mm' : undefined : language.current() }}
+                  </time>
+                </td>
+                <td>{{ appointment.physiotherapistName }}</td>
+                <td>{{ appointment.sessionNumber }} {{ 'appointments.historyOf' | translate }} {{ appointment.totalSessions }}</td>
+                <td>
+                  <span class="history-status" [class]="'history-status history-status--' + appointment.status.toLowerCase()">
+                    {{ 'sessionStatus.' + appointment.status | translate }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (hasMore()) {
+        <button mat-stroked-button type="button" class="load-more" (click)="load(true)">
+          {{ 'common.loadMore' | translate }}
+        </button>
+      }
+    } @else {
+      <section class="history-state history-state--empty">
+        <p class="history-state__badge">{{ 'appointments.historyEmptyBadge' | translate }}</p>
+        <h2>{{ 'appointments.historyEmptyTitle' | translate }}</h2>
+        <a mat-flat-button routerLink="/physiotherapists">{{ 'appointments.historyFindSpecialist' | translate }}</a>
+        @if (hasMore()) {
+          <button mat-stroked-button type="button" class="load-more" (click)="load(true)">
+            {{ 'common.loadMore' | translate }}
+          </button>
+        }
+      </section>
+    }
+  } @else {
+    @if (next(); as appointment) {
+      <mat-card appearance="outlined" class="next" aria-labelledby="next-title">
+        <mat-card-content class="next__content">
+          <div class="next__date" aria-hidden="true">
+            <span class="next__weekday">{{ appointment.startTime | date: 'EEE' : undefined : language.current() }}</span>
+            <span class="next__day">{{ appointment.startTime | date: 'd' }}</span>
+            <span class="next__month">{{ appointment.startTime | date: 'MMM' : undefined : language.current() }}</span>
+          </div>
+          <div class="next__info">
+            <h2 id="next-title">{{ 'appointments.next' | translate }}</h2>
+            <p class="next__when">
+              {{ appointment.startTime | date: 'fullDate' : undefined : language.current() }} ·
+              {{ appointment.startTime | date: 'shortTime' : undefined : language.current() }}
+            </p>
+            <p>
+              {{ 'appointments.with' | translate: { name: appointment.physiotherapistName } }} ·
+              {{ 'specialties.' + appointment.specialty | translate }}
+            </p>
+            <p class="muted">
+              {{ appointment.diagnosis }} ·
+              {{ 'appointments.session' | translate: { number: appointment.sessionNumber, total: appointment.totalSessions } }}
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-tab-group mat-stretch-tabs="false" animationDuration="150ms">
+      <mat-tab [label]="('appointments.upcoming' | translate) + ' (' + upcoming().length + ')'">
+        <ng-container
+          [ngTemplateOutlet]="list"
+          [ngTemplateOutletContext]="{ items: upcoming(), empty: 'appointments.emptyUpcoming', actions: true }"
+        />
+      </mat-tab>
+      <mat-tab [label]="('appointments.history' | translate) + ' (' + history().length + ')'">
+        <ng-container
+          [ngTemplateOutlet]="list"
+          [ngTemplateOutletContext]="{ items: history(), empty: 'appointments.emptyHistory' }"
+        />
+      </mat-tab>
+    </mat-tab-group>
+    @if (hasMore()) {
+      <button mat-stroked-button type="button" class="load-more" (click)="load(true)">
+        {{ 'common.loadMore' | translate }}
+      </button>
+    }
+  }
+  </section>
+  </section>
+}
+
+<ng-template #list let-items="items" let-empty="empty" let-actions="actions">
+  @if (items.length === 0) {
+    <div class="state">
+      <mat-icon aria-hidden="true">event_available</mat-icon>
+      <p>{{ empty | translate }}</p>
+    </div>
+  } @else {
+    <ul class="list">
+      @for (appointment of items; track appointment.sessionId) {
+        <li class="item" [class.item--cancelled]="appointment.status === 'CANCELLED' || appointment.status === 'LATE_CANCELLED'">
+          <div class="item__date">
+            <span class="item__day">{{ appointment.startTime | date: 'd' }}</span>
+            <span class="item__month">{{ appointment.startTime | date: 'MMM' : undefined : language.current() }}</span>
+          </div>
+          <div class="item__info">
+            <p class="item__title">
+              {{ appointment.startTime | date: 'EEEE' : undefined : language.current() }},
+              <time [attr.datetime]="appointment.startTime">
+                {{ appointment.startTime | date: 'shortTime' : undefined : language.current() }} –
+                {{ appointment.endTime | date: 'shortTime' : undefined : language.current() }}
+              </time>
+            </p>
+            <p>
+              {{ appointment.physiotherapistName }} · {{ 'specialties.' + appointment.specialty | translate }}
+            </p>
+            <p class="muted">
+              {{ appointment.diagnosis }} ·
+              {{ 'appointments.session' | translate: { number: appointment.sessionNumber, total: appointment.totalSessions } }}
+            </p>
+          </div>
+          <app-session-status-chip [status]="appointment.status" />
+          @if (actions) {
+            <div class="item__actions">
+              <button mat-stroked-button type="button" (click)="reschedule(appointment)">
+                {{ 'treatment.reschedule.action' | translate }}
+              </button>
+              <button mat-button type="button" (click)="cancel(appointment)">
+                {{ 'treatment.cancel.action' | translate }}
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+</ng-template>

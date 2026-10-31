@@ -1,0 +1,137 @@
+@use '../../../shared/styles/page';
+
+.appointments-page {
+  --mat-sys-primary: #4d7d3b;
+  --mat-sys-on-primary: #fff;
+  --mat-sys-primary-container: #e7f2e3;
+  --mat-sys-on-primary-container: #34463a;
+  --mat-sys-tertiary-container: #e7f2e3;
+  --mat-sys-on-tertiary-container: #34463a;
+
+  width: min(100%, 1200px);
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 12px 24px 56px;
+  min-height: 100%;
+  background: #f7f9f5;
+}
+
+.page {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 36px 0 64px;
+}
+
+.page__header {
+  margin-bottom: 22px;
+
+  .eyebrow {
+    margin-bottom: 16px;
+    color: #5d8e48;
+  }
+
+  h1 {
+    margin: 0;
+    color: #22352a;
+    font-size: clamp(34px, 5vw, 42px);
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: inherit;
+
+  }
+
+  > p:last-child {
+    margin: 8px 0 0;
+    color: #708078;
+  }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 12px;
+  color: #5d8e48;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #86b667;
+  }
+}
+
+.next {
+  margin-bottom: 24px;
+  border: 1px solid #dce9d5;
+  border-radius: 20px;
+  background: #e7f2e3;
+  color: #34463a;
+}
+
+.next__content {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 20px !important;
+}
+
+.next__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  background: #fff;
+  color: #4d7d3b;
+  box-shadow: 0 4px 12px #23352a0d;
+}
+
+.next__weekday,
+.next__month {
+  font: var(--mat-sys-label-large);
+  text-transform: uppercase;
+}
+
+.next__day {
+  font: var(--mat-sys-display-small);
+}
+
+.next__info {
+  h2 {
+    margin: 0 0 4px;
+    font: var(--mat-sys-title-medium);
+  }
+
+  p {
+    margin: 2px 0;
+  }
+}
+
+.next__when {
+  font: var(--mat-sys-title-large);
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.item__title::first-letter {
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .appointments-page {
+    padding: 28px 16px 40px;
+  }
+
+  .page {
+    padding-top: 28px;
+  }
+}
