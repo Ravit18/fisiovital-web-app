@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 describe('AuthService sign-up (US01/US02)', () => {
   let auth: AuthService;
   let http: HttpTestingController;
-  const account = { fullName: 'Ana Torres', email: 'ana@example.com', password: 'Demo2026*', phone: '943210987' };
+  const account = { fullName: 'Ana Torres', email: 'ana@example.com', password: 'Prueba123', phone: '943210987' };
 
   beforeEach(() => {
     localStorage.clear();

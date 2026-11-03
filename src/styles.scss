@@ -5,7 +5,7 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 @use './app/styles/style-guide';
-@use './app/components/landing/landing';
+@use './app/home/home';
 
 html {
   height: 100%;
@@ -617,5 +617,21 @@ body {
 
   .appointments-page .history-table {
     min-width: 620px;
+  }
+}
+
+// Skip link of the App root: hidden until it gets keyboard focus.
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  z-index: 10;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+
+  &:focus {
+    top: 8px;
   }
 }

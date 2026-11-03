@@ -26,7 +26,7 @@ La Web App no guarda datos propios: todo lo pide al backend por HTTP (JSON) y so
 ```mermaid
 flowchart LR
     subgraph WebApp["Web App (Angular, :4200)"]
-        P["Componente<br/>p. ej. components/my-appointments"]
+        P["Página<br/>p. ej. pages/patient/my-appointments"]
         S["Servicio *.api.ts<br/>p. ej. appointments.api.ts"]
         I["Interceptores<br/>auth + accept-language"]
         E[("environment.ts<br/>apiBaseUrl")]
@@ -90,12 +90,12 @@ Se lee de arriba hacia abajo. Los rombos son decisiones; cada caja indica el arc
 
 ```mermaid
 flowchart TD
-    A(["Usuario hace clic en 'Mis citas'"]) --> B["Router busca la ruta /appointments<br/>app.routes.ts"]
-    B --> C{"authGuard: ¿hay sesión?<br/>auth.guard.ts"}
+    A(["Usuario hace clic en 'Mis citas'"]) --> B["Router busca /appointments: grupo patient<br/>app.routes.ts y patient.routes.ts"]
+    B --> C{"canActivateChild del grupo<br/>authGuard: ¿hay sesión?"}
     C -- No --> C1(["Redirige a /sign-in"])
     C -- Sí --> D{"roleGuard: ¿rol PATIENT?"}
     D -- No --> D1(["Redirige a /home"])
-    D -- Sí --> E["loadComponent crea MyAppointments<br/>my-appointments.ts"]
+    D -- Sí --> E["Se crea MainLayout (barra y menú)<br/>y dentro la página MyAppointments<br/>pages/patient/my-appointments"]
     E --> F["inject(AppointmentsApi) y constructor() llama a load()"]
     F --> G["load(): loading.set(true) y llama a api.getMine(0, 100)"]
     G --> H["getMine() arma GET /api/v1/appointments/me y devuelve un Observable<br/>appointments.api.ts"]
@@ -158,7 +158,7 @@ sequenceDiagram
     alt sin sesión o rol distinto
         R-->>U: redirige a /sign-in o /home
     end
-    R->>C: loadComponent crea MyAppointments
+    R->>C: crea MainLayout y dentro MyAppointments
     C->>C: inject(AppointmentsApi) y constructor() llama a load()
     C->>S: getMine(0, 100)
     S-->>C: Observable (todavía no sale nada)
@@ -189,29 +189,39 @@ sequenceDiagram
 
 ## Estructura
 
-Una carpeta por capa, como en la Semana 10 del curso y como el backend (Semana 5). Sin subcarpetas por módulo:
+Igual que el ejemplo del curso: la landing en `home/`, un layout por grupo en `layouts/` y las pantallas en `pages/`
+agrupadas por quién las usa. Lo que no es pantalla va por capa (`components/`, `services/`, `model/`). Las reglas
+completas están en `AGENTS.md`.
 
 ```
 src/app/
-├── app.config.ts    providers globales: router, HttpClient + interceptores, i18n, animaciones
-├── app.routes.ts    rutas con loadComponent y guards
-├── components/      componentes standalone (vistas enrutables y reutilizables), uno por carpeta
-├── services/        *.api.ts (HttpClient), AuthService, guards, interceptores, stores, idioma, avisos
-├── model/           interfaces con los campos de los DTO del backend (*.entity.ts ↔ response, *.request.ts ↔ request)
-├── styles/          guía de estilo (colores y fuentes) y estilos compartidos de las páginas de listas
-└── utils/           utilidades de fechas
+├── app.ts · app.config.ts · app.routes.ts   raíz, providers globales y rutas ("/" + un grupo por layout)
+├── home/                                    landing pública en "/" (sin layout)
+├── layouts/
+│   ├── auth-layout/                         sign-in y sign-up: sin barra ni menú
+│   └── main-layout/                         barra, menú según el rol, notificaciones y pie
+├── pages/
+│   ├── auth/            auth.routes.ts            sign-in, sign-up
+│   ├── patient/         patient.routes.ts         physiotherapist-search, physiotherapist-profile, treatment-plans, my-appointments
+│   ├── physiotherapist/ physiotherapist.routes.ts publish-slots, agenda, patient-history
+│   └── common/          common.routes.ts          dashboard, notifications, assistant-chat, terms, not-found
+├── components/          piezas reutilizables: confirm-dialog, edit-plan-dialog, reschedule-dialog, slot-picker,
+│                        session-status-chip, language-switcher
+├── services/            *.api.ts (HttpClient), AuthService, guards, interceptores, stores, idioma, avisos
+├── model/               interfaces con los campos de los DTO del backend (*.entity.ts ↔ response, *.request.ts ↔ request)
+├── styles/              guía de estilo (colores y fuentes) y estilos compartidos de las páginas de listas
+└── utils/               utilidades de fechas
 ```
 
-| Módulo (US) | Componentes | Servicios |
-|---|---|---|
-| IAM (US01–03) | `sign-in`, `sign-up` | `auth.service`, `auth.guard`, `auth.interceptor` |
-| Perfiles (US04–05) | `physiotherapist-search`, `physiotherapist-profile` | `physiotherapists.api` |
-| Horarios (US06–07) | `slot-picker`, `publish-slots` | `slots.api` |
-| Tratamiento (US08–12) | `treatment-plans`, `agenda`, `edit-plan-dialog`, `reschedule-dialog` | `treatment-plans.api`, `sessions.api`, `agenda.api` |
-| Notificaciones (US13) | `notifications` | `notifications.store`, `notification.service` |
-| Citas (US14–16) | `my-appointments`, `patient-history` | `appointments.api` |
-| Asistente (US17–20) | `assistant-chat` | `assistant.api` |
-| Comunes | `layout`, `landing`, `home`, `terms`, `not-found`, `confirm-dialog`, `language-switcher`, `session-status-chip` | `language.service`, `feedback.service`, `accept-language.interceptor` |
+| Grupo (guard) | URL | Página | US |
+|---|---|---|---|
+| — | `/` | `home/` (landing) | — |
+| auth (`guestGuard`) | `/sign-in`, `/sign-up` | `sign-in`, `sign-up` | US01–US03 |
+| patient (`roleGuard('PATIENT')`) | `/physiotherapists`, `/physiotherapists/:id` | `physiotherapist-search`, `physiotherapist-profile` | US04–US06, US09–US10 |
+| | `/treatment-plans`, `/appointments` | `treatment-plans`, `my-appointments` | US09, US11–US12, US14 |
+| physiotherapist (`roleGuard('PHYSIOTHERAPIST')`) | `/availability`, `/agenda`, `/patients` | `publish-slots`, `agenda`, `patient-history` | US07, US08, US15–US16 |
+| common (`authGuard`) | `/home`, `/notifications`, `/assistant` | `dashboard`, `notifications`, `assistant-chat` | US13, US17–US20 |
+| público | `/terms`, cualquier otra | `terms`, `not-found` | — |
 
 ## Cómo se aplica la teoría del curso
 
@@ -221,27 +231,27 @@ src/app/
 |---|---|
 | Guía de estilo (colores, tipografía) | `styles/_style-guide.scss`: la paleta del mock-up de Figma como variables CSS (`--fv-color-primary`, `--fv-font-display`…). Los componentes usan `var(--fv-…)`, nunca un HEX suelto. Si cambias un valor ahí, cambia en todas las pantallas, igual que al editar el componente principal en Figma. |
 | Componentes de diseño reutilizables | `confirm-dialog`, `session-status-chip`, `slot-picker` y `language-switcher` se usan en varias vistas |
-| Anatomía de un componente: clase, template y selector | Cada carpeta de `components/`: `@Component({ selector: 'app-agenda', templateUrl, styleUrl })` y su clase `AgendaPage` |
+| Anatomía de un componente: clase, template y selector | Cada carpeta de `pages/`: `@Component({ selector: 'app-agenda', templateUrl, styleUrl })` y su clase `AgendaPage` |
 | Interpolación `{{ }}` y property binding `[ ]` | Ejemplo: `<app-session-status-chip [status]="appointment.status" />` en `my-appointments.html` |
 | Signals: `signal`, `computed`, `effect` | `signal()` para el estado de cada vista; `computed()` en `agenda.ts` (semana y citas); `effect()` en `services/language.service.ts` (al cambiar el idioma actualiza las traducciones, `<html lang>` y `localStorage`) |
-| Árbol de componentes | `app.ts` (raíz, `<app-layout />`) → `layout` (barra y `<router-outlet />`) → la vista de cada ruta → hijos como `session-status-chip` |
+| Árbol de componentes | `app.ts` (raíz, `<router-outlet />`) → layout del grupo (`main-layout`: barra, menú y otro `<router-outlet />`) → la página de la ruta → hijos como `session-status-chip` |
 | Servicios con `inject()` | `services/`: lógica y datos compartidos entre componentes |
-| Enrutamiento | `app.routes.ts`: cada URL con su componente (`loadComponent`) y sus guards |
+| Enrutamiento | `app.routes.ts`: `/` carga `home/` (landing) y cada grupo carga su layout y su `*.routes.ts` con `loadChildren`; los guards van por grupo (`canActivateChild`) |
 
 ### Semana 10: arquitectura frontend y consumo de APIs
 
 | Tema | Dónde |
 |---|---|
-| Componentes standalone con `imports` e `inject()` | Todos los de `components/` (las dependencias van con `inject()`, no por constructor) |
+| Componentes standalone con `imports` e `inject()` | Todas las páginas de `pages/` y las piezas de `components/` (las dependencias van con `inject()`, no por constructor) |
 | Servicio con `HttpClient` que devuelve `Observable<T>` | `services/*.api.ts` |
 | Formularios reactivos (`FormGroup`, `FormControl`, `Validators`) | `sign-in`, `sign-up`, `publish-slots`, `edit-plan-dialog`, `physiotherapist-profile` |
 | Manejo de errores (`HttpErrorResponse`, mensaje según el código) | `model/api-error.ts` (`apiErrorMessage`) y el callback `error` de cada componente; `catchError` en `auth.interceptor.ts` |
 | JWT: interceptor, `localStorage` y guards | `auth.interceptor.ts`, `auth.service.ts` (guarda la sesión), `auth.guard.ts` |
-| Diseño responsive | `@media` en los `.scss` de `landing`, `home`, `agenda` y en `styles/_page.scss` |
+| Diseño responsive | `@media` en los `.scss` de `home` (landing), `dashboard`, `agenda` y en `styles/_page.scss` |
 
 ### Semana 11: guion para la sustentación (máx. 12 min, todos intervienen)
 
-1. **Ricardo (base):** estructura por capas, `app.config.ts`, `app.routes.ts`, guía de estilo, `signal`/`computed`/`effect`,
+1. **Ricardo (base):** estructura (`home/`, `layouts/`, `pages/` por grupo), `app.config.ts`, `app.routes.ts`, guía de estilo, `signal`/`computed`/`effect`,
    flujo JWT (login → token → interceptor → guards), i18n y Landing.
 2. **Chris (US13–US16):** `my-appointments`, `patient-history` y `notifications`. Explica un servicio `*.api.ts` con
    `HttpClient` y cómo se muestra el `message` de error del backend.
@@ -292,7 +302,7 @@ El backend arranca sin datos. Para crear estas cuentas con sus horarios, planes 
 powershell -ExecutionPolicy Bypass -File scripts\seed-demo.ps1
 ```
 
-Todas usan la contraseña **`Demo2026*`**. Son datos ficticios solo para desarrollo local (correos `@example.com`).
+La contraseña de estas cuentas está en ese script del backend. Son datos ficticios solo para desarrollo local (correos `@example.com`).
 
 | Rol | Correo | Qué vas a ver |
 |---|---|---|
