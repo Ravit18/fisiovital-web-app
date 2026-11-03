@@ -1,0 +1,150 @@
+@if (auth.currentUser(); as user) {
+  <section class="agenda-page" aria-labelledby="agenda-title">
+    <header class="dashboard-header">
+      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
+        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.physio.panelNav' | translate }}</a>
+        <a
+          class="dashboard-nav__link dashboard-nav__link--active"
+          routerLink="/agenda"
+          aria-current="page"
+        >
+          {{ 'home.physio.agendaNav' | translate }}
+        </a>
+        <a class="dashboard-nav__link" routerLink="/availability">
+          {{ 'home.physio.availabilityNav' | translate }}
+        </a>
+        <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+      </nav>
+      <div class="dashboard-actions">
+        <a
+          class="notification-indicator"
+          routerLink="/notifications"
+          [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
+        >
+          <mat-icon aria-hidden="true">notifications</mat-icon>
+          @if (notifications.unreadCount() > 0) {
+            <span class="notification-indicator__count" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+          }
+        </a>
+        <div class="profile">
+          <button
+            class="profile__avatar"
+            type="button"
+            (click)="profileMenuOpen.update((open) => !open)"
+            [attr.aria-label]="'home.profileMenu' | translate: { name: user.fullName }"
+            [attr.aria-expanded]="profileMenuOpen()"
+          >
+            {{ initials(user.fullName) }}
+          </button>
+          @if (profileMenuOpen()) {
+            <button class="profile__sign-out" type="button" (click)="signOut()">
+              {{ 'layout.signOut' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    <div class="agenda-content">
+      <header class="page__header">
+        <p class="agenda-eyebrow physio-eyebrow">
+          <span aria-hidden="true"></span>{{ 'agenda.eyebrow' | translate }}
+        </p>
+        <h1 id="agenda-title">{{ 'agenda.title' | translate }}</h1>
+        <p>{{ 'agenda.subtitle' | translate }}</p>
+      </header>
+
+      <section class="week" [attr.aria-label]="'agenda.weekNavigation' | translate">
+        <header class="week__controls">
+          <div class="week__navigation">
+            <button mat-icon-button type="button" (click)="moveWeek(-1)" [attr.aria-label]="'agenda.previousWeek' | translate">
+              <mat-icon aria-hidden="true">chevron_left</mat-icon>
+            </button>
+            <span class="week__range" aria-live="polite">
+              {{ week()[0] | date: 'd MMM' : undefined : language.current() }} –
+              {{ week()[6] | date: 'd MMM y' : undefined : language.current() }}
+            </span>
+            <button mat-icon-button type="button" (click)="moveWeek(1)" [attr.aria-label]="'agenda.nextWeek' | translate">
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </div>
+          <div class="week__summary">
+            <span>{{ 'agenda.weekSummary' | translate: { booked: booked().length, free: freeCount() } }}</span>
+            <mat-slide-toggle [checked]="showFree()" (change)="showFree.set($event.checked)">
+              {{ 'agenda.showFree' | translate }}
+            </mat-slide-toggle>
+            <button mat-stroked-button type="button" class="week__today" (click)="goToday()">
+              {{ 'agenda.today' | translate }}
+            </button>
+          </div>
+        </header>
+
+        @if (loading()) {
+          <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+        } @else if (loadFailed()) {
+          <div class="state" role="alert">
+            <mat-icon aria-hidden="true">cloud_off</mat-icon>
+            <p>{{ errorMessage() ?? ('errors.load' | translate) }}</p>
+            <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+          </div>
+        } @else {
+          <div class="week-board">
+            @for (day of week(); track isoDate(day)) {
+              <section
+                class="week-day"
+                [class.week-day--today]="isoDate(day) === today"
+                [attr.aria-label]="day | date: 'fullDate' : undefined : language.current()"
+              >
+                <header class="week-day__header">
+                  <span class="week-day__weekday">{{ day | date: 'EEE' : undefined : language.current() }}</span>
+                  <span class="week-day__number">{{ day | date: 'd' : undefined : language.current() }}</span>
+                  <span class="week-day__counts">
+                    {{ 'agenda.daySummary' | translate: { booked: dayBooked(day), free: dayFree(day) } }}
+                  </span>
+                </header>
+
+                @if (dayItems(day).length === 0) {
+                  <p class="week-day__empty">
+                    {{ (showFree() ? 'agenda.empty' : 'agenda.emptyBooked') | translate }}
+                  </p>
+                } @else {
+                  <ul class="week-day__list">
+                    @for (item of dayItems(day); track item.slotId) {
+                      <li
+                        class="week-slot"
+                        [class.week-slot--free]="item.status === 'FREE'"
+                        [class.week-slot--cancelled]="item.status === 'FREE_CANCELLED'"
+                      >
+                        <time class="week-slot__time" [attr.datetime]="item.startTime">
+                          {{ item.startTime | date: 'shortTime' : undefined : language.current() }} –
+                          {{ item.endTime | date: 'shortTime' : undefined : language.current() }}
+                        </time>
+                        @if (item.status === 'BOOKED') {
+                          <strong class="week-slot__patient">{{ item.patientName }}</strong>
+                          <span class="week-slot__session">
+                            {{ 'appointments.session' | translate: { number: item.sessionNumber, total: item.totalSessions } }}
+                          </span>
+                          @if (item.sessionStatus) {
+                            <app-session-status-chip [status]="item.sessionStatus" />
+                          }
+                        } @else if (item.status === 'FREE_CANCELLED') {
+                          <span class="week-slot__label">{{ 'agenda.freeCancelled' | translate }}</span>
+                        } @else {
+                          <span class="week-slot__label">{{ 'agenda.free' | translate }}</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </section>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </section>
+}
