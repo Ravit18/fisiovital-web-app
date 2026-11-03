@@ -1,0 +1,34 @@
+// Style guide (Semana 9): the colors and fonts of the Figma mock-ups in one place.
+// Components use these variables (`var(--fv-color-primary)`) instead of HEX values, so changing a value here
+// updates every screen, like editing the main component in Figma updates all its instances.
+:root {
+  // Brand
+  --fv-color-primary: #4d7d3b;
+  --fv-color-primary-dark: #355e2a;
+  --fv-color-primary-focus: #598d45;
+  --fv-color-primary-soft: #e7f2e3;
+  --fv-color-primary-softer: #edf5e9;
+  --fv-color-accent: #86b667;
+  --fv-color-forest: #22352a;
+
+  // Text
+  --fv-color-text: #34463a;
+  --fv-color-text-strong: #26372d;
+  --fv-color-text-muted: #708078;
+
+  // Surfaces and borders
+  --fv-color-surface: #fff;
+  --fv-color-background: #f7f9f5;
+  --fv-color-background-soft: #f7faf5;
+  --fv-color-border: #edf1eb;
+  --fv-color-border-strong: #cbdcc3;
+
+  // States
+  --fv-color-error: #9d2e25;
+  --fv-color-error-soft: #fde9e7;
+  --fv-color-error-border: #b3261e;
+
+  // Typography (Material uses Roboto for body text)
+  --fv-font-display: Georgia, 'Times New Roman', serif;
+  --fv-font-sans: Arial, Helvetica, sans-serif;
+}

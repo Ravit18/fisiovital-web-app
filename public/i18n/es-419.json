@@ -26,10 +26,6 @@
     "availability": "Publicar horarios",
     "patients": "Historial de pacientes"
   },
-  "roles": {
-    "PATIENT": "Paciente",
-    "PHYSIOTHERAPIST": "Fisioterapeuta"
-  },
   "specialties": {
     "DEPORTIVA": "Fisioterapia deportiva",
     "COLUMNA_POSTURA": "Columna y postura",
@@ -64,7 +60,6 @@
     },
     "signUp": {
       "title": "Crear cuenta",
-      "subtitle": "Regístrate para comenzar tu recuperación con FisioVital",
       "accountType": "Tipo de cuenta",
       "patient": "Paciente",
       "physiotherapist": "Fisioterapeuta",
@@ -167,21 +162,7 @@
     },
     "footer": {
       "tagline": "Movimiento con propósito.",
-      "rights": "Todos los derechos reservados.",
-      "noAccount": "¿No tienes cuenta? Regístrate"
-    },
-    "signUp": {
-      "title": "Crear cuenta",
-      "subtitle": "Regístrate como paciente o como fisioterapeuta",
-      "accountType": "Tipo de cuenta",
-      "fullName": "Nombre completo",
-      "phone": "Teléfono (9 dígitos)",
-      "licenseNumber": "N.º de colegiatura",
-      "specialty": "Especialidad",
-      "yearsOfExperience": "Años de experiencia",
-      "description": "Descripción profesional (opcional)",
-      "submit": "Crear cuenta",
-      "haveAccount": "¿Ya tienes cuenta? Inicia sesión"
+      "rights": "Todos los derechos reservados."
     }
   },
   "home": {
@@ -190,7 +171,6 @@
     "navSpecialists": "Especialistas",
     "navSessions": "Mis sesiones",
     "navHistory": "Historial",
-    "navComingSoon": "Esta sección estará disponible próximamente",
     "notificationsCount": "Notificaciones sin leer: {{count}}",
     "profileMenu": "Opciones de cuenta para {{name}}",
     "welcome": "Hola, {{name}}",
@@ -214,10 +194,6 @@
     "noNotifications": "No tienes notificaciones por ahora.",
     "upcomingDetailsTitle": "Detalles de la sesión",
     "assistantButton": "Asistente FisioVital",
-    "comingSoon": "El panel para fisioterapeutas estará disponible en una siguiente etapa.",
-    "open": "Abrir",
-    "patientShortcut": "Revisa tus próximas sesiones y el historial de tu tratamiento.",
-    "physioShortcut": "Mira las sesiones de cada día y tus horarios libres.",
     "physio": {
       "eyebrow": "AGENDA DIARIA",
       "panelNav": "Panel",
@@ -420,14 +396,12 @@
     "eyebrow": "MANTENTE AL DÍA",
     "titlePrefix": "Tus",
     "titleAccent": "notificaciones",
-    "subtitle": "Recordatorios 24 horas antes de cada sesión y cambios en tus citas.",
     "empty": "No tienes notificaciones.",
     "emptyUnread": "No tienes notificaciones sin leer.",
     "filters": "Filtrar notificaciones",
     "all": "Todas",
     "unread": "No leídas",
     "markRead": "Marcar como leída",
-    "read": "Leída",
     "types": {
       "SESSION_REMINDER": "Recordatorio de sesión",
       "SESSION_RESCHEDULED": "Sesión reprogramada",
@@ -460,8 +434,6 @@
     "passwordMismatch": "Las contraseñas no coinciden",
     "licenseNumber": "Ingresa tu número de colegiatura (máximo 10 caracteres)",
     "yearsOfExperience": "Ingresa un número entero entre 0 y 60",
-    "passwordHint": "Mínimo 8 caracteres, con una mayúscula y un número",
-    "phone": "Ingresa 9 dígitos",
     "years": "Ingresa un número entre 0 y 60",
     "sessions": "Ingresa un número entre 1 y 30",
     "frequency": "Ingresa un número entre 1 y 7",

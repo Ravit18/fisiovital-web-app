@@ -4,7 +4,8 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
-@use './app/shared/pages/landing/landing';
+@use './app/styles/style-guide';
+@use './app/home/home';
 
 html {
   height: 100%;
@@ -41,22 +42,22 @@ body {
 /* You can add global styles to this file, and also import other style files */
 
 .fisiovital-snackbar {
-  --mat-snack-bar-container-color: #f7faf5;
-  --mat-snack-bar-button-color: #355e2a;
-  --mat-snack-bar-supporting-text-color: #26382d;
+  --mat-snack-bar-container-color: var(--fv-color-background-soft);
+  --mat-snack-bar-button-color: var(--fv-color-primary-dark);
+  --mat-snack-bar-supporting-text-color: var(--fv-color-text-strong);
 
   .mat-mdc-snackbar-surface,
   .mdc-snackbar__surface {
-    border: 1px solid #cbdcc3;
+    border: 1px solid var(--fv-color-border-strong);
     border-radius: 14px;
-    background-color: #f7faf5 !important;
+    background-color: var(--fv-color-background-soft) !important;
     box-shadow: 0 8px 24px #23352a20;
   }
 }
 
 .fisiovital-snackbar--error {
   --mat-snack-bar-container-color: #fff8f7;
-  --mat-snack-bar-button-color: #9d2e25;
+  --mat-snack-bar-button-color: var(--fv-color-error);
   --mat-snack-bar-supporting-text-color: #69251f;
 
   .mat-mdc-snackbar-surface,
@@ -76,9 +77,9 @@ body {
   gap: 20px;
   border-radius: 999px;
   padding: 7px 14px 7px 20px;
-  background: #22352a;
+  background: var(--fv-color-forest);
   box-shadow: 0 10px 28px #23352a24;
-  color: #fff;
+  color: var(--fv-color-surface);
 }
 
 .home.home--physio {
@@ -104,7 +105,7 @@ body {
   margin: 0 0 16px;
   padding: 11px 14px;
   background: #eaf3e5;
-  color: #4d7d3b;
+  color: var(--fv-color-primary);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -114,7 +115,7 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #86b667;
+    background: var(--fv-color-accent);
   }
 }
 
@@ -159,11 +160,11 @@ body {
     font: inherit;
 
     &:hover {
-      color: #355e2a;
+      color: var(--fv-color-primary-dark);
     }
 
     &:focus-visible {
-      outline: 2px solid #598d45;
+      outline: 2px solid var(--fv-color-primary-focus);
       outline-offset: 2px;
     }
   }
@@ -183,18 +184,18 @@ body {
   justify-content: center;
   border-radius: 999px;
   padding: 0 22px;
-  background: #22352a;
-  color: #fff;
+  background: var(--fv-color-forest);
+  color: var(--fv-color-surface);
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
 
   &:hover {
-    background: #355e2a;
+    background: var(--fv-color-primary-dark);
   }
 
   &:focus-visible {
-    outline: 2px solid #598d45;
+    outline: 2px solid var(--fv-color-primary-focus);
     outline-offset: 3px;
   }
 }
@@ -218,21 +219,21 @@ body {
   min-height: 72px;
   align-items: center;
   gap: 16px;
-  border: 1px solid #edf1eb;
+  border: 1px solid var(--fv-color-border);
   border-radius: 22px;
   padding: 14px 18px;
-  background: #fff;
+  background: var(--fv-color-surface);
   box-shadow: 0 10px 26px #23352a0d;
 
   &--cancelled {
     border: 2px dashed #9fc394;
-    background: #f7faf5;
+    background: var(--fv-color-background-soft);
   }
 }
 
 .agenda-slot__time {
   min-width: 48px;
-  color: #34463a;
+  color: var(--fv-color-text);
   font-size: 14px;
   font-weight: 700;
 }
@@ -245,12 +246,12 @@ body {
 
   strong {
     overflow-wrap: anywhere;
-    color: #34463a;
+    color: var(--fv-color-text);
     font-size: 14px;
   }
 
   span {
-    color: #708078;
+    color: var(--fv-color-text-muted);
     font-size: 13px;
   }
 }
@@ -259,8 +260,8 @@ body {
   flex: 0 0 auto;
   border-radius: 999px;
   padding: 5px 11px;
-  background: #e7f2e3;
-  color: #4d7d3b;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary);
   font-size: 11px;
 
   &--cancelled {
@@ -278,8 +279,8 @@ body {
   border: 2px dashed #9fc394;
   border-radius: 20px;
   padding: 16px;
-  background: #f7faf5;
-  color: #34463a;
+  background: var(--fv-color-background-soft);
+  color: var(--fv-color-text);
   text-align: center;
 
   strong {
@@ -290,8 +291,8 @@ body {
 .agenda-empty__status {
   border-radius: 999px;
   padding: 5px 11px;
-  background: #e7f2e3;
-  color: #4d7d3b;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary);
   font-size: 11px;
 }
 
@@ -301,7 +302,7 @@ body {
     justify-content: space-between;
     gap: 12px;
     margin: 0;
-    color: #708078;
+    color: var(--fv-color-text-muted);
     font-size: 13px;
 
     & + p {
@@ -309,7 +310,7 @@ body {
     }
 
     strong {
-      color: #34463a;
+      color: var(--fv-color-text);
     }
   }
 }
@@ -319,7 +320,7 @@ body {
   min-width: 180px;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: var(--fv-color-surface);
   font-size: 17px;
   font-weight: 700;
   text-decoration: none;
@@ -351,7 +352,7 @@ body {
   white-space: nowrap;
 
   &--active {
-    color: #fff;
+    color: var(--fv-color-surface);
     font-weight: 700;
 
     &::after {
@@ -361,7 +362,7 @@ body {
       left: 0;
       height: 2px;
       border-radius: 2px;
-      background: #88b568;
+      background: var(--fv-color-accent);
       content: '';
     }
   }
@@ -381,17 +382,17 @@ body {
 
 .appointments-page .history-table-wrap {
   overflow-x: auto;
-  border: 1px solid #edf1eb;
+  border: 1px solid var(--fv-color-border);
   border-radius: 20px;
   padding: 8px 20px;
-  background: #fff;
+  background: var(--fv-color-surface);
   box-shadow: 0 12px 32px #23352a0d;
 }
 
 .appointments-page .history-table {
   width: 100%;
   border-collapse: collapse;
-  color: #34463a;
+  color: var(--fv-color-text);
   font-size: 14px;
   text-align: left;
 
@@ -402,7 +403,7 @@ body {
   }
 
   th {
-    color: #708078;
+    color: var(--fv-color-text-muted);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -417,8 +418,8 @@ body {
   display: inline-flex;
   border-radius: 999px;
   padding: 4px 11px;
-  background: #e7f2e3;
-  color: #4d7d3b;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -429,8 +430,8 @@ body {
 }
 
 .appointments-page .history-status--cancelled {
-  background: #fde9e7;
-  color: #9d2e25;
+  background: var(--fv-color-error-soft);
+  color: var(--fv-color-error);
 }
 
 .appointments-page .history-state {
@@ -452,32 +453,32 @@ body {
 }
 
 .appointments-page .history-state h2 {
-  color: #34463a;
+  color: var(--fv-color-text);
   font-size: 18px;
 }
 
 .appointments-page .history-state > p:not(.history-state__badge) {
-  color: #708078;
+  color: var(--fv-color-text-muted);
 }
 
 .appointments-page .history-state__badge {
   border-radius: 999px;
   padding: 5px 12px;
-  background: #e7f2e3;
-  color: #4d7d3b;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary);
   font-size: 12px;
 }
 
 .appointments-page .history-state--error .history-state__badge {
-  background: #fde9e7;
-  color: #9d2e25;
+  background: var(--fv-color-error-soft);
+  color: var(--fv-color-error);
 }
 
 .appointments-page .history-state--empty a {
   margin-top: 4px;
   border-radius: 999px;
-  background: #86b667 !important;
-  color: #203229 !important;
+  background: var(--fv-color-accent) !important;
+  color: var(--fv-color-forest) !important;
 }
 
 .notification-indicator {
@@ -487,7 +488,7 @@ body {
   height: 32px;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--fv-color-surface);
   text-decoration: none;
 
   mat-icon {
@@ -507,8 +508,8 @@ body {
   place-items: center;
   border-radius: 50%;
   padding: 0 3px;
-  background: #88b568;
-  color: #22352a;
+  background: var(--fv-color-accent);
+  color: var(--fv-color-forest);
   font-size: 10px;
   font-weight: 700;
 }
@@ -525,14 +526,14 @@ body {
   border: 1px solid #cce0c1;
   border-radius: 50%;
   background: #b9d0ae;
-  color: #34463a;
+  color: var(--fv-color-text);
   cursor: pointer;
   font: inherit;
   font-size: 11px;
   font-weight: 700;
 
   &:focus-visible {
-    outline: 2px solid #fff;
+    outline: 2px solid var(--fv-color-surface);
     outline-offset: 3px;
   }
 }
@@ -543,12 +544,12 @@ body {
   top: calc(100% + 10px);
   right: 0;
   min-width: 140px;
-  border: 1px solid #edf1eb;
+  border: 1px solid var(--fv-color-border);
   border-radius: 12px;
   padding: 10px 14px;
-  background: #fff;
+  background: var(--fv-color-surface);
   box-shadow: 0 8px 20px #23352a20;
-  color: #34463a;
+  color: var(--fv-color-text);
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -616,5 +617,21 @@ body {
 
   .appointments-page .history-table {
     min-width: 620px;
+  }
+}
+
+// Skip link of the App root: hidden until it gets keyboard focus.
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  z-index: 10;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+
+  &:focus {
+    top: 8px;
   }
 }
