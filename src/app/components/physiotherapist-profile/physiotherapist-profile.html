@@ -1,0 +1,170 @@
+@if (auth.currentUser(); as user) {
+  <section class="profile-page">
+    <header class="dashboard-header">
+      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
+        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
+        <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/physiotherapists" aria-current="page">
+          {{ 'home.navSpecialists' | translate }}
+        </a>
+        <a class="dashboard-nav__link" routerLink="/appointments">
+          {{ 'home.navSessions' | translate }}
+        </a>
+        <a
+          class="dashboard-nav__link"
+          routerLink="/appointments"
+          [queryParams]="{ view: 'history' }"
+        >
+          {{ 'home.navHistory' | translate }}
+        </a>
+      </nav>
+      <div class="dashboard-actions">
+        <a
+          class="notification-indicator"
+          routerLink="/notifications"
+          [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
+        >
+          <mat-icon aria-hidden="true">notifications</mat-icon>
+          @if (notifications.unreadCount() > 0) {
+            <span class="notification-indicator__count" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+          }
+        </a>
+        <div class="profile">
+          <button
+            class="profile__avatar"
+            type="button"
+            (click)="profileMenuOpen.update((open) => !open)"
+            [attr.aria-label]="'home.profileMenu' | translate: { name: user.fullName }"
+            [attr.aria-expanded]="profileMenuOpen()"
+          >
+            {{ initials(user.fullName) }}
+          </button>
+          @if (profileMenuOpen()) {
+            <button class="profile__sign-out" type="button" (click)="signOut()">
+              {{ 'layout.signOut' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    @if (loadError()) {
+      <div class="profile-error" role="alert">
+        <p>{{ loadError() }}</p>
+        <a mat-button routerLink="/physiotherapists">{{ 'profiles.search.back' | translate }}</a>
+      </div>
+    } @else if (physio(); as physio) {
+      <div class="profile-layout">
+        <section class="profile-card" aria-labelledby="profile-title">
+          <a class="back-link" mat-button routerLink="/physiotherapists">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'profiles.search.back' | translate }}
+          </a>
+          <div class="profile-avatar" aria-hidden="true">{{ initials(physio.fullName) }}</div>
+          <h1 id="profile-title">{{ physio.fullName }}</h1>
+          <span class="specialty-badge">{{ 'specialties.' + physio.specialty | translate }}</span>
+          <p class="profile-experience">
+            {{ 'profiles.years' | translate: { years: physio.yearsOfExperience } }}
+          </p>
+          <p class="profile-license">
+            {{ 'profiles.license' | translate: { license: physio.licenseNumber } }}
+          </p>
+          @if (physio.description) {
+            <p class="profile-description">{{ physio.description }}</p>
+          }
+
+          <div class="plan-section">
+            <h2>{{ 'profiles.plan.title' | translate }}</h2>
+            @if (planLoading()) {
+              <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+            } @else if (plan(); as plan) {
+              <div class="plan-summary">
+                <p class="plan-summary__diagnosis">{{ plan.diagnosis }}</p>
+                <p>
+                  {{ 'treatment.plan.progress' | translate: { booked: plan.bookedSessions, total: plan.totalSessions } }}
+                </p>
+                <p>{{ 'treatment.plan.frequency' | translate: { count: plan.frequencyPerWeek } }}</p>
+                @if (remaining() > 0) {
+                  <p class="plan-note">{{ 'profiles.plan.pickSlot' | translate }}</p>
+                } @else {
+                  <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
+                }
+              </div>
+            } @else {
+              <p class="plan-intro">{{ 'profiles.plan.none' | translate }}</p>
+              <form class="plan-form" [formGroup]="planForm" (ngSubmit)="createPlan()" novalidate>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'treatment.plan.diagnosis' | translate }}</mat-label>
+                  <input matInput formControlName="diagnosis" required />
+                  @if (planForm.controls.diagnosis.invalid && planForm.controls.diagnosis.touched) {
+                    <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                  }
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'treatment.plan.totalSessions' | translate }}</mat-label>
+                  <input matInput type="number" min="1" max="30" formControlName="totalSessions" required />
+                  @if (planForm.controls.totalSessions.invalid && planForm.controls.totalSessions.touched) {
+                    <mat-error>{{ 'validation.sessions' | translate }}</mat-error>
+                  }
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'treatment.plan.frequencyPerWeek' | translate }}</mat-label>
+                  <input matInput type="number" min="1" max="7" formControlName="frequencyPerWeek" required />
+                  @if (planForm.controls.frequencyPerWeek.invalid && planForm.controls.frequencyPerWeek.touched) {
+                    <mat-error>{{ 'validation.frequency' | translate }}</mat-error>
+                  }
+                </mat-form-field>
+                <button mat-flat-button type="submit" [disabled]="saving()">
+                  {{ 'treatment.plan.create' | translate }}
+                </button>
+              </form>
+            }
+          </div>
+        </section>
+
+        <section class="availability-card" aria-labelledby="availability-title">
+          <div class="availability-heading">
+            <h2 id="availability-title">{{ 'profiles.availability' | translate }}</h2>
+            @if (remaining() === 0 && plan()) {
+              <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
+            }
+          </div>
+          @if (saving()) {
+            <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+          }
+          <app-slot-picker
+            [physiotherapistId]="physio.id"
+            [selectable]="!planLoading() && remaining() > 0"
+            [busy]="saving()"
+            [selectedSlotId]="selectedSlot()?.id ?? null"
+            (picked)="selectedSlot.set($event)"
+          />
+          @if (selectedSlot(); as slot) {
+            <div class="booking-bar">
+              <p>
+                {{ 'profiles.plan.selectedSlot' | translate: {
+                  day: (slot.startTime | date: 'fullDate' : undefined : language.current()),
+                  time: (slot.startTime | date: 'shortTime' : undefined : language.current())
+                } }}
+              </p>
+              <button mat-flat-button type="button" [disabled]="saving() || remaining() === 0" (click)="book(slot)">
+                {{ 'profiles.plan.reserveSession' | translate }}
+              </button>
+            </div>
+          }
+        </section>
+      </div>
+    } @else {
+      <div class="profile-loading">
+        <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+      </div>
+    }
+
+    <a class="assistant-button" routerLink="/assistant">
+      <mat-icon aria-hidden="true">smart_toy</mat-icon>
+      {{ 'home.assistantButton' | translate }}
+    </a>
+  </section>
+}
