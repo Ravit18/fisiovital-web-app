@@ -13,13 +13,15 @@ Web App en Angular de FisioVital (curso 1ACC0236, UPC). Consume la API REST `fis
 - Un cambio está terminado solo si `npm test` y `npm run build` pasan.
 
 ## 3. Arquitectura (obligatoria)
-- Carpetas por bounded context, igual que el backend: `iam`, `profiles`, `scheduling`, `treatment`,
-  `notifications`, `appointments`, `assistant`, `shared`. Dentro de cada uno: `model/`, `services/`,
-  `components/`, `pages/`.
+- Una carpeta por capa (Semana 10), igual que el backend: `src/app/components/` (componentes standalone,
+  uno por carpeta), `services/` (`*.api.ts`, guards, interceptores, stores), `model/` (interfaces), `styles/` y
+  `utils/`. Sin subcarpetas por módulo.
+- **Guía de estilo:** colores y fuentes solo con las variables de `src/app/styles/_style-guide.scss`
+  (`var(--fv-color-primary)`); no escribir HEX sueltos en los componentes.
 - Componentes **standalone** sin sufijo (`sign-in.ts`, clase `SignIn`), `inject()`, signals y control flow
   `@if` / `@for`. Rutas con `loadComponent` en `app.routes.ts`; providers globales en `app.config.ts`.
 - **Consumo de APIs:** solo los archivos `*.api.ts` usan `HttpClient`. Los componentes nunca arman URLs.
-- **Seguridad JWT:** el token lo agrega `iam/services/auth.interceptor.ts` (nunca a mano en un servicio);
+- **Seguridad JWT:** el token lo agrega `services/auth.interceptor.ts` (nunca a mano en un servicio);
   ante un 401 cierra la sesión. Las rutas privadas se protegen con `authGuard` y `roleGuard` (`auth.guard.ts`).
 - **Formularios:** siempre reactivos (`FormBuilder`), con `[formGroup]` en el `<form>` y validadores que
   repitan las reglas del backend. Mostrar cada error con `<mat-error>`.

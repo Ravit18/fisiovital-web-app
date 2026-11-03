@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Layout } from './shared/components/layout/layout';
+import { Layout } from './components/layout/layout';
 
 @Component({
   imports: [Layout],
