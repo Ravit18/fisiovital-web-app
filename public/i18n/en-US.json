@@ -26,10 +26,6 @@
     "availability": "Publish slots",
     "patients": "Patient history"
   },
-  "roles": {
-    "PATIENT": "Patient",
-    "PHYSIOTHERAPIST": "Physiotherapist"
-  },
   "specialties": {
     "DEPORTIVA": "Sports physiotherapy",
     "COLUMNA_POSTURA": "Spine and posture",
@@ -64,7 +60,6 @@
     },
     "signUp": {
       "title": "Create account",
-      "subtitle": "Sign up to begin your recovery with FisioVital",
       "accountType": "Account type",
       "patient": "Patient",
       "physiotherapist": "Physiotherapist",
@@ -167,21 +162,7 @@
     },
     "footer": {
       "tagline": "Movement with purpose.",
-      "rights": "All rights reserved.",
-      "noAccount": "No account yet? Sign up"
-    },
-    "signUp": {
-      "title": "Create account",
-      "subtitle": "Sign up as a patient or as a physiotherapist",
-      "accountType": "Account type",
-      "fullName": "Full name",
-      "phone": "Phone (9 digits)",
-      "licenseNumber": "License number",
-      "specialty": "Specialty",
-      "yearsOfExperience": "Years of experience",
-      "description": "Professional description (optional)",
-      "submit": "Create account",
-      "haveAccount": "Already have an account? Sign in"
+      "rights": "All rights reserved."
     }
   },
   "home": {
@@ -190,7 +171,6 @@
     "navSpecialists": "Specialists",
     "navSessions": "My sessions",
     "navHistory": "History",
-    "navComingSoon": "This section will be available soon",
     "notificationsCount": "Unread notifications: {{count}}",
     "profileMenu": "Account options for {{name}}",
     "welcome": "Hi, {{name}}",
@@ -214,10 +194,6 @@
     "noNotifications": "You don't have any notifications right now.",
     "upcomingDetailsTitle": "Session details",
     "assistantButton": "FisioVital Assistant",
-    "comingSoon": "The physiotherapist dashboard will be available in a future release.",
-    "open": "Open",
-    "patientShortcut": "Check your upcoming sessions and your treatment history.",
-    "physioShortcut": "See each day's sessions and your free slots.",
     "physio": {
       "eyebrow": "DAILY AGENDA",
       "panelNav": "Dashboard",
@@ -420,14 +396,12 @@
     "eyebrow": "STAY UP TO DATE",
     "titlePrefix": "Your",
     "titleAccent": "notifications",
-    "subtitle": "Reminders 24 hours before each session and changes to your appointments.",
     "empty": "You have no notifications.",
     "emptyUnread": "You have no unread notifications.",
     "filters": "Filter notifications",
     "all": "All",
     "unread": "Unread",
     "markRead": "Mark as read",
-    "read": "Read",
     "types": {
       "SESSION_REMINDER": "Session reminder",
       "SESSION_RESCHEDULED": "Session rescheduled",
@@ -460,8 +434,6 @@
     "passwordMismatch": "Passwords do not match",
     "licenseNumber": "Enter your professional license number (10 characters maximum)",
     "yearsOfExperience": "Enter a whole number between 0 and 60",
-    "passwordHint": "At least 8 characters, with an uppercase letter and a number",
-    "phone": "Enter 9 digits",
     "years": "Enter a number from 0 to 60",
     "sessions": "Enter a number from 1 to 30",
     "frequency": "Enter a number from 1 to 7",

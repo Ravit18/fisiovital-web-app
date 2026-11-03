@@ -14,11 +14,11 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('offers a skip link to the main content', async () => {
+  it('offers a skip link to the main content and an outlet for the layouts', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.skip-link')?.getAttribute('href')).toBe('#main-content');
-    expect(compiled.querySelector('main#main-content')).toBeTruthy();
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

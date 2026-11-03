@@ -1,86 +1,41 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard, roleGuard } from './iam/services/auth.guard';
+import { authGuard, guestGuard, roleGuard } from './services/auth.guard';
 
-const patient = [authGuard, roleGuard('PATIENT')];
-const physiotherapist = [authGuard, roleGuard('PHYSIOTHERAPIST')];
-
+// "/" loads the landing; every other page belongs to a group that shares a layout.
+// A group with path '' keeps the URLs short (/sign-in, /agenda); the router tries each group in order.
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./shared/pages/landing/landing').then((m) => m.Landing),
+    loadComponent: () => import('./home/home').then((m) => m.Home),
   },
   {
-    path: 'sign-in',
-    canActivate: [guestGuard],
-    loadComponent: () => import('./iam/pages/sign-in/sign-in').then((m) => m.SignIn),
+    path: '',
+    loadComponent: () => import('./layouts/auth-layout/auth-layout').then((m) => m.AuthLayout),
+    canActivateChild: [guestGuard],
+    loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
-    path: 'sign-up',
-    canActivate: [guestGuard],
-    loadComponent: () => import('./iam/pages/sign-up/sign-up').then((m) => m.SignUp),
+    path: '',
+    loadComponent: () => import('./layouts/main-layout/main-layout').then((m) => m.MainLayout),
+    children: [
+      {
+        path: '',
+        canActivateChild: [authGuard, roleGuard('PATIENT')],
+        loadChildren: () => import('./pages/patient/patient.routes').then((m) => m.patientRoutes),
+      },
+      {
+        path: '',
+        canActivateChild: [authGuard, roleGuard('PHYSIOTHERAPIST')],
+        loadChildren: () => import('./pages/physiotherapist/physiotherapist.routes').then((m) => m.physiotherapistRoutes),
+      },
+      {
+        path: '',
+        canActivateChild: [authGuard],
+        loadChildren: () => import('./pages/common/common.routes').then((m) => m.commonRoutes),
+      },
+      { path: 'terms', loadComponent: () => import('./pages/common/terms/terms').then((m) => m.Terms) },
+      { path: '**', loadComponent: () => import('./pages/common/not-found/not-found').then((m) => m.NotFound) },
+    ],
   },
-  {
-    path: 'home',
-    canActivate: [authGuard],
-    loadComponent: () => import('./shared/pages/home/home').then((m) => m.Home),
-  },
-
-  // Patient: profiles (US04-US06), treatment (US09-US12), appointments (US14)
-  {
-    path: 'physiotherapists',
-    canActivate: patient,
-    loadComponent: () =>
-      import('./profiles/pages/physiotherapist-search/physiotherapist-search').then((m) => m.PhysiotherapistSearch),
-  },
-  {
-    path: 'physiotherapists/:id',
-    canActivate: patient,
-    loadComponent: () =>
-      import('./profiles/pages/physiotherapist-profile/physiotherapist-profile').then((m) => m.PhysiotherapistProfile),
-  },
-  {
-    path: 'treatment-plans',
-    canActivate: patient,
-    loadComponent: () => import('./treatment/pages/treatment-plans/treatment-plans').then((m) => m.TreatmentPlans),
-  },
-  {
-    path: 'appointments',
-    canActivate: patient,
-    loadComponent: () =>
-      import('./appointments/pages/my-appointments/my-appointments').then((m) => m.MyAppointments),
-  },
-
-  // Physiotherapist: scheduling (US07), agenda (US08), history (US15-US16)
-  {
-    path: 'availability',
-    canActivate: physiotherapist,
-    loadComponent: () => import('./scheduling/pages/publish-slots/publish-slots').then((m) => m.PublishSlots),
-  },
-  {
-    path: 'agenda',
-    canActivate: physiotherapist,
-    loadComponent: () => import('./treatment/pages/agenda/agenda').then((m) => m.AgendaPage),
-  },
-  {
-    path: 'patients',
-    canActivate: physiotherapist,
-    loadComponent: () =>
-      import('./appointments/pages/patient-history/patient-history').then((m) => m.PatientHistory),
-  },
-
-  // Both roles: notifications (US13) and AI assistant (US17-US20)
-  {
-    path: 'notifications',
-    canActivate: [authGuard],
-    loadComponent: () => import('./notifications/pages/notifications/notifications').then((m) => m.Notifications),
-  },
-  {
-    path: 'assistant',
-    canActivate: [authGuard],
-    loadComponent: () => import('./assistant/pages/assistant-chat/assistant-chat').then((m) => m.AssistantChat),
-  },
-
-  { path: 'terms', loadComponent: () => import('./shared/pages/terms/terms').then((m) => m.Terms) },
-  { path: '**', loadComponent: () => import('./shared/pages/not-found/not-found').then((m) => m.NotFound) },
 ];

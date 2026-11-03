@@ -1,0 +1,208 @@
+<div class="landing">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-brand" href="#inicio" [attr.aria-label]="'landing.brandHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+
+      <nav class="desktop-nav" [attr.aria-label]="'landing.navigation.label' | translate">
+        @for (item of navigation; track item.href) {
+          <a [href]="item.href">{{ item.label | translate }}</a>
+        }
+      </nav>
+
+      <app-language-switcher class="site-language" />
+      <a class="header-cta" routerLink="/sign-in">
+        {{ 'landing.signIn' | translate }}
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        (click)="menuOpen.update((open) => !open)"
+        [attr.aria-label]="(menuOpen() ? 'landing.navigation.closeMenu' : 'landing.navigation.openMenu') | translate"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-nav"
+      >
+        <mat-icon aria-hidden="true">{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+      </button>
+    </div>
+
+    @if (menuOpen()) {
+      <nav id="mobile-nav" class="mobile-nav" [attr.aria-label]="'landing.navigation.mobile' | translate">
+        @for (item of navigation; track item.href) {
+          <a [href]="item.href" (click)="menuOpen.set(false)">{{ item.label | translate }}</a>
+        }
+        <app-language-switcher class="mobile-nav__language" />
+        <a class="mobile-nav__cta" routerLink="/sign-in" (click)="menuOpen.set(false)">
+          {{ 'landing.signIn' | translate }}
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+      </nav>
+    }
+  </header>
+
+  <main id="main-content" class="landing-main" tabindex="-1">
+    <section id="inicio" class="hero">
+      <div class="hero__main">
+        <div class="hero__copy">
+          <p class="eyebrow"><span aria-hidden="true"></span>{{ 'landing.hero.eyebrow' | translate }}</p>
+          <h1>
+            {{ 'landing.hero.title' | translate }}
+            <em>{{ 'landing.hero.titleAccent' | translate }}</em>
+          </h1>
+          <p class="hero__description">{{ 'landing.hero.description' | translate }}</p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="#servicios">
+              {{ 'landing.hero.servicesCta' | translate }}
+              <mat-icon aria-hidden="true">north_east</mat-icon>
+            </a>
+            <a class="button button--secondary" routerLink="/sign-in">
+              {{ 'landing.signIn' | translate }}
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </a>
+          </div>
+          <div class="hero__highlights">
+            @for (item of highlights; track item.label) {
+              <span>
+                <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                {{ item.label | translate }}
+              </span>
+            }
+          </div>
+        </div>
+        <div class="hero__visual">
+          <img
+            src="/images/hero.png"
+            [alt]="'landing.hero.imageAlt' | translate"
+            fetchpriority="high"
+          />
+          <div class="hero-note">
+            <span class="hero-note__icon"><mat-icon aria-hidden="true">check_circle</mat-icon></span>
+            <span>
+              <strong>{{ 'landing.hero.imageNoteTitle' | translate }}</strong>
+              <small>{{ 'landing.hero.imageNoteDescription' | translate }}</small>
+            </span>
+          </div>
+        </div>
+      </div>
+      <ul class="highlight-strip">
+        @for (item of highlights; track item.label) {
+          <li><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>{{ item.label | translate }}</li>
+        }
+      </ul>
+    </section>
+
+    <section id="servicios" class="section services-section">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">{{ 'landing.services.kicker' | translate }}</p>
+          <h2>{{ 'landing.services.title' | translate }}</h2>
+        </div>
+        <a class="text-link" routerLink="/sign-in">
+          {{ 'landing.services.allCta' | translate }}
+          <mat-icon aria-hidden="true">north_east</mat-icon>
+        </a>
+      </div>
+      <ul class="services-grid">
+        @for (service of services; track service.title) {
+          <li class="service-card">
+            <span class="service-card__icon"><mat-icon aria-hidden="true">{{ service.icon }}</mat-icon></span>
+            <h3>{{ service.title | translate }}</h3>
+            <p>{{ service.description | translate }}</p>
+            <a [routerLink]="['/sign-in']">
+              {{ 'landing.services.discover' | translate }}
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section id="nosotros" class="about-section">
+      <div class="about-section__main">
+        <div class="about-visual">
+          <img src="/images/about.png" [alt]="'landing.about.imageAlt' | translate" loading="lazy" />
+          <div class="about-note">
+            <strong>{{ 'landing.about.noteTitle' | translate }}</strong>
+            <span>{{ 'landing.about.noteDescription' | translate }}</span>
+          </div>
+        </div>
+        <div class="about-copy">
+          <p class="section-kicker">{{ 'landing.about.kicker' | translate }}</p>
+          <h2>{{ 'landing.about.title' | translate }}</h2>
+          <p>{{ 'landing.about.paragraphOne' | translate }}</p>
+          <p>{{ 'landing.about.paragraphTwo' | translate }}</p>
+          <a class="button button--light" routerLink="/sign-in">
+            {{ 'landing.about.cta' | translate }}
+            <mat-icon aria-hidden="true">north_east</mat-icon>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="profesionales" class="section professionals-section">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">{{ 'landing.professionals.kicker' | translate }}</p>
+          <h2>{{ 'landing.professionals.title' | translate }}</h2>
+          <p class="section-description">{{ 'landing.professionals.description' | translate }}</p>
+        </div>
+        <a class="text-link" routerLink="/sign-in">
+          {{ 'landing.professionals.cta' | translate }}
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+      </div>
+      <ul class="professional-grid">
+        @for (area of professionalAreas; track area.title) {
+          <li class="professional-card">
+            <span class="professional-card__icon"><mat-icon aria-hidden="true">{{ area.icon }}</mat-icon></span>
+            <h3>{{ area.title | translate }}</h3>
+            <p>{{ 'landing.professionals.cardDescription' | translate }}</p>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section id="contacto" class="contact-section">
+      <div class="contact-section__content">
+        <p class="section-kicker">{{ 'landing.contact.kicker' | translate }}</p>
+        <h2>{{ 'landing.contact.title' | translate }}</h2>
+        <p>{{ 'landing.contact.description' | translate }}</p>
+        <a class="button button--primary" routerLink="/sign-in">
+          {{ 'landing.signIn' | translate }}
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+      </div>
+      <div class="contact-card">
+        <span class="contact-card__icon"><mat-icon aria-hidden="true">mail</mat-icon></span>
+        <div>
+          <p>{{ 'landing.contact.supportLabel' | translate }}</p>
+          <a href="mailto:soporte@fisiovital.pe">soporte@fisiovital.pe</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <a class="site-brand site-brand--light" href="#inicio" [attr.aria-label]="'landing.brandHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <p>{{ 'landing.footer.tagline' | translate }}</p>
+      <nav [attr.aria-label]="'landing.navigation.footer' | translate">
+        @for (item of navigation.slice(1); track item.href) {
+          <a [href]="item.href">{{ item.label | translate }}</a>
+        }
+        <a routerLink="/terms">{{ 'layout.terms' | translate }}</a>
+      </nav>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© {{ year }} FisioVital</span>
+      <span>{{ 'landing.footer.rights' | translate }}</span>
+    </div>
+  </footer>
+</div>
