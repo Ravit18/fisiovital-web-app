@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 const user: AuthenticatedUser = {
   userId: 1,
   profileId: 1,
-  email: 'carlos.mendoza@gmail.com',
+  email: 'carlos.mendoza@example.com',
   role: 'PATIENT',
   fullName: 'Carlos Mendoza',
   token: 'jwt-token',
@@ -40,7 +40,7 @@ describe('AuthService', () => {
   afterEach(() => http.verify());
 
   it('stores the session after signing in', () => {
-    auth.signIn({ email: user.email, password: 'Fisio2026*' }).subscribe();
+    auth.signIn({ email: user.email, password: 'Prueba123' }).subscribe();
     http.expectOne(`${environment.apiBaseUrl}/auth/sign-in`).flush(user);
 
     expect(auth.isSignedIn()).toBe(true);
@@ -51,7 +51,7 @@ describe('AuthService', () => {
     const request = {
       fullName: user.fullName,
       email: user.email,
-      password: 'Fisio2026*',
+      password: 'Prueba123',
     };
     auth.signUpPatient(request).subscribe();
     const httpRequest = http.expectOne(`${environment.apiBaseUrl}/auth/sign-up/patient`);
@@ -68,7 +68,7 @@ describe('AuthService', () => {
     const request = {
       fullName: user.fullName,
       email: user.email,
-      password: 'Fisio2026*',
+      password: 'Prueba123',
       licenseNumber: 'C123456',
       specialty: 'DEPORTIVA' as const,
       yearsOfExperience: 8,
@@ -85,7 +85,7 @@ describe('AuthService', () => {
 
   it('sends the token and the UI language to the backend', () => {
     TestBed.inject(LanguageService).use('en-US');
-    auth.signIn({ email: user.email, password: 'Fisio2026*' }).subscribe();
+    auth.signIn({ email: user.email, password: 'Prueba123' }).subscribe();
     http.expectOne(`${environment.apiBaseUrl}/auth/sign-in`).flush(user);
 
     TestBed.inject(HttpClient).get(`${environment.apiBaseUrl}/notifications`).subscribe();
@@ -96,7 +96,7 @@ describe('AuthService', () => {
   });
 
   it('signs out when the backend rejects the token', () => {
-    auth.signIn({ email: user.email, password: 'Fisio2026*' }).subscribe();
+    auth.signIn({ email: user.email, password: 'Prueba123' }).subscribe();
     http.expectOne(`${environment.apiBaseUrl}/auth/sign-in`).flush(user);
 
     TestBed.inject(HttpClient).get(`${environment.apiBaseUrl}/notifications`).subscribe({ error: () => {} });
