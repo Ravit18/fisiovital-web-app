@@ -1,0 +1,237 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: var(--fv-color-background);
+}
+
+.notifications-page {
+  --mat-sys-primary: var(--fv-color-primary);
+  --mat-sys-on-primary: var(--fv-color-surface);
+  --mat-sys-primary-container: var(--fv-color-primary-soft);
+  --mat-sys-on-primary-container: var(--fv-color-text);
+
+  position: relative;
+  width: min(100%, 1140px);
+  min-height: 100vh;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 12px 24px 56px;
+  overflow: hidden;
+  background: var(--fv-color-background);
+}
+
+.notifications-page::before,
+.notifications-page::after {
+  position: fixed;
+  z-index: -1;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: var(--fv-color-primary-softer);
+  content: '';
+  pointer-events: none;
+}
+
+.notifications-page::before {
+  top: 90px;
+  right: -230px;
+}
+
+.notifications-page::after {
+  bottom: -260px;
+  left: -200px;
+}
+
+.dashboard-header,
+.notifications-content {
+  position: relative;
+  z-index: 1;
+}
+
+.notifications-content {
+  margin-top: 38px;
+}
+
+.page-heading {
+  margin-bottom: 18px;
+}
+
+.page-heading h1 {
+  margin: 0;
+  color: var(--fv-color-forest);
+  font-size: clamp(34px, 5vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -1.5px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--fv-color-border-strong);
+  border-radius: 999px;
+  padding: 0 16px;
+  background: var(--fv-color-surface);
+  color: var(--fv-color-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filter-button--active {
+  border-color: var(--fv-color-accent);
+  background: var(--fv-color-accent);
+  box-shadow: 0 5px 12px #456c3826;
+  color: var(--fv-color-forest);
+}
+
+.filter-button__count {
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--fv-color-surface);
+  color: var(--fv-color-primary-dark);
+  font-size: 11px;
+}
+
+.notification-list {
+  display: grid;
+  max-width: 820px;
+  gap: 12px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.notification-card {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--fv-color-border);
+  border-radius: 20px;
+  padding: 18px 20px;
+  background: var(--fv-color-surface);
+  box-shadow: 0 10px 26px #23352a0d;
+}
+
+.notification-card--unread {
+  border-left: 4px solid var(--fv-color-accent);
+  padding-left: 17px;
+}
+
+.notification-card__content {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+}
+
+.notification-card__icon {
+  display: none;
+  flex: 0 0 auto;
+  color: var(--fv-color-primary);
+}
+
+.notification-card__text {
+  min-width: 0;
+}
+
+.notification-card__text h2 {
+  margin: 0 0 3px;
+  color: var(--fv-color-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notification-card__text p {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notification-card__time {
+  flex: 0 0 auto;
+  color: var(--fv-color-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.notification-card__mark-read {
+  flex: 0 0 auto;
+  color: var(--fv-color-primary) !important;
+  font-size: 12px;
+}
+
+.state {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--fv-color-text-muted);
+  text-align: center;
+}
+
+.state mat-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--fv-color-primary);
+  font-size: 40px;
+}
+
+.state p {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .notifications-page {
+    padding: 12px 16px 40px;
+  }
+
+  .notifications-content {
+    margin-top: 38px;
+  }
+
+  .notification-list {
+    max-width: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .notification-card,
+  .notification-card__content {
+    align-items: flex-start;
+  }
+
+  .notification-card {
+    flex-direction: column;
+  }
+
+  .notification-card__content {
+    width: 100%;
+  }
+
+  .notification-card__icon {
+    display: block;
+  }
+
+  .notification-card__time {
+    align-self: flex-end;
+  }
+}
