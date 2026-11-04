@@ -7,9 +7,9 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
-import { authInterceptor } from './services/auth.interceptor';
-import { acceptLanguageInterceptor } from './services/accept-language.interceptor';
-import { LanguageService } from './services/language.service';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { acceptLanguageInterceptor } from './core/interceptors/accept-language.interceptor';
+import { LanguageService } from './core/services/language.service';
 
 // en-US ships with Angular; es-419 is registered so DatePipe can format dates in the selected language.
 registerLocaleData(localeEs419, 'es-419');

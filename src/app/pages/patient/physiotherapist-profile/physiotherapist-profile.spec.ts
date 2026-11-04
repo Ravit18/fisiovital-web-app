@@ -6,7 +6,7 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { PhysiotherapistProfile } from './physiotherapist-profile';
 
 const api = environment.apiBaseUrl;

@@ -8,13 +8,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { apiErrorMessage } from '../../../model/api-error';
-import { SessionStatusChip } from '../../../components/session-status-chip/session-status-chip';
-import { LanguageService } from '../../../services/language.service';
-import { AuthService } from '../../../services/auth.service';
-import { Appointment } from '../../../model/appointment.entity';
-import { AppointmentsApi } from '../../../services/appointments.api';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { SessionStatusChip } from '../../../core/components/session-status-chip/session-status-chip';
+import { LanguageService } from '../../../core/services/language.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Appointment } from '../../../core/models/appointment.model';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 
 /** US15: the physiotherapist's appointment history; US16: filtered to one patient. */
 @Component({
@@ -34,19 +34,19 @@ import { AppointmentsApi } from '../../../services/appointments.api';
     @if (auth.currentUser(); as user) {
       <section class="physio-history" aria-labelledby="history-title">
         <header class="dashboard-header">
-          <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+          <a class="dashboard-brand" routerLink="/physiotherapist/home" [attr.aria-label]="'layout.goHome' | translate">
             <img src="/images/fisiovital-logo.png" alt="" />
             <span>FisioVital</span>
           </a>
           <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-            <a class="dashboard-nav__link" routerLink="/home">{{ 'home.physio.panelNav' | translate }}</a>
-            <a class="dashboard-nav__link" routerLink="/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
-            <a class="dashboard-nav__link" routerLink="/availability">
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/home">{{ 'home.physio.panelNav' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/availability">
               {{ 'home.physio.availabilityNav' | translate }}
             </a>
             <a
               class="dashboard-nav__link dashboard-nav__link--active"
-              routerLink="/patients"
+              routerLink="/physiotherapist/patients"
               aria-current="page"
             >
               {{ 'home.physio.historyNav' | translate }}
@@ -55,7 +55,7 @@ import { AppointmentsApi } from '../../../services/appointments.api';
           <div class="dashboard-actions">
             <a
               class="notification-indicator"
-              routerLink="/notifications"
+              routerLink="/physiotherapist/notifications"
               [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
             >
               <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -183,7 +183,7 @@ import { AppointmentsApi } from '../../../services/appointments.api';
   styleUrl: './patient-history.scss',
 })
 export class PatientHistory {
-  private readonly api = inject(AppointmentsApi);
+  private readonly api = inject(AppointmentsService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);

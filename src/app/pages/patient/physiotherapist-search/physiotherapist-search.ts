@@ -7,12 +7,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../../services/auth.service';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { apiErrorMessage } from '../../../model/api-error';
-import { SPECIALTIES, Specialty } from '../../../model/session-status';
-import { Physiotherapist } from '../../../model/physiotherapist.entity';
-import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { SPECIALTIES, Specialty } from '../../../core/models/session-status.model';
+import { Physiotherapist } from '../../../core/models/physiotherapist.model';
+import { PhysiotherapistsService } from '../../../core/services/physiotherapists.service';
 
 /** US04: find physiotherapists by specialty. */
 @Component({
@@ -30,28 +30,28 @@ import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
     @if (auth.currentUser(); as user) {
       <section class="search-page" aria-labelledby="search-title">
         <header class="dashboard-header">
-          <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+          <a class="dashboard-brand" routerLink="/patient/home" [attr.aria-label]="'layout.goHome' | translate">
             <img src="/images/fisiovital-logo.png" alt="" />
             <span>FisioVital</span>
           </a>
           <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-            <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/patient/home">{{ 'home.navPanel' | translate }}</a>
             <a
               class="dashboard-nav__link dashboard-nav__link--active"
-              routerLink="/physiotherapists"
+              routerLink="/patient/physiotherapists"
               aria-current="page"
             >
               {{ 'home.navSpecialists' | translate }}
             </a>
-            <a class="dashboard-nav__link" routerLink="/appointments">{{ 'home.navSessions' | translate }}</a>
-            <a class="dashboard-nav__link" routerLink="/appointments" [queryParams]="{ view: 'history' }">
+            <a class="dashboard-nav__link" routerLink="/patient/appointments">{{ 'home.navSessions' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/patient/appointments" [queryParams]="{ view: 'history' }">
               {{ 'home.navHistory' | translate }}
             </a>
           </nav>
           <div class="dashboard-actions">
             <a
               class="notification-indicator"
-              routerLink="/notifications"
+              routerLink="/patient/notifications"
               [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
             >
               <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -146,7 +146,7 @@ import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
                         <span aria-hidden="true"></span>{{ 'profiles.availability' | translate }}
                       </span>
                     </div>
-                    <a class="profile-link" [routerLink]="['/physiotherapists', physio.id]">
+                    <a class="profile-link" [routerLink]="['/patient/physiotherapists', physio.id]">
                       {{ 'profiles.search.viewProfile' | translate }}
                       <mat-icon aria-hidden="true">arrow_forward</mat-icon>
                     </a>
@@ -162,7 +162,7 @@ import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
   styleUrl: './physiotherapist-search.scss',
 })
 export class PhysiotherapistSearch {
-  private readonly api = inject(PhysiotherapistsApi);
+  private readonly api = inject(PhysiotherapistsService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);
