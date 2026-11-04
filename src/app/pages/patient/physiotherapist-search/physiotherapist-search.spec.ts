@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { PhysiotherapistSearch } from './physiotherapist-search';
 
 const patient: AuthenticatedUser = {
@@ -58,11 +58,11 @@ describe('PhysiotherapistSearch', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('profiles.search.emptyTitle');
     expect(element.querySelector('.specialist-card')).toBeNull();
-    expect(element.querySelector('.dashboard-header .dashboard-brand')?.getAttribute('href')).toBe('/home');
+    expect(element.querySelector('.dashboard-header .dashboard-brand')?.getAttribute('href')).toBe('/patient/home');
     expect(element.querySelector('.dashboard-header .mat-button-toggle-group')).toBeNull();
     expect(element.querySelector('mat-progress-bar')).toBeNull();
-    expect(element.querySelector('.dashboard-nav a[href="/home"]')?.textContent).toContain('home.navPanel');
-    expect(element.querySelector('.dashboard-nav a[href="/appointments"]')?.textContent).toContain('home.navSessions');
+    expect(element.querySelector('.dashboard-nav a[href="/patient/home"]')?.textContent).toContain('home.navPanel');
+    expect(element.querySelector('.dashboard-nav a[href="/patient/appointments"]')?.textContent).toContain('home.navSessions');
   });
 
   it('lists only specialists with published hours, ordered by experience', async () => {

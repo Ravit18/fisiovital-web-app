@@ -5,11 +5,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../../services/auth.service';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { apiErrorMessage } from '../../../model/api-error';
-import { FeedbackService } from '../../../services/feedback.service';
-import { LanguageService } from '../../../services/language.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { FeedbackService } from '../../../core/services/feedback.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 type NotificationFilter = 'all' | 'unread';
 
@@ -23,27 +23,27 @@ const ICONS = { SESSION_REMINDER: 'alarm', SESSION_RESCHEDULED: 'event_repeat', 
     @if (auth.currentUser(); as user) {
       <section class="notifications-page" aria-labelledby="notifications-title">
         <header class="dashboard-header">
-          <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+          <a class="dashboard-brand" [routerLink]="auth.basePath() + '/home'" [attr.aria-label]="'layout.goHome' | translate">
             <img src="/images/fisiovital-logo.png" alt="" />
             <span>FisioVital</span>
           </a>
           <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
             @if (user.role === 'PHYSIOTHERAPIST') {
-              <a class="dashboard-nav__link" routerLink="/home">{{ 'home.physio.panelNav' | translate }}</a>
-              <a class="dashboard-nav__link" routerLink="/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
-              <a class="dashboard-nav__link" routerLink="/availability">
+              <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/home'">{{ 'home.physio.panelNav' | translate }}</a>
+              <a class="dashboard-nav__link" routerLink="/physiotherapist/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
+              <a class="dashboard-nav__link" routerLink="/physiotherapist/availability">
                 {{ 'home.physio.availabilityNav' | translate }}
               </a>
-              <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+              <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
             } @else {
-              <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
-              <a class="dashboard-nav__link" routerLink="/physiotherapists">
+              <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/home'">{{ 'home.navPanel' | translate }}</a>
+              <a class="dashboard-nav__link" routerLink="/patient/physiotherapists">
                 {{ 'home.navSpecialists' | translate }}
               </a>
-              <a class="dashboard-nav__link" routerLink="/appointments">{{ 'home.navSessions' | translate }}</a>
+              <a class="dashboard-nav__link" routerLink="/patient/appointments">{{ 'home.navSessions' | translate }}</a>
               <a
                 class="dashboard-nav__link"
-                routerLink="/appointments"
+                routerLink="/patient/appointments"
                 [queryParams]="{ view: 'history' }"
               >
                 {{ 'home.navHistory' | translate }}
@@ -53,7 +53,7 @@ const ICONS = { SESSION_REMINDER: 'alarm', SESSION_RESCHEDULED: 'event_repeat', 
           <div class="dashboard-actions">
             <a
               class="notification-indicator notification-indicator--active"
-              routerLink="/notifications"
+              [routerLink]="auth.basePath() + '/notifications'"
               aria-current="page"
               [attr.aria-label]="'home.notificationsCount' | translate: { count: store.unreadCount() }"
             >

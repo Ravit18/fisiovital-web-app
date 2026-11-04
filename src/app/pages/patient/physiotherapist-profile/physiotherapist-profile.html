@@ -1,21 +1,21 @@
 @if (auth.currentUser(); as user) {
   <section class="profile-page">
     <header class="dashboard-header">
-      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+      <a class="dashboard-brand" routerLink="/patient/home" [attr.aria-label]="'layout.goHome' | translate">
         <img src="/images/fisiovital-logo.png" alt="" />
         <span>FisioVital</span>
       </a>
       <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
-        <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/physiotherapists" aria-current="page">
+        <a class="dashboard-nav__link" routerLink="/patient/home">{{ 'home.navPanel' | translate }}</a>
+        <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/patient/physiotherapists" aria-current="page">
           {{ 'home.navSpecialists' | translate }}
         </a>
-        <a class="dashboard-nav__link" routerLink="/appointments">
+        <a class="dashboard-nav__link" routerLink="/patient/appointments">
           {{ 'home.navSessions' | translate }}
         </a>
         <a
           class="dashboard-nav__link"
-          routerLink="/appointments"
+          routerLink="/patient/appointments"
           [queryParams]="{ view: 'history' }"
         >
           {{ 'home.navHistory' | translate }}
@@ -24,7 +24,7 @@
       <div class="dashboard-actions">
         <a
           class="notification-indicator"
-          routerLink="/notifications"
+          routerLink="/patient/notifications"
           [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
         >
           <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -54,12 +54,12 @@
     @if (loadError()) {
       <div class="profile-error" role="alert">
         <p>{{ loadError() }}</p>
-        <a mat-button routerLink="/physiotherapists">{{ 'profiles.search.back' | translate }}</a>
+        <a mat-button routerLink="/patient/physiotherapists">{{ 'profiles.search.back' | translate }}</a>
       </div>
     } @else if (physio(); as physio) {
       <div class="profile-layout">
         <section class="profile-card" aria-labelledby="profile-title">
-          <a class="back-link" mat-button routerLink="/physiotherapists">
+          <a class="back-link" mat-button routerLink="/patient/physiotherapists">
             <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'profiles.search.back' | translate }}
           </a>
           <div class="profile-avatar" aria-hidden="true">{{ initials(physio.fullName) }}</div>
@@ -162,7 +162,7 @@
       </div>
     }
 
-    <a class="assistant-button" routerLink="/assistant">
+    <a class="assistant-button" routerLink="/patient/assistant">
       <mat-icon aria-hidden="true">smart_toy</mat-icon>
       {{ 'home.assistantButton' | translate }}
     </a>

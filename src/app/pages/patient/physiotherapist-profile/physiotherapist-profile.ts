@@ -11,18 +11,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { SlotPicker } from '../../../components/slot-picker/slot-picker';
-import { Slot } from '../../../model/slot.entity';
-import { ConfirmDialog, ConfirmDialogData } from '../../../components/confirm-dialog/confirm-dialog';
-import { apiErrorMessage } from '../../../model/api-error';
-import { FeedbackService } from '../../../services/feedback.service';
-import { LanguageService } from '../../../services/language.service';
-import { TreatmentPlan } from '../../../model/treatment-plan.entity';
-import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
-import { Physiotherapist } from '../../../model/physiotherapist.entity';
-import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { SlotPicker } from './slot-picker/slot-picker';
+import { Slot } from '../../../core/models/slot.model';
+import { ConfirmDialog, ConfirmDialogData } from '../../../core/components/confirm-dialog/confirm-dialog';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { FeedbackService } from '../../../core/services/feedback.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TreatmentPlan } from '../../../core/models/treatment-plan.model';
+import { TreatmentPlansService } from '../../../core/services/treatment-plans.service';
+import { Physiotherapist } from '../../../core/models/physiotherapist.model';
+import { PhysiotherapistsService } from '../../../core/services/physiotherapists.service';
 
 /**
  * US05 profile + US06 free slots. A patient books here: first a treatment plan with this
@@ -46,8 +46,8 @@ import { PhysiotherapistsApi } from '../../../services/physiotherapists.api';
   styleUrl: './physiotherapist-profile.scss',
 })
 export class PhysiotherapistProfile implements OnInit {
-  private readonly physiotherapistsApi = inject(PhysiotherapistsApi);
-  private readonly plansApi = inject(TreatmentPlansApi);
+  private readonly physiotherapistsApi = inject(PhysiotherapistsService);
+  private readonly plansApi = inject(TreatmentPlansService);
   private readonly dialog = inject(MatDialog);
   private readonly feedback = inject(FeedbackService);
   private readonly translate = inject(TranslateService);

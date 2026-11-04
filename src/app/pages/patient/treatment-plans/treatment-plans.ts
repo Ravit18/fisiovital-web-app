@@ -11,13 +11,13 @@ import { filter, switchMap } from 'rxjs';
 import {
   ConfirmDialog,
   ConfirmDialogData,
-} from '../../../components/confirm-dialog/confirm-dialog';
-import { apiErrorMessage } from '../../../model/api-error';
-import { FeedbackService } from '../../../services/feedback.service';
-import { LanguageService } from '../../../services/language.service';
-import { EditPlanDialog } from '../../../components/edit-plan-dialog/edit-plan-dialog';
-import { TreatmentPlan } from '../../../model/treatment-plan.entity';
-import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
+} from '../../../core/components/confirm-dialog/confirm-dialog';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { FeedbackService } from '../../../core/services/feedback.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { EditPlanDialog } from './edit-plan-dialog/edit-plan-dialog';
+import { TreatmentPlan } from '../../../core/models/treatment-plan.model';
+import { TreatmentPlansService } from '../../../core/services/treatment-plans.service';
 
 /** US09: the patient's treatment plans and their progress; active plans can be edited, empty ones deleted. */
 @Component({
@@ -47,7 +47,7 @@ import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
         <div class="state">
           <mat-icon aria-hidden="true">assignment</mat-icon>
           <p>{{ 'treatment.plans.empty' | translate }}</p>
-          <a mat-flat-button routerLink="/physiotherapists">{{
+          <a mat-flat-button routerLink="/patient/physiotherapists">{{
             'profiles.search.title' | translate
           }}</a>
         </div>
@@ -78,7 +78,7 @@ import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
               </div>
               <span class="muted">{{ 'treatment.planStatus.' + plan.status | translate }}</span>
               @if (plan.status === 'ACTIVE' && plan.bookedSessions < plan.totalSessions) {
-                <a mat-stroked-button [routerLink]="['/physiotherapists', plan.physiotherapistId]">
+                <a mat-stroked-button [routerLink]="['/patient/physiotherapists', plan.physiotherapistId]">
                   {{ 'treatment.plans.bookMore' | translate }}
                 </a>
               }
@@ -111,7 +111,7 @@ import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
   styleUrl: '../../../styles/page-host.scss',
 })
 export class TreatmentPlans {
-  private readonly api = inject(TreatmentPlansApi);
+  private readonly api = inject(TreatmentPlansService);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
   private readonly feedback = inject(FeedbackService);
