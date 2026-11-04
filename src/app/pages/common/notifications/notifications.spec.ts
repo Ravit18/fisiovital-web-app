@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { Notifications } from './notifications';
 
 const patient: AuthenticatedUser = {
@@ -57,8 +57,8 @@ describe('Notifications', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelectorAll('.notification-card')).toHaveLength(2);
-    expect(element.querySelector('.dashboard-header .dashboard-brand')?.getAttribute('href')).toBe('/home');
-    expect(element.querySelector('.dashboard-nav a[href="/appointments"]')).toBeTruthy();
+    expect(element.querySelector('.dashboard-header .dashboard-brand')?.getAttribute('href')).toBe('/patient/home');
+    expect(element.querySelector('.dashboard-nav a[href="/patient/appointments"]')).toBeTruthy();
 
     (element.querySelectorAll('.filter-button')[1] as HTMLButtonElement).click();
     fixture.detectChanges();

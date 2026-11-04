@@ -4,9 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AppointmentHistory } from '../../../model/appointment.entity';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
-import { AgendaItem } from '../../../model/agenda.entity';
+import { AppointmentHistory } from '../../../core/models/appointment.model';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
+import { AgendaItem } from '../../../core/models/agenda.model';
 import { Dashboard } from './dashboard';
 
 const patient: AuthenticatedUser = {
@@ -67,13 +67,13 @@ describe('Dashboard', () => {
     expect(content).toContain('home.noUpcomingSessionMessage');
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.dashboard-brand img')?.getAttribute('src')).toBe('/images/fisiovital-logo.png');
-    expect(compiled.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('/home');
-    expect(compiled.querySelector('a[href="/physiotherapists"]')?.textContent).toContain('home.navSpecialists');
-    expect(compiled.querySelector('a[href="/appointments"]')?.textContent).toContain('home.navSessions');
-    expect(compiled.querySelector('a[href="/appointments?view=history"]')?.textContent).toContain('home.navHistory');
+    expect(compiled.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('/patient/home');
+    expect(compiled.querySelector('a[href="/patient/physiotherapists"]')?.textContent).toContain('home.navSpecialists');
+    expect(compiled.querySelector('a[href="/patient/appointments"]')?.textContent).toContain('home.navSessions');
+    expect(compiled.querySelector('a[href="/patient/appointments?view=history"]')?.textContent).toContain('home.navHistory');
     expect(compiled.querySelector('a[href="/specialists"]')).toBeNull();
     const assistantButton = compiled.querySelector<HTMLAnchorElement>('.assistant-button');
-    expect(assistantButton?.getAttribute('href')).toBe('/assistant');
+    expect(assistantButton?.getAttribute('href')).toBe('/patient/assistant');
     expect(assistantButton?.textContent).toContain('home.assistantButton');
   });
 

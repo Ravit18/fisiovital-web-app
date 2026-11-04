@@ -1,33 +1,33 @@
 @if (auth.currentUser(); as user) {
   <section class="home" [class.home--physio]="user.role === 'PHYSIOTHERAPIST'" aria-labelledby="home-title">
     <header class="dashboard-header">
-      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+      <a class="dashboard-brand" [routerLink]="auth.basePath() + '/home'" [attr.aria-label]="'layout.goHome' | translate">
         <img src="/images/fisiovital-logo.png" alt="" />
         <span>FisioVital</span>
       </a>
       <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
         @if (user.role === 'PHYSIOTHERAPIST') {
-          <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/home" aria-current="page">
+          <a class="dashboard-nav__link dashboard-nav__link--active" [routerLink]="auth.basePath() + '/home'" aria-current="page">
             {{ 'home.physio.panelNav' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/agenda">
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/agenda">
             {{ 'home.physio.agendaNav' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/availability">
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/availability">
             {{ 'home.physio.availabilityNav' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
         } @else {
-          <a class="dashboard-nav__link dashboard-nav__link--active" routerLink="/home" aria-current="page">
+          <a class="dashboard-nav__link dashboard-nav__link--active" [routerLink]="auth.basePath() + '/home'" aria-current="page">
             {{ 'home.navPanel' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/physiotherapists">
+          <a class="dashboard-nav__link" routerLink="/patient/physiotherapists">
             {{ 'home.navSpecialists' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/appointments">
+          <a class="dashboard-nav__link" routerLink="/patient/appointments">
             {{ 'home.navSessions' | translate }}
           </a>
-          <a class="dashboard-nav__link" routerLink="/appointments" [queryParams]="{ view: 'history' }">
+          <a class="dashboard-nav__link" routerLink="/patient/appointments" [queryParams]="{ view: 'history' }">
             {{ 'home.navHistory' | translate }}
           </a>
         }
@@ -35,7 +35,7 @@
       <div class="dashboard-actions">
         <a
           class="notification-indicator"
-          routerLink="/notifications"
+          [routerLink]="auth.basePath() + '/notifications'"
           [attr.aria-label]="'home.notificationsCount' | translate: { count: unreadNotifications() }"
         >
           <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -204,7 +204,7 @@
             </button>
           </div>
         </div>
-        <a class="publish-availability" routerLink="/availability">
+        <a class="publish-availability" routerLink="/physiotherapist/availability">
           {{ 'home.physio.publishAvailability' | translate }}
         </a>
       </div>
@@ -292,7 +292,7 @@
     }
 
     @if (user.role === 'PATIENT') {
-      <a class="assistant-button" routerLink="/assistant">
+      <a class="assistant-button" [routerLink]="auth.basePath() + '/assistant'">
         <mat-icon aria-hidden="true">smart_toy</mat-icon>
         {{ 'home.assistantButton' | translate }}
       </a>

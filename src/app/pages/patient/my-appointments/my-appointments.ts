@@ -11,19 +11,19 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../services/auth.service';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { ConfirmDialog, ConfirmDialogData } from '../../../components/confirm-dialog/confirm-dialog';
-import { SessionStatusChip } from '../../../components/session-status-chip/session-status-chip';
-import { apiErrorMessage } from '../../../model/api-error';
-import { FeedbackService } from '../../../services/feedback.service';
-import { LanguageService } from '../../../services/language.service';
-import { isWithin24Hours } from '../../../utils/dates';
-import { RescheduleDialog } from '../../../components/reschedule-dialog/reschedule-dialog';
-import { Session } from '../../../model/treatment-plan.entity';
-import { SessionsApi } from '../../../services/sessions.api';
-import { Appointment } from '../../../model/appointment.entity';
-import { AppointmentsApi } from '../../../services/appointments.api';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { ConfirmDialog, ConfirmDialogData } from '../../../core/components/confirm-dialog/confirm-dialog';
+import { SessionStatusChip } from '../../../core/components/session-status-chip/session-status-chip';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { FeedbackService } from '../../../core/services/feedback.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { isWithin24Hours } from '../../../core/dates';
+import { RescheduleDialog } from './reschedule-dialog/reschedule-dialog';
+import { Session } from '../../../core/models/treatment-plan.model';
+import { SessionsService } from '../../../core/services/sessions.service';
+import { Appointment } from '../../../core/models/appointment.model';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 
 const startOf = (appointment: Appointment) => new Date(appointment.startTime).getTime();
 
@@ -46,8 +46,8 @@ const startOf = (appointment: Appointment) => new Date(appointment.startTime).ge
   styleUrl: './my-appointments.scss',
 })
 export class MyAppointments {
-  private readonly api = inject(AppointmentsApi);
-  private readonly sessionsApi = inject(SessionsApi);
+  private readonly api = inject(AppointmentsService);
+  private readonly sessionsApi = inject(SessionsService);
   private readonly dialog = inject(MatDialog);
   private readonly feedback = inject(FeedbackService);
   private readonly router = inject(Router);

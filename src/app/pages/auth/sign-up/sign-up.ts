@@ -11,13 +11,13 @@ import {
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageSwitcher } from '../../../components/language-switcher/language-switcher';
-import { apiErrorMessage } from '../../../model/api-error';
+import { LanguageSwitcher } from '../../../core/components/language-switcher/language-switcher';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
 import {
   PhysiotherapistSpecialty,
   SignUpPhysiotherapistRequest,
-} from '../../../model/sign-up-physiotherapist.request';
-import { AuthService } from '../../../services/auth.service';
+} from '../../../core/models/sign-up-physiotherapist-request.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 type AccountType = 'patient' | 'physiotherapist';
 
@@ -142,7 +142,7 @@ export class SignUp {
     }
 
     registration.subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => this.router.navigateByUrl(this.auth.homeUrl()),
       error: (error: HttpErrorResponse) => {
         this.loading.set(false);
         const message = apiErrorMessage(error);
