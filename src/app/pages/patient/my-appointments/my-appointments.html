@@ -1,17 +1,17 @@
 @if (auth.currentUser(); as user) {
   <section class="appointments-page">
     <header class="dashboard-header">
-      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+      <a class="dashboard-brand" routerLink="/patient/home" [attr.aria-label]="'layout.goHome' | translate">
         <img src="/images/fisiovital-logo.png" alt="" />
         <span>FisioVital</span>
       </a>
       <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.navPanel' | translate }}</a>
-        <a class="dashboard-nav__link" routerLink="/physiotherapists">{{ 'home.navSpecialists' | translate }}</a>
+        <a class="dashboard-nav__link" routerLink="/patient/home">{{ 'home.navPanel' | translate }}</a>
+        <a class="dashboard-nav__link" routerLink="/patient/physiotherapists">{{ 'home.navSpecialists' | translate }}</a>
         <a
           class="dashboard-nav__link"
           [class.dashboard-nav__link--active]="!historyView()"
-          routerLink="/appointments"
+          routerLink="/patient/appointments"
           [attr.aria-current]="historyView() ? null : 'page'"
         >
           {{ 'home.navSessions' | translate }}
@@ -19,7 +19,7 @@
         <a
           class="dashboard-nav__link"
           [class.dashboard-nav__link--active]="historyView()"
-          routerLink="/appointments"
+          routerLink="/patient/appointments"
           [queryParams]="{ view: 'history' }"
           [attr.aria-current]="historyView() ? 'page' : null"
         >
@@ -29,7 +29,7 @@
       <div class="dashboard-actions">
         <a
           class="notification-indicator"
-          routerLink="/notifications"
+          routerLink="/patient/notifications"
           [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
         >
           <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -132,7 +132,7 @@
       <section class="history-state history-state--empty">
         <p class="history-state__badge">{{ 'appointments.historyEmptyBadge' | translate }}</p>
         <h2>{{ 'appointments.historyEmptyTitle' | translate }}</h2>
-        <a mat-flat-button routerLink="/physiotherapists">{{ 'appointments.historyFindSpecialist' | translate }}</a>
+        <a mat-flat-button routerLink="/patient/physiotherapists">{{ 'appointments.historyFindSpecialist' | translate }}</a>
         @if (hasMore()) {
           <button mat-stroked-button type="button" class="load-more" (click)="load(true)">
             {{ 'common.loadMore' | translate }}

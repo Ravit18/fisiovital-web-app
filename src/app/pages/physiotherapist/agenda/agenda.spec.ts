@@ -4,8 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
-import { AgendaItem } from '../../../model/agenda.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
+import { AgendaItem } from '../../../core/models/agenda.model';
 import { AgendaPage } from './agenda';
 
 const agendaUrl = `${environment.apiBaseUrl}/physiotherapists/me/agenda`;
@@ -80,7 +80,7 @@ describe('AgendaPage', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('.dashboard-header')).toBeTruthy();
-    expect(element.querySelector('.dashboard-nav a[aria-current="page"]')?.getAttribute('href')).toBe('/agenda');
+    expect(element.querySelector('.dashboard-nav a[aria-current="page"]')?.getAttribute('href')).toBe('/physiotherapist/agenda');
     expect(element.querySelectorAll('.week-day').length).toBe(7);
     expect(element.querySelectorAll('.week-slot').length).toBe(2);
     expect(element.textContent).toContain('Carlos Mendoza');

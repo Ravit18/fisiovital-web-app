@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { PatientHistory } from './patient-history';
 
 const historyUrl = `${environment.apiBaseUrl}/appointments/physiotherapist/me`;
@@ -44,8 +44,8 @@ describe('PatientHistory (US15/US16)', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('.dashboard-nav a[href="/agenda"]')).toBeTruthy();
-    expect(element.querySelector('.dashboard-nav a[aria-current="page"]')?.getAttribute('href')).toBe('/patients');
+    expect(element.querySelector('.dashboard-nav a[href="/physiotherapist/agenda"]')).toBeTruthy();
+    expect(element.querySelector('.dashboard-nav a[aria-current="page"]')?.getAttribute('href')).toBe('/physiotherapist/patients');
     (element.querySelector('.history-action') as HTMLButtonElement).click();
     fixture.detectChanges();
 
