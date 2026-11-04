@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { PublishSlots } from './publish-slots';
 
 const physiotherapist: AuthenticatedUser = {
@@ -83,6 +83,6 @@ describe('PublishSlots', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('.dashboard-brand img')?.getAttribute('src')).toBe(
       '/images/fisiovital-logo.png',
     );
-    expect((fixture.nativeElement as HTMLElement).querySelector('.dashboard-nav a[href="/patients"]')).toBeTruthy();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.dashboard-nav a[href="/physiotherapist/patients"]')).toBeTruthy();
   });
 });

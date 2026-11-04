@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     <section class="not-found" aria-labelledby="not-found-title">
       <h1 id="not-found-title">{{ 'notFound.title' | translate }}</h1>
       <p>{{ 'notFound.message' | translate }}</p>
-      <a mat-flat-button routerLink="/home">{{ 'layout.goHome' | translate }}</a>
+      <a mat-flat-button routerLink="/">{{ 'layout.goHome' | translate }}</a>
     </section>
   `,
   styles: `

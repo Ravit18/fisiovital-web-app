@@ -30,41 +30,46 @@ src/app/
 ├── home/                            # Landing: una página en "/", sin layout
 │   └── home.ts · home.html · home.scss
 ├── layouts/                         # Un layout por grupo
-│   ├── auth-layout/                 # Pantallas de acceso: sin barra ni menú
-│   └── main-layout/                 # Barra, menú según el rol, campana de notificaciones y pie
+│   ├── auth-layout/                 # Acceso, términos y 404: sin barra ni menú
+│   ├── patient-layout/              # Barra, menú del paciente, campana de notificaciones y pie
+│   └── physiotherapist-layout/      # Barra, menú del fisioterapeuta, campana de notificaciones y pie
 ├── pages/
 │   ├── auth/                        # Grupo de acceso (se nombra por su función)
-│   │   ├── auth.routes.ts           # /sign-in, /sign-up
+│   │   ├── auth.routes.ts           # /sign-in, /sign-up (+ /terms y la 404 de common)
 │   │   ├── sign-in/
 │   │   └── sign-up/
 │   ├── patient/                     # Grupo por tipo de usuario
-│   │   ├── patient.routes.ts        # /physiotherapists, /physiotherapists/:id, /treatment-plans, /appointments
+│   │   ├── patient.routes.ts        # /patient/... (physiotherapists, physiotherapists/:id, treatment-plans, appointments)
 │   │   ├── physiotherapist-search/
-│   │   ├── physiotherapist-profile/
-│   │   ├── treatment-plans/
-│   │   └── my-appointments/
+│   │   ├── physiotherapist-profile/ # + slot-picker/ (pieza que solo usa esta página)
+│   │   ├── treatment-plans/         # + edit-plan-dialog/
+│   │   └── my-appointments/         # + reschedule-dialog/
 │   ├── physiotherapist/
-│   │   ├── physiotherapist.routes.ts # /availability, /agenda, /patients
+│   │   ├── physiotherapist.routes.ts # /physiotherapist/... (availability, agenda, patients)
 │   │   ├── publish-slots/
 │   │   ├── agenda/
 │   │   └── patient-history/
 │   └── common/                      # Pantallas de los dos roles
-│       ├── common.routes.ts         # /home, /notifications, /assistant
+│       ├── common.routes.ts         # home, notifications, assistant: se montan dentro de cada grupo
 │       ├── dashboard/
 │       ├── notifications/
 │       ├── assistant-chat/
 │       ├── terms/                   # /terms (pública)
 │       └── not-found/               # cualquier otra URL
-├── components/                      # Solo piezas reutilizadas por varias páginas
-│   └── confirm-dialog · edit-plan-dialog · reschedule-dialog · slot-picker · session-status-chip · language-switcher
-├── services/                        # *.api.ts (HttpClient), AuthService, guards, interceptores, stores
-├── model/                           # Interfaces con los campos de los DTO del backend
-│                                    #   *.entity.ts ↔ dto/response · *.request.ts ↔ dto/request
-├── styles/                          # Guía de estilo (_style-guide.scss) y estilos compartidos de listas
-└── utils/                           # Utilidades (fechas)
+├── core/
+│   ├── components/                  # Solo piezas usadas por varias páginas (confirm-dialog, session-status-chip, language-switcher)
+│   ├── guards/                      # authGuard, guestGuard, roleGuard
+│   ├── interceptors/                # auth (token) y accept-language (idioma)
+│   ├── models/                      # Interfaces con los campos de los DTO del backend
+│   │                                #   *.model.ts ↔ dto/response · *-request.model.ts ↔ dto/request
+│   ├── services/                    # *.service.ts (HttpClient), AuthService, stores, idioma, avisos
+│   └── dates.ts                     # Utilidades de fechas
+└── styles/                          # Guía de estilo (_style-guide.scss), estilos de listas y de layouts
 ```
 Un grupo es un conjunto de pantallas que comparten el mismo layout y el mismo guard (`patient` y
-`physiotherapist` usan `roleGuard`; `auth` usa `guestGuard`). Las URLs no llevan el nombre del grupo.
+`physiotherapist` usan `roleGuard`; `sign-in`/`sign-up` usan `guestGuard`). Las URLs llevan el nombre del grupo
+(`/patient/...`, `/physiotherapist/...`); para enlaces de páginas comunes usa `auth.basePath()`. Una pieza que usa
+una sola página va dentro de la carpeta de esa página, no en `core/components/`.
 
 ## Alcance
 Cada pantalla se conecta al backend real: nada de datos simulados fuera de los `*.spec.ts`.
@@ -81,9 +86,9 @@ Cada pantalla se conecta al backend real: nada de datos simulados fuera de los `
 - **Angular:** componentes standalone sin sufijo (`sign-in.ts`, clase `SignIn`), un `.ts`, `.html` y `.scss` por
   pantalla, nombres en minúsculas y guiones. Signals, `inject()` y rutas con `loadComponent` / `loadChildren`.
 - **Control flow:** usa `@if`, `@for` (siempre con `track`) y `@switch`. Nunca `*ngIf`, `*ngFor` ni `ngSwitch`.
-- **Consumo de APIs:** solo los archivos `services/*.api.ts` usan `HttpClient`; las páginas nunca arman URLs.
-  Cada interfaz de `model/` lleva un comentario con el DTO del backend al que corresponde.
-- **Seguridad JWT:** el token lo agrega `services/auth.interceptor.ts` (nunca a mano en un servicio); ante un
+- **Consumo de APIs:** solo los archivos `core/services/*.service.ts` usan `HttpClient`; las páginas nunca arman URLs.
+  Cada interfaz de `core/models/` lleva un comentario con el DTO del backend al que corresponde.
+- **Seguridad JWT:** el token lo agrega `core/interceptors/auth.interceptor.ts` (nunca a mano en un servicio); ante un
   401 cierra la sesión. Las rutas privadas se protegen por grupo en `app.routes.ts`.
 - **Formularios:** Reactive Forms (`FormBuilder`) con `[formGroup]` en el `<form>`. Al enviar un formulario
   inválido se llama a `markAllAsTouched()` y no se llama al backend. El mensaje va debajo del campo al tocarlo:

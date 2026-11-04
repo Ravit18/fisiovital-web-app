@@ -6,8 +6,8 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthenticatedUser } from '../../../model/authenticated-user.entity';
-import { Appointment } from '../../../model/appointment.entity';
+import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
+import { Appointment } from '../../../core/models/appointment.model';
 import { MyAppointments } from './my-appointments';
 
 const patient: AuthenticatedUser = {
@@ -87,7 +87,7 @@ describe('MyAppointments', () => {
     expect(page.history().map((a) => a.sessionId)).toEqual([1, 4]);
     expect(fixture.nativeElement.querySelector('#next-title')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.dashboard-nav__link[aria-current="page"]')?.getAttribute('href')).toBe(
-      '/appointments',
+      '/patient/appointments',
     );
   });
 

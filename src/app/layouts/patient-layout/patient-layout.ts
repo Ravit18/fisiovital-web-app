@@ -1,0 +1,74 @@
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { filter } from 'rxjs';
+import { LanguageSwitcher } from '../../core/components/language-switcher/language-switcher';
+import { AuthService } from '../../core/services/auth.service';
+import { NotificationsStore } from '../../core/services/notifications.store';
+
+/** Pages that draw their own header (dashboard, lists, profile): the layout hides its toolbar and footer there. */
+const OWN_HEADER = ['/patient/home', '/patient/physiotherapists', '/patient/appointments', '/patient/notifications'];
+
+/** Layout of the patient group: toolbar with its menu, footer and the pages of /patient/... */
+@Component({
+  selector: 'app-patient-layout',
+  imports: [
+    MatBadgeModule,
+    MatButtonModule,
+    MatIconModule,
+    MatToolbarModule,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    TranslatePipe,
+    LanguageSwitcher,
+  ],
+  templateUrl: './patient-layout.html',
+  styleUrl: '../../styles/app-layout.scss',
+})
+export class PatientLayout {
+  protected readonly auth = inject(AuthService);
+  protected readonly notifications = inject(NotificationsStore);
+  private readonly router = inject(Router);
+  protected readonly year = new Date().getFullYear();
+  private readonly path = signal(this.currentPath());
+  protected readonly showChrome = computed(
+    () => !OWN_HEADER.some((page) => this.path() === page || this.path().startsWith(`${page}/`)),
+  );
+
+  protected readonly links = [
+    { path: '/patient/physiotherapists', icon: 'person_search', label: 'nav.search' },
+    { path: '/patient/treatment-plans', icon: 'assignment', label: 'nav.plans' },
+    { path: '/patient/appointments', icon: 'event', label: 'nav.appointments' },
+    { path: '/patient/assistant', icon: 'smart_toy', label: 'nav.assistant' },
+  ];
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(inject(DestroyRef)),
+      )
+      .subscribe(() => {
+        this.path.set(this.currentPath());
+        if (this.auth.isSignedIn() && this.path() !== '/patient/notifications') {
+          this.notifications.load().subscribe({ error: () => undefined });
+        }
+      });
+  }
+
+  protected signOut(): void {
+    this.auth.signOut();
+    this.notifications.clear();
+    this.router.navigate(['/sign-in']);
+  }
+
+  private currentPath(): string {
+    return this.router.url.split(/[?#]/)[0];
+  }
+}

@@ -1,28 +1,28 @@
 @if (auth.currentUser(); as user) {
   <section class="agenda-page" aria-labelledby="agenda-title">
     <header class="dashboard-header">
-      <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+      <a class="dashboard-brand" routerLink="/physiotherapist/home" [attr.aria-label]="'layout.goHome' | translate">
         <img src="/images/fisiovital-logo.png" alt="" />
         <span>FisioVital</span>
       </a>
       <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-        <a class="dashboard-nav__link" routerLink="/home">{{ 'home.physio.panelNav' | translate }}</a>
+        <a class="dashboard-nav__link" routerLink="/physiotherapist/home">{{ 'home.physio.panelNav' | translate }}</a>
         <a
           class="dashboard-nav__link dashboard-nav__link--active"
-          routerLink="/agenda"
+          routerLink="/physiotherapist/agenda"
           aria-current="page"
         >
           {{ 'home.physio.agendaNav' | translate }}
         </a>
-        <a class="dashboard-nav__link" routerLink="/availability">
+        <a class="dashboard-nav__link" routerLink="/physiotherapist/availability">
           {{ 'home.physio.availabilityNav' | translate }}
         </a>
-        <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+        <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
       </nav>
       <div class="dashboard-actions">
         <a
           class="notification-indicator"
-          routerLink="/notifications"
+          routerLink="/physiotherapist/notifications"
           [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
         >
           <mat-icon aria-hidden="true">notifications</mat-icon>

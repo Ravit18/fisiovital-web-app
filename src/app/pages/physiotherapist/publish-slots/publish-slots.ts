@@ -12,16 +12,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { AgendaItem } from '../../../model/agenda.entity';
-import { AgendaApi } from '../../../services/agenda.api';
-import { apiErrorMessage } from '../../../model/api-error';
-import { AuthService } from '../../../services/auth.service';
-import { FeedbackService } from '../../../services/feedback.service';
-import { LanguageService } from '../../../services/language.service';
-import { addDays, fromIsoDate, startOfToday, toIsoDate } from '../../../utils/dates';
-import { Slot } from '../../../model/slot.entity';
-import { SlotsApi } from '../../../services/slots.api';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { AgendaItem } from '../../../core/models/agenda.model';
+import { AgendaService } from '../../../core/services/agenda.service';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { FeedbackService } from '../../../core/services/feedback.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { addDays, fromIsoDate, startOfToday, toIsoDate } from '../../../core/dates';
+import { Slot } from '../../../core/models/slot.model';
+import { SlotsService } from '../../../core/services/slots.service';
 
 /** US07: the physiotherapist publishes a block of time split into equal slots. */
 @Component({
@@ -42,26 +42,26 @@ import { SlotsApi } from '../../../services/slots.api';
     @if (auth.currentUser(); as user) {
       <section class="availability-page" aria-labelledby="publish-title">
         <header class="dashboard-header">
-          <a class="dashboard-brand" routerLink="/home" [attr.aria-label]="'layout.goHome' | translate">
+          <a class="dashboard-brand" routerLink="/physiotherapist/home" [attr.aria-label]="'layout.goHome' | translate">
             <img src="/images/fisiovital-logo.png" alt="" />
             <span>FisioVital</span>
           </a>
           <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
-            <a class="dashboard-nav__link" routerLink="/home">{{ 'home.physio.panelNav' | translate }}</a>
-            <a class="dashboard-nav__link" routerLink="/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/home">{{ 'home.physio.panelNav' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
             <a
               class="dashboard-nav__link dashboard-nav__link--active"
-              routerLink="/availability"
+              routerLink="/physiotherapist/availability"
               aria-current="page"
             >
               {{ 'home.physio.availabilityNav' | translate }}
             </a>
-            <a class="dashboard-nav__link" routerLink="/patients">{{ 'home.physio.historyNav' | translate }}</a>
+            <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
           </nav>
           <div class="dashboard-actions">
             <a
               class="notification-indicator"
-              routerLink="/notifications"
+              routerLink="/physiotherapist/notifications"
               [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
             >
               <mat-icon aria-hidden="true">notifications</mat-icon>
@@ -166,7 +166,7 @@ import { SlotsApi } from '../../../services/slots.api';
                 <strong>
                   {{ 'scheduling.publish.created' | translate: { count: published().length } }}
                 </strong>
-                <a routerLink="/agenda">{{ 'scheduling.publish.goAgenda' | translate }}</a>
+                <a routerLink="/physiotherapist/agenda">{{ 'scheduling.publish.goAgenda' | translate }}</a>
               </div>
             }
           </section>
@@ -245,8 +245,8 @@ import { SlotsApi } from '../../../services/slots.api';
   styleUrl: './publish-slots.scss',
 })
 export class PublishSlots {
-  private readonly api = inject(SlotsApi);
-  private readonly agendaApi = inject(AgendaApi);
+  private readonly api = inject(SlotsService);
+  private readonly agendaApi = inject(AgendaService);
   private readonly feedback = inject(FeedbackService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
