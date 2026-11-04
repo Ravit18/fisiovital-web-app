@@ -5,9 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LanguageSwitcher } from '../../../components/language-switcher/language-switcher';
-import { apiErrorMessage } from '../../../model/api-error';
-import { AuthService } from '../../../services/auth.service';
+import { LanguageSwitcher } from '../../../core/components/language-switcher/language-switcher';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -45,7 +45,7 @@ export class SignIn {
     this.errorMessage.set(null);
     this.networkError.set(false);
     this.auth.signIn(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => this.router.navigateByUrl(this.auth.homeUrl()),
       error: (error: HttpErrorResponse) => {
         this.loading.set(false);
         const message = apiErrorMessage(error);

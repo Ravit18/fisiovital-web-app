@@ -9,14 +9,14 @@ import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { forkJoin, Subscription } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { NotificationsStore } from '../../../services/notifications.store';
-import { SessionStatusChip } from '../../../components/session-status-chip/session-status-chip';
-import { apiErrorMessage } from '../../../model/api-error';
-import { LanguageService } from '../../../services/language.service';
-import { addDays, startOfToday, toIsoDate } from '../../../utils/dates';
-import { AgendaItem } from '../../../model/agenda.entity';
-import { AgendaApi } from '../../../services/agenda.api';
+import { AuthService } from '../../../core/services/auth.service';
+import { NotificationsStore } from '../../../core/services/notifications.store';
+import { SessionStatusChip } from '../../../core/components/session-status-chip/session-status-chip';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { LanguageService } from '../../../core/services/language.service';
+import { addDays, startOfToday, toIsoDate } from '../../../core/dates';
+import { AgendaItem } from '../../../core/models/agenda.model';
+import { AgendaService } from '../../../core/services/agenda.service';
 
 /** US08: the physiotherapist's full week, with booked sessions and free slots. */
 @Component({
@@ -35,7 +35,7 @@ import { AgendaApi } from '../../../services/agenda.api';
   styleUrl: './agenda.scss',
 })
 export class AgendaPage {
-  private readonly api = inject(AgendaApi);
+  private readonly api = inject(AgendaService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);

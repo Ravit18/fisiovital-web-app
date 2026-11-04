@@ -5,18 +5,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Appointment } from '../../../model/appointment.entity';
-import { AppointmentsApi } from '../../../services/appointments.api';
-import { apiErrorMessage } from '../../../model/api-error';
-import { Notification } from '../../../model/notification.entity';
-import { NotificationService } from '../../../services/notification.service';
-import { AuthService } from '../../../services/auth.service';
-import { TreatmentPlan } from '../../../model/treatment-plan.entity';
-import { TreatmentPlansApi } from '../../../services/treatment-plans.api';
-import { AgendaItem } from '../../../model/agenda.entity';
-import { AgendaApi } from '../../../services/agenda.api';
-import { LanguageService } from '../../../services/language.service';
-import { addDays, startOfToday, toIsoDate } from '../../../utils/dates';
+import { Appointment } from '../../../core/models/appointment.model';
+import { AppointmentsService } from '../../../core/services/appointments.service';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { Notification } from '../../../core/models/notification.model';
+import { NotificationService } from '../../../core/services/notification.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { TreatmentPlan } from '../../../core/models/treatment-plan.model';
+import { TreatmentPlansService } from '../../../core/services/treatment-plans.service';
+import { AgendaItem } from '../../../core/models/agenda.model';
+import { AgendaService } from '../../../core/services/agenda.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { addDays, startOfToday, toIsoDate } from '../../../core/dates';
 
 interface PlanSummary {
   plan: TreatmentPlan;
@@ -30,10 +30,10 @@ interface PlanSummary {
 })
 export class Dashboard implements OnInit {
   protected readonly auth = inject(AuthService);
-  private readonly plansApi = inject(TreatmentPlansApi);
-  private readonly appointmentsApi = inject(AppointmentsApi);
+  private readonly plansApi = inject(TreatmentPlansService);
+  private readonly appointmentsApi = inject(AppointmentsService);
   private readonly notificationsApi = inject(NotificationService);
-  private readonly agendaApi = inject(AgendaApi);
+  private readonly agendaApi = inject(AgendaService);
   private readonly router = inject(Router);
   protected readonly language = inject(LanguageService);
   protected readonly plans = signal<PlanSummary[]>([]);

@@ -7,10 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../../services/auth.service';
-import { apiErrorMessage } from '../../../model/api-error';
-import { ChatLine } from '../../../model/assistant-message.entity';
-import { AssistantApi } from '../../../services/assistant.api';
+import { AuthService } from '../../../core/services/auth.service';
+import { apiErrorMessage } from '../../../core/models/api-error.model';
+import { ChatLine } from '../../../core/models/assistant-message.model';
+import { AssistantService } from '../../../core/services/assistant.service';
 
 /**
  * US17 questions, US18 specialist recommendation, US19 booking and US20 rescheduling through the AI
@@ -31,7 +31,7 @@ import { AssistantApi } from '../../../services/assistant.api';
   styleUrl: './assistant-chat.scss',
 })
 export class AssistantChat {
-  private readonly api = inject(AssistantApi);
+  private readonly api = inject(AssistantService);
   private readonly translate = inject(TranslateService);
   private readonly log = viewChild<ElementRef<HTMLElement>>('log');
   private readonly auth = inject(AuthService);
