@@ -71,8 +71,8 @@
   color: var(--fv-color-forest);
   font-size: clamp(44px, 4vw, 50px);
   font-weight: 700;
-  letter-spacing: -2px;
-  line-height: 1;
+  letter-spacing: -0.75px;
+  line-height: 1.12;
 
   strong {
     display: block;
@@ -132,7 +132,7 @@
   h1 {
     margin: 0 0 8px;
     font-size: 29px;
-    letter-spacing: -1px;
+    letter-spacing: -0.25px;
   }
 }
 
