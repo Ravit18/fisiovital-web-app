@@ -41,6 +41,24 @@ body {
 }
 /* You can add global styles to this file, and also import other style files */
 
+// Readable text rhythm. Material's body font fixes the line height at 20px for every element, so large headings
+// overlapped and paragraphs felt cramped. Headings and text get a line height proportional to their size instead;
+// a component that sets its own line-height still wins (its selectors are more specific).
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.25;
+}
+
+p,
+li,
+dd {
+  line-height: 1.55;
+}
+
 .fisiovital-snackbar {
   --mat-snack-bar-container-color: var(--fv-color-background-soft);
   --mat-snack-bar-button-color: var(--fv-color-primary-dark);
