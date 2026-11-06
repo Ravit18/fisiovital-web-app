@@ -87,6 +87,10 @@ describe('AgendaPage', () => {
     expect(element.querySelectorAll('.week-day').length).toBe(7);
     expect(element.querySelectorAll('.week-slot').length).toBe(2);
     expect(element.textContent).toContain('Carlos Mendoza');
+    // Only the booked session links to the patient's record (US16).
+    const recordLinks = element.querySelectorAll<HTMLAnchorElement>('.record-link');
+    expect(recordLinks).toHaveLength(1);
+    expect(recordLinks[0].getAttribute('href')).toBe('/physiotherapist/patients?patient=Carlos%20Mendoza');
     const emptyDays = element.querySelectorAll<HTMLAnchorElement>('.week-day--empty');
     const availableDays = dates.filter((date) => date >= toIsoDate(startOfToday()) && date !== friday);
     expect(emptyDays).toHaveLength(availableDays.length);

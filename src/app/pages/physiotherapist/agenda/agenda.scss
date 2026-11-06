@@ -236,3 +236,23 @@
     grid-template-columns: repeat(7, minmax(160px, 1fr));
   }
 }
+
+// Link from a booked session to the patient's record (US16).
+.record-link {
+  justify-self: start;
+  color: var(--fv-color-primary-dark);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--fv-color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fv-color-primary-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}

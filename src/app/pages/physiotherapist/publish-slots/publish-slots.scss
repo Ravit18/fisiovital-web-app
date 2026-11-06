@@ -99,10 +99,92 @@
   width: 100%;
 }
 
-.time-fields {
+.hour-picker {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
+  margin: 0 0 12px;
+  border: 0;
+  padding: 0;
+}
+
+.hour-picker legend {
+  padding: 0;
+  color: var(--fv-color-text-strong);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hour-picker__hint {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 12px;
+}
+
+.hour-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+}
+
+.hour-chip {
+  display: grid;
+  min-height: 44px;
+  place-content: center;
+  gap: 2px;
+  border: 1px solid var(--fv-color-border-strong);
+  border-radius: 12px;
+  padding: 6px 4px;
+  background: var(--fv-color-surface);
+  color: var(--fv-color-text-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--fv-color-primary);
+    background: var(--fv-color-primary-softer);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fv-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.hour-chip--selected {
+  border-color: var(--fv-color-primary);
+  background: var(--fv-color-primary);
+  color: var(--fv-color-surface);
+
+  &:hover:not(:disabled) {
+    background: var(--fv-color-primary-dark);
+  }
+}
+
+.hour-chip--taken:disabled {
+  border-style: dashed;
+  background: var(--fv-color-background-soft);
+  opacity: 0.8;
+}
+
+.hour-chip__state {
+  color: var(--fv-color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.hour-picker__clear {
+  justify-self: start;
 }
 
 .preview-summary {
@@ -123,11 +205,6 @@
   font-size: 12px;
 }
 
-.preview-summary__time--overlap {
-  color: var(--fv-color-error);
-  text-decoration: line-through;
-}
-
 .form-message {
   border-radius: 12px;
   margin: 8px 0 0;
@@ -139,11 +216,6 @@
 .form-message--error {
   background: var(--fv-color-error-soft);
   color: var(--fv-color-error);
-}
-
-.form-message--warning {
-  background: #fff3da;
-  color: #85621c;
 }
 
 .publish-button {

@@ -148,6 +148,14 @@
                             @if (item.sessionStatus) {
                               <app-session-status-chip [status]="item.sessionStatus" />
                             }
+                            <a
+                              class="record-link"
+                              routerLink="/physiotherapist/patients"
+                              [queryParams]="{ patient: item.patientName }"
+                              [attr.aria-label]="'appointments.record.open' | translate: { name: item.patientName }"
+                            >
+                              {{ 'appointments.record.viewHistory' | translate }}
+                            </a>
                           } @else if (item.status === 'FREE_CANCELLED') {
                             <span class="week-slot__label">{{ 'agenda.freeCancelled' | translate }}</span>
                           } @else {
