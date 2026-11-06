@@ -105,14 +105,17 @@ import { SlotsService } from '../../../../core/services/slots.service';
       gap: 0;
     }
     .picker__days {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      display: flex;
+      align-items: flex-start;
       gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
     }
     .picker__message {
       color: var(--mat-sys-on-surface-variant);
     }
     .picker__day {
+      flex: 0 0 clamp(110px, calc((100% - 50px) / 6), 150px);
       min-width: 0;
     }
     .picker__day h3 {
@@ -138,11 +141,6 @@ import { SlotsService } from '../../../../core/services/slots.service';
       background: var(--fv-color-accent) !important;
       color: var(--fv-color-forest) !important;
       font-weight: 700;
-    }
-    @media (max-width: 420px) {
-      .picker__days {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
     }
   `,
 })
