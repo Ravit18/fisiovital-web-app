@@ -7,7 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { apiErrorMessage } from '../../../../core/models/api-error.model';
 import { LanguageService } from '../../../../core/services/language.service';
-import { addDays, fromIsoDate, groupByDay, startOfToday, toIsoDate } from '../../../../core/dates';
+import { addDays, fromIsoDate, groupByDay, startOfToday, toIsoDate, weekWindowIndex } from '../../../../core/dates';
 import { Availability, Slot } from '../../../../core/models/slot.model';
 import { SlotsService } from '../../../../core/services/slots.service';
 
@@ -67,9 +67,9 @@ import { SlotsService } from '../../../../core/services/slots.service';
                       class="picker__slot"
                       mat-stroked-button
                       type="button"
-                      [class.picker__slot--selected]="slot.id === selectedSlotId()"
-                      [attr.aria-pressed]="slot.id === selectedSlotId()"
-                      [disabled]="!selectable() || busy()"
+                      [class.picker__slot--selected]="selectedSlotIds().includes(slot.id)"
+                      [attr.aria-pressed]="selectedSlotIds().includes(slot.id)"
+                      [disabled]="!selectable() || busy() || !canPick(slot)"
                       (click)="picked.emit(slot)"
                     >
                       {{ slot.startTime | date: 'shortTime' : undefined : language.current() }}
@@ -152,9 +152,13 @@ export class SlotPicker implements OnInit {
   readonly physiotherapistId = input.required<number>();
   /** False shows the slots without letting the user pick (e.g. no treatment plan yet). */
   readonly selectable = input(true);
-  /** True while the parent is saving the picked slot. */
+  /** True while the parent is saving the picked slots. */
   readonly busy = input(false);
-  readonly selectedSlotId = input<number | null>(null);
+  readonly selectedSlotIds = input<number[]>([]);
+  readonly selectedSlots = input<Slot[]>([]);
+  readonly bookedSlotStartTimes = input<string[]>([]);
+  readonly canSelectMore = input(true);
+  readonly weeklyLimit = input(7);
   readonly picked = output<Slot>();
 
   protected readonly from = signal(startOfToday());
@@ -164,6 +168,21 @@ export class SlotPicker implements OnInit {
   protected readonly availability = signal<Availability | null>(null);
   protected readonly days = computed(() => groupByDay(this.availability()?.slots ?? [], (slot) => slot.startTime));
   protected readonly canGoBack = computed(() => this.from().getTime() > startOfToday().getTime());
+
+  protected canPick(slot: Slot): boolean {
+    if (this.selectedSlotIds().includes(slot.id)) return true;
+    if (!this.canSelectMore()) return false;
+    const anchor = startOfToday();
+    const week = weekWindowIndex(slot.startTime, anchor);
+    const bookedCount = this.bookedSlotStartTimes().filter(
+      (startTime) => weekWindowIndex(startTime, anchor) === week,
+    ).length;
+    const selectedCount = this.selectedSlots().filter(
+      (selected) => weekWindowIndex(selected.startTime, anchor) === week,
+    ).length;
+    const sameWeekCount = bookedCount + selectedCount;
+    return sameWeekCount < this.weeklyLimit();
+  }
 
   ngOnInit(): void {
     this.reload();

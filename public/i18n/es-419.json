@@ -244,8 +244,13 @@
       "none": "Completa estos datos para ver los horarios. El plan solo se guardará cuando confirmes una hora.",
       "pickSlot": "Elige un horario libre para reservar tu siguiente sesión.",
       "full": "Ya reservaste todas las sesiones de este plan.",
-      "selectedSlot": "Seleccionado: {{day}} · {{time}}",
-      "reserveSession": "Reservar sesión",
+      "selectionHint": "Selecciona hasta {{count}} horarios en total, con un máximo de {{weekly}} por semana. Puedes navegar a otra semana.",
+      "weeklyLimitReached": "Llegaste al máximo de {{count}} sesiones para esa semana. Quita una hora seleccionada para cambiarla o navega a otra semana.",
+      "weeklyLimitLoadError": "No pudimos comprobar tus sesiones reservadas. Vuelve a cargar la página antes de elegir horarios.",
+      "selectedCount": "Seleccionaste {{count}} de {{limit}} sesiones disponibles del plan.",
+      "reserveCount": "Reservar {{count}} sesiones",
+      "createAndReserveCount": "Crear plan y reservar {{count}}",
+      "partialBooking": "Se reservaron {{booked}} de {{total}} horarios. El plan permanece disponible para completar las reservas. Detalle: {{error}}",
       "continue": "Continuar para elegir horario",
       "reviewBeforeBooking": "Revisa los datos. Puedes cambiarlos antes de confirmar; el plan aún no se ha guardado.",
       "editDetails": "Cambiar datos del plan",
@@ -284,10 +289,11 @@
     },
     "book": {
       "title": "Confirmar reserva",
-      "message": "¿Reservar tu sesión del {{when}} con {{name}}?",
-      "newPlanMessage": "Se creará tu plan de tratamiento y se reservará una sesión del {{when}} con {{name}}. ¿Deseas continuar?",
-      "confirm": "Reservar",
-      "done": "Sesión {{number}} de {{total}} reservada."
+      "multiplePrompt": "Vas a reservar {{count}} sesiones con {{name}}. Revisa los horarios antes de confirmar.",
+      "newPlanPrompt": "Se creará tu plan y reservarás {{count}} sesiones con {{name}}. Revisa los datos y horarios antes de confirmar.",
+      "planSummary": "Plan que vas a crear",
+      "selectedSlots": "Horarios seleccionados",
+      "multipleDone": "Se reservaron {{count}} sesiones."
     },
     "reschedule": {
       "action": "Reprogramar",
