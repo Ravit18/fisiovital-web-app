@@ -183,6 +183,10 @@ describe('Dashboard', () => {
     expect(content).toContain('home.physio.reservedSessions');
     expect(content).toContain('Un paciente canceló su sesión.');
     expect(compiled.querySelector('.agenda-slot--cancelled')).toBeTruthy();
+    // The booked session links to the patient's record; the free block does not.
+    const recordLinks = compiled.querySelectorAll('.agenda-slot .record-link');
+    expect(recordLinks).toHaveLength(1);
+    expect(recordLinks[0].getAttribute('href')).toBe('/physiotherapist/patients?patient=Carlos%20Mendoza');
     expect(compiled.querySelector('.assistant-button')).toBeNull();
   });
 

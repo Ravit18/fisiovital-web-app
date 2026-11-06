@@ -78,13 +78,6 @@
   color: var(--fv-color-text-muted);
 }
 
-.history-action {
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--fv-color-forest) !important;
-  color: var(--fv-color-surface) !important;
-}
-
 .patient-search {
   display: flex;
   flex-wrap: wrap;
@@ -199,4 +192,270 @@
   .history-table-wrap {
     padding: 4px 10px;
   }
+}
+
+// US16: patient record shown above the sessions of the searched patient.
+.patient-record {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 18px;
+  border-radius: 22px;
+  padding: 24px;
+  background: var(--fv-color-surface);
+  box-shadow: 0 12px 32px #23352a0d;
+}
+
+.patient-record__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  h2 {
+    margin: 2px 0 4px;
+    color: var(--fv-color-forest);
+    font-size: 24px;
+  }
+}
+
+.patient-record__avatar {
+  display: grid;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary-dark);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.patient-record__eyebrow {
+  margin: 0;
+  color: var(--fv-color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.patient-record__since {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 13px;
+}
+
+.patient-record__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0;
+
+  div {
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: var(--fv-color-background-soft);
+  }
+
+  dt {
+    color: var(--fv-color-text-muted);
+    font-size: 12px;
+  }
+
+  dd {
+    margin: 6px 0 0;
+    color: var(--fv-color-text-strong);
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+.patient-record__subtitle {
+  margin: 4px 0 0;
+  color: var(--fv-color-text-strong);
+  font-size: 16px;
+}
+
+.patient-record__treatments {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.treatment {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--fv-color-border);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.treatment__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--fv-color-text-strong);
+}
+
+.treatment__specialty {
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary-dark);
+  font-size: 12px;
+}
+
+.treatment__bar {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fv-color-border);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fv-color-primary);
+  }
+}
+
+.treatment__details {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 13px;
+}
+
+.patient-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--fv-color-primary-dark);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--fv-color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fv-color-primary-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .patient-record {
+    padding: 18px;
+  }
+}
+
+// Clinical history: notes written by the physiotherapists who treat the patient.
+.clinical-history {
+  display: grid;
+  gap: 12px;
+}
+
+.clinical-history__message {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 13px;
+}
+
+.clinical-history__message--error {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--fv-color-error-soft);
+  color: var(--fv-color-error);
+}
+
+.clinical-history__latest {
+  margin: 0;
+  border-left: 4px solid var(--fv-color-primary);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--fv-color-primary-softer);
+  color: var(--fv-color-text-strong);
+  font-size: 14px;
+}
+
+.clinical-history__notes {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clinical-note {
+  border: 1px solid var(--fv-color-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.clinical-note__text {
+  margin: 0;
+  color: var(--fv-color-text);
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+.clinical-note__meta {
+  margin: 6px 0 0;
+  color: var(--fv-color-text-muted);
+  font-size: 12px;
+}
+
+.clinical-history__form {
+  display: grid;
+  gap: 4px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    justify-self: start;
+  }
+}
+
+// Progress per session: the session each note belongs to, and the notes shown in the sessions table.
+.clinical-note__tag {
+  display: inline-block;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-primary-dark);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.clinical-note__tag--general {
+  background: var(--fv-color-background-soft);
+  color: var(--fv-color-text-muted);
+}
+
+.evolution-cell {
+  min-width: 220px;
+}
+
+.evolution-note {
+  margin: 0 0 6px;
+  color: var(--fv-color-text);
+  font-size: 13px;
+  white-space: pre-line;
+}
+
+.evolution-note__meta,
+.evolution-cell__empty {
+  display: block;
+  color: var(--fv-color-text-muted);
+  font-size: 11px;
 }
