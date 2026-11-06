@@ -46,10 +46,8 @@ describe('PatientHistory (US15/US16)', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('.dashboard-nav a[href="/physiotherapist/agenda"]')).toBeTruthy();
     expect(element.querySelector('.dashboard-nav a[aria-current="page"]')?.getAttribute('href')).toBe('/physiotherapist/patients');
-    (element.querySelector('.history-action') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
     const input = element.querySelector('input') as HTMLInputElement;
+    expect(input).toBeTruthy();
     input.value = 'Pedro Ruiz';
     input.dispatchEvent(new Event('input', { bubbles: true }));
     await fixture.whenStable();
@@ -61,8 +59,17 @@ describe('PatientHistory (US15/US16)', () => {
     expect(filtered.request.params.get('patientName')).toBe('Pedro Ruiz');
     filtered.flush({ appointments: [], message: 'No se encontró al paciente' });
     await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(element.textContent).toContain('No se encontró al paciente');
+    expect(element.querySelector('input')).toBeTruthy();
+    (element.querySelector('.patient-search button[type="button"]') as HTMLButtonElement).click();
+    const allAgain = http.expectOne((req) => req.url === historyUrl);
+    expect(allAgain.request.params.has('patientName')).toBe(false);
+    allAgain.flush({ appointments: [], message: null });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('input')).toBeTruthy();
   });
 
   it('renders real appointments newest first with their session and status', async () => {

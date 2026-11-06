@@ -314,8 +314,9 @@
       "duration": "Length of each session",
       "minutes": "{{count}} minutes",
       "weekTitle": "My availability · Week",
+      "selectDate": "Select {{date}}",
       "noSlots": "No slots",
-      "previewCount": "{{count}} free slots will be created",
+      "previewCount": "Slots to be published ({{count}})",
       "overlap": "Time conflict: you already published {{range}} that day.",
       "invalidDate": "Select a valid date.",
       "pastDate": "You cannot publish availability on past dates.",
@@ -324,8 +325,12 @@
       "reserved": "Reserved",
       "free": "Free",
       "submit": "Publish",
-      "created": "{{count}} slots published",
-      "goAgenda": "See my schedule"
+      "submitCount": "Publish {{count}} slots",
+      "publishing": "Publishing…",
+      "successTitle": "Availability published!",
+      "successMessage": "These times are now available for patients to book.",
+      "publishAnother": "Publish more slots",
+      "goAgenda": "See that week's schedule"
     }
   },
   "appointments": {
@@ -359,7 +364,6 @@
       "titlePrefix": "Appointment",
       "titleAccent": "history",
       "subtitle": "All your appointments, from newest to oldest.",
-      "patientHistory": "View patient history",
       "patientName": "Patient's full name",
       "search": "Search",
       "showAll": "Show all",
@@ -390,6 +394,7 @@
     "free": "Free slot",
     "freeCancelled": "Freed after cancellation",
     "empty": "No slots",
+    "addAvailability": "Add availability",
     "emptyBooked": "No appointments"
   },
   "notifications": {
