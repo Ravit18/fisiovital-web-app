@@ -57,7 +57,7 @@
         <a mat-button routerLink="/patient/physiotherapists">{{ 'profiles.search.back' | translate }}</a>
       </div>
     } @else if (physio(); as physio) {
-      <div class="profile-layout">
+      <div class="profile-layout" [class.profile-layout--plan-first]="!plan() && !planReady()">
         <section class="profile-card" aria-labelledby="profile-title">
           <a class="back-link" mat-button routerLink="/patient/physiotherapists">
             <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'profiles.search.back' | translate }}
@@ -93,68 +93,93 @@
                 }
               </div>
             } @else {
-              <p class="plan-intro">{{ 'profiles.plan.none' | translate }}</p>
-              <form class="plan-form" [formGroup]="planForm" (ngSubmit)="createPlan()" novalidate>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'treatment.plan.diagnosis' | translate }}</mat-label>
-                  <input matInput formControlName="diagnosis" required />
-                  @if (planForm.controls.diagnosis.invalid && planForm.controls.diagnosis.touched) {
-                    <mat-error>{{ 'validation.required' | translate }}</mat-error>
-                  }
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'treatment.plan.totalSessions' | translate }}</mat-label>
-                  <input matInput type="number" min="1" max="30" formControlName="totalSessions" required />
-                  @if (planForm.controls.totalSessions.invalid && planForm.controls.totalSessions.touched) {
-                    <mat-error>{{ 'validation.sessions' | translate }}</mat-error>
-                  }
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'treatment.plan.frequencyPerWeek' | translate }}</mat-label>
-                  <input matInput type="number" min="1" max="7" formControlName="frequencyPerWeek" required />
-                  @if (planForm.controls.frequencyPerWeek.invalid && planForm.controls.frequencyPerWeek.touched) {
-                    <mat-error>{{ 'validation.frequency' | translate }}</mat-error>
-                  }
-                </mat-form-field>
-                <button mat-flat-button type="submit" [disabled]="saving()">
-                  {{ 'treatment.plan.create' | translate }}
-                </button>
-              </form>
+              @if (planReady()) {
+                <p class="plan-intro">{{ 'profiles.plan.reviewBeforeBooking' | translate }}</p>
+                <div class="plan-summary">
+                  <p class="plan-summary__diagnosis">{{ planForm.controls.diagnosis.value }}</p>
+                  <p>
+                    {{ 'treatment.plan.totalSessions' | translate }}:
+                    {{ planForm.controls.totalSessions.value }}
+                  </p>
+                  <p>
+                    {{ 'treatment.plan.frequencyPerWeek' | translate }}:
+                    {{ planForm.controls.frequencyPerWeek.value }}
+                  </p>
+                  <button mat-button type="button" (click)="editPlanDetails()">
+                    {{ 'profiles.plan.editDetails' | translate }}
+                  </button>
+                </div>
+              } @else {
+                <p class="plan-intro">{{ 'profiles.plan.none' | translate }}</p>
+                <form class="plan-form" [formGroup]="planForm" (ngSubmit)="continueToSlots()" novalidate>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.diagnosis' | translate }}</mat-label>
+                    <input matInput formControlName="diagnosis" required />
+                    @if (planForm.controls.diagnosis.invalid && planForm.controls.diagnosis.touched) {
+                      <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.totalSessions' | translate }}</mat-label>
+                    <input matInput type="number" min="1" max="30" formControlName="totalSessions" required />
+                    @if (planForm.controls.totalSessions.invalid && planForm.controls.totalSessions.touched) {
+                      <mat-error>{{ 'validation.sessions' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.frequencyPerWeek' | translate }}</mat-label>
+                    <input matInput type="number" min="1" max="7" formControlName="frequencyPerWeek" required />
+                    @if (planForm.controls.frequencyPerWeek.invalid && planForm.controls.frequencyPerWeek.touched) {
+                      <mat-error>{{ 'validation.frequency' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <button mat-flat-button type="submit" [disabled]="saving()">
+                    {{ 'profiles.plan.continue' | translate }}
+                  </button>
+                </form>
+              }
             }
           </div>
         </section>
 
-        <section class="availability-card" aria-labelledby="availability-title">
-          <div class="availability-heading">
-            <h2 id="availability-title">{{ 'profiles.availability' | translate }}</h2>
-            @if (remaining() === 0 && plan()) {
-              <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
-            }
-          </div>
-          @if (saving()) {
-            <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
-          }
-          <app-slot-picker
-            [physiotherapistId]="physio.id"
-            [selectable]="!planLoading() && remaining() > 0"
-            [busy]="saving()"
-            [selectedSlotId]="selectedSlot()?.id ?? null"
-            (picked)="selectedSlot.set($event)"
-          />
-          @if (selectedSlot(); as slot) {
-            <div class="booking-bar">
-              <p>
-                {{ 'profiles.plan.selectedSlot' | translate: {
-                  day: (slot.startTime | date: 'fullDate' : undefined : language.current()),
-                  time: (slot.startTime | date: 'shortTime' : undefined : language.current())
-                } }}
-              </p>
-              <button mat-flat-button type="button" [disabled]="saving() || remaining() === 0" (click)="book(slot)">
-                {{ 'profiles.plan.reserveSession' | translate }}
-              </button>
+        @if (plan() || planReady()) {
+          <section class="availability-card" aria-labelledby="availability-title">
+            <div class="availability-heading">
+              <h2 id="availability-title">{{ 'profiles.availability' | translate }}</h2>
+              @if (remaining() === 0 && plan()) {
+                <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
+              }
             </div>
-          }
-        </section>
+            @if (saving()) {
+              <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
+            }
+            <app-slot-picker
+              [physiotherapistId]="physio.id"
+              [selectable]="!planLoading() && (!plan() || remaining() > 0)"
+              [busy]="saving()"
+              [selectedSlotId]="selectedSlot()?.id ?? null"
+              (picked)="selectedSlot.set($event)"
+            />
+            @if (selectedSlot(); as slot) {
+              <div class="booking-bar">
+                <p>
+                  {{ 'profiles.plan.selectedSlot' | translate: {
+                    day: (slot.startTime | date: 'fullDate' : undefined : language.current()),
+                    time: (slot.startTime | date: 'shortTime' : undefined : language.current())
+                  } }}
+                </p>
+                <button
+                  mat-flat-button
+                  type="button"
+                  [disabled]="saving() || (plan() && remaining() === 0)"
+                  (click)="book(slot)"
+                >
+                  {{ (plan() ? 'profiles.plan.reserveSession' : 'profiles.plan.createAndBook') | translate }}
+                </button>
+              </div>
+            }
+          </section>
+        }
       </div>
     } @else {
       <div class="profile-loading">

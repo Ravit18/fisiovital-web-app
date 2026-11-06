@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { filter, switchMap } from 'rxjs';
+import { filter, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationsStore } from '../../../core/services/notifications.store';
 import { SlotPicker } from './slot-picker/slot-picker';
@@ -66,6 +66,7 @@ export class PhysiotherapistProfile implements OnInit {
   protected readonly plan = signal<TreatmentPlan | null>(null);
   protected readonly planLoading = signal(true);
   protected readonly saving = signal(false);
+  protected readonly planReady = signal(false);
   protected readonly selectedSlot = signal<Slot | null>(null);
   protected readonly profileMenuOpen = signal(false);
   protected readonly physioId = computed(() => Number(this.id()));
@@ -90,37 +91,37 @@ export class PhysiotherapistProfile implements OnInit {
     this.loadPlan();
   }
 
-  protected createPlan(): void {
+  protected continueToSlots(): void {
     if (this.planForm.invalid) {
       this.planForm.markAllAsTouched();
       return;
     }
-    this.saving.set(true);
-    this.plansApi.create({ physiotherapistId: this.physioId(), ...this.planForm.getRawValue() }).subscribe({
-      next: (plan) => {
-        this.plan.set(plan);
-        this.saving.set(false);
-        this.feedback.success('treatment.plan.created');
-      },
-      error: (error: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.feedback.error(error);
-        // 409: there is already an active plan with this physiotherapist; show it.
-        if (error.status === 409) this.loadPlan();
-      },
-    });
+    this.selectedSlot.set(null);
+    this.planReady.set(true);
+  }
+
+  protected editPlanDetails(): void {
+    this.selectedSlot.set(null);
+    this.planReady.set(false);
   }
 
   protected book(slot: Slot): void {
-    const plan = this.plan();
-    if (!plan) return;
+    if (!this.plan() && this.planForm.invalid) {
+      this.planForm.markAllAsTouched();
+      this.planReady.set(false);
+      return;
+    }
     const when = `${this.datePipe.transform(slot.startTime, 'fullDate', undefined, this.language.current())} · ${this.datePipe.transform(slot.startTime, 'shortTime', undefined, this.language.current())}`;
+    const creatingPlan = !this.plan();
     this.dialog
       .open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
         data: {
           title: 'treatment.book.title',
-          message: this.translate.instant('treatment.book.message', { when, name: this.physio()?.fullName }),
-          confirm: 'treatment.book.confirm',
+          message: this.translate.instant(creatingPlan ? 'treatment.book.newPlanMessage' : 'treatment.book.message', {
+            when,
+            name: this.physio()?.fullName,
+          }),
+          confirm: creatingPlan ? 'profiles.plan.createAndBook' : 'treatment.book.confirm',
         },
       })
       .afterClosed()
@@ -128,7 +129,17 @@ export class PhysiotherapistProfile implements OnInit {
         filter(Boolean),
         switchMap(() => {
           this.saving.set(true);
-          return this.plansApi.bookSession(plan.id, slot.id);
+          const existingPlan = this.plan();
+          const plan$ = existingPlan
+            ? of(existingPlan)
+            : this.plansApi.create({ physiotherapistId: this.physioId(), ...this.planForm.getRawValue() });
+          return plan$.pipe(
+            tap((plan) => {
+              this.plan.set(plan);
+              this.planReady.set(false);
+            }),
+            switchMap((plan) => this.plansApi.bookSession(plan.id, slot.id)),
+          );
         }),
       )
       .subscribe({
@@ -144,6 +155,7 @@ export class PhysiotherapistProfile implements OnInit {
           this.saving.set(false);
           this.selectedSlot.set(null);
           this.feedback.error(error);
+          if (creatingPlan) this.loadPlan();
           this.slotPicker()?.reload();
         },
       });
@@ -168,7 +180,9 @@ export class PhysiotherapistProfile implements OnInit {
     this.planLoading.set(true);
     this.plansApi.getMine().subscribe({
       next: (plans) => {
-        this.plan.set(plans.find((p) => p.physiotherapistId === this.physioId() && p.status === 'ACTIVE') ?? null);
+        const activePlan = plans.find((p) => p.physiotherapistId === this.physioId() && p.status === 'ACTIVE') ?? null;
+        this.plan.set(activePlan);
+        if (activePlan) this.planReady.set(false);
         this.planLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {

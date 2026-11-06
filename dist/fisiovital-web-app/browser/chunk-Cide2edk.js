@@ -1,0 +1,1 @@
+function s(r){let t=r.error;return r.status!==0&&t?.message?t.message:null}export{s as t};
