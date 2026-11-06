@@ -314,8 +314,9 @@
       "duration": "Duración de cada sesión",
       "minutes": "{{count}} minutos",
       "weekTitle": "Mi disponibilidad · Semana",
+      "selectDate": "Seleccionar {{date}}",
       "noSlots": "Sin bloques",
-      "previewCount": "Se crearán {{count}} bloques libres",
+      "previewCount": "Horarios que se publicarán ({{count}})",
       "overlap": "Cruce de horario: ya publicaste de {{range}} ese día.",
       "invalidDate": "Selecciona una fecha válida.",
       "pastDate": "No puedes publicar horarios en fechas pasadas.",
@@ -324,8 +325,12 @@
       "reserved": "Reservada",
       "free": "Libre",
       "submit": "Publicar",
-      "created": "Se publicaron {{count}} horarios",
-      "goAgenda": "Ver mi agenda"
+      "submitCount": "Publicar {{count}} horarios",
+      "publishing": "Publicando…",
+      "successTitle": "¡Disponibilidad publicada!",
+      "successMessage": "Estos horarios ya están disponibles para que tus pacientes los reserven.",
+      "publishAnother": "Publicar otros horarios",
+      "goAgenda": "Ver agenda de esa semana"
     }
   },
   "appointments": {
@@ -359,7 +364,6 @@
       "titlePrefix": "Historial de",
       "titleAccent": "citas",
       "subtitle": "Todas tus citas, de la más nueva a la más antigua.",
-      "patientHistory": "Ver historial de paciente",
       "patientName": "Nombre completo del paciente",
       "search": "Buscar",
       "showAll": "Ver todos",
@@ -390,6 +394,7 @@
     "free": "Horario libre",
     "freeCancelled": "Libre por cancelación",
     "empty": "Sin horarios",
+    "addAvailability": "Agregar disponibilidad",
     "emptyBooked": "Sin citas"
   },
   "notifications": {

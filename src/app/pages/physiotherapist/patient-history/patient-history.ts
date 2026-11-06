@@ -94,38 +94,26 @@ import { AppointmentsService } from '../../../core/services/appointments.service
               </h1>
               <p class="history-subtitle">{{ 'appointments.physio.subtitle' | translate }}</p>
             </div>
-            <button
-              class="history-action"
-              mat-flat-button
-              type="button"
-              aria-controls="patient-search"
-              [attr.aria-expanded]="patientSearchOpen()"
-              (click)="showPatientSearch()"
-            >
-              {{ 'appointments.physio.patientHistory' | translate }}
-            </button>
           </header>
 
-          @if (patientSearchOpen()) {
-            <form id="patient-search" class="patient-search" role="search" (submit)="search($event)">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'appointments.physio.patientName' | translate }}</mat-label>
-                <input
-                  matInput
-                  name="patientName"
-                  [value]="patientName"
-                  (input)="onPatientNameInput($event)"
-                  autocomplete="off"
-                />
-              </mat-form-field>
-              <button mat-flat-button type="submit">{{ 'appointments.physio.search' | translate }}</button>
-              @if (filtered()) {
-                <button mat-stroked-button type="button" (click)="clear()">
-                  {{ 'appointments.physio.showAll' | translate }}
-                </button>
-              }
-            </form>
-          }
+          <form id="patient-search" class="patient-search" role="search" (submit)="search($event)">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'appointments.physio.patientName' | translate }}</mat-label>
+              <input
+                matInput
+                name="patientName"
+                [value]="patientName"
+                (input)="onPatientNameInput($event)"
+                autocomplete="off"
+              />
+            </mat-form-field>
+            <button mat-flat-button type="submit">{{ 'appointments.physio.search' | translate }}</button>
+            @if (filtered()) {
+              <button mat-stroked-button type="button" (click)="clear()">
+                {{ 'appointments.physio.showAll' | translate }}
+              </button>
+            }
+          </form>
 
           @if (loading()) {
             <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
@@ -192,7 +180,6 @@ export class PatientHistory {
 
   protected patientName = '';
   protected readonly filtered = signal(false);
-  protected readonly patientSearchOpen = signal(false);
   protected readonly profileMenuOpen = signal(false);
   protected readonly loading = signal(true);
   protected readonly loadFailed = signal(false);
@@ -212,16 +199,11 @@ export class PatientHistory {
 
   protected clear(): void {
     this.patientName = '';
-    this.patientSearchOpen.set(false);
     this.load();
   }
 
   protected retry(): void {
     this.load(this.activePatientName);
-  }
-
-  protected showPatientSearch(): void {
-    this.patientSearchOpen.set(true);
   }
 
   protected onPatientNameInput(event: Event): void {
@@ -250,7 +232,6 @@ export class PatientHistory {
     this.errorMessage.set(null);
     this.activePatientName = patientName;
     this.filtered.set(patientName !== '');
-    this.patientSearchOpen.set(patientName !== '');
     this.api.getForPhysiotherapist(patientName || undefined).subscribe({
       next: (history) => {
         this.appointments.set(

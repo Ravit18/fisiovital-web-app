@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { forkJoin, Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { NotificationsStore } from '../../../core/services/notifications.store';
 import { SessionStatusChip } from '../../../core/components/session-status-chip/session-status-chip';
 import { apiErrorMessage } from '../../../core/models/api-error.model';
 import { LanguageService } from '../../../core/services/language.service';
-import { addDays, startOfToday, toIsoDate } from '../../../core/dates';
+import { addDays, fromIsoDate, startOfToday, toIsoDate } from '../../../core/dates';
 import { AgendaItem } from '../../../core/models/agenda.model';
 import { AgendaService } from '../../../core/services/agenda.service';
 
@@ -38,12 +38,13 @@ export class AgendaPage {
   private readonly api = inject(AgendaService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly auth = inject(AuthService);
   protected readonly notifications = inject(NotificationsStore);
   protected readonly language = inject(LanguageService);
 
   protected readonly today = toIsoDate(startOfToday());
-  protected readonly selected = signal(startOfToday());
+  protected readonly selected = signal(this.initialSelectedDay());
   protected readonly showFree = signal(true);
   protected readonly loading = signal(true);
   protected readonly loadFailed = signal(false);
@@ -68,6 +69,12 @@ export class AgendaPage {
     this.load();
   }
 
+  private initialSelectedDay(): Date {
+    const requestedDate = this.route.snapshot.queryParamMap.get('date');
+    if (requestedDate && toIsoDate(fromIsoDate(requestedDate)) === requestedDate) return fromIsoDate(requestedDate);
+    return startOfToday();
+  }
+
   protected isoDate(date: Date): string {
     return toIsoDate(date);
   }
@@ -85,6 +92,14 @@ export class AgendaPage {
   protected dayItems(date: Date): AgendaItem[] {
     const items = this.weekItems()[this.isoDate(date)] ?? [];
     return this.showFree() ? items : items.filter((item) => item.status === 'BOOKED');
+  }
+
+  protected dayIsEmpty(date: Date): boolean {
+    return (this.weekItems()[this.isoDate(date)] ?? []).length === 0;
+  }
+
+  protected canAddAvailability(date: Date): boolean {
+    return this.dayIsEmpty(date) && this.isoDate(date) >= this.today;
   }
 
   protected dayBooked(date: Date): number {

@@ -94,53 +94,71 @@
         } @else {
           <div class="week-board">
             @for (day of week(); track isoDate(day)) {
-              <section
-                class="week-day"
-                [class.week-day--today]="isoDate(day) === today"
-                [attr.aria-label]="day | date: 'fullDate' : undefined : language.current()"
-              >
-                <header class="week-day__header">
-                  <span class="week-day__weekday">{{ day | date: 'EEE' : undefined : language.current() }}</span>
-                  <span class="week-day__number">{{ day | date: 'd' : undefined : language.current() }}</span>
-                  <span class="week-day__counts">
-                    {{ 'agenda.daySummary' | translate: { booked: dayBooked(day), free: dayFree(day) } }}
-                  </span>
-                </header>
-
-                @if (dayItems(day).length === 0) {
-                  <p class="week-day__empty">
-                    {{ (showFree() ? 'agenda.empty' : 'agenda.emptyBooked') | translate }}
-                  </p>
-                } @else {
-                  <ul class="week-day__list">
-                    @for (item of dayItems(day); track item.slotId) {
-                      <li
-                        class="week-slot"
-                        [class.week-slot--free]="item.status === 'FREE'"
-                        [class.week-slot--cancelled]="item.status === 'FREE_CANCELLED'"
-                      >
-                        <time class="week-slot__time" [attr.datetime]="item.startTime">
-                          {{ item.startTime | date: 'shortTime' : undefined : language.current() }} –
-                          {{ item.endTime | date: 'shortTime' : undefined : language.current() }}
-                        </time>
-                        @if (item.status === 'BOOKED') {
-                          <strong class="week-slot__patient">{{ item.patientName }}</strong>
-                          <span class="week-slot__session">
-                            {{ 'appointments.session' | translate: { number: item.sessionNumber, total: item.totalSessions } }}
-                          </span>
-                          @if (item.sessionStatus) {
-                            <app-session-status-chip [status]="item.sessionStatus" />
+              @if (canAddAvailability(day)) {
+                <a
+                  class="week-day week-day--empty"
+                  [class.week-day--today]="isoDate(day) === today"
+                  [routerLink]="['/physiotherapist/availability']"
+                  [queryParams]="{ date: isoDate(day) }"
+                >
+                  <header class="week-day__header">
+                    <span class="week-day__weekday">{{ day | date: 'EEE' : undefined : language.current() }}</span>
+                    <span class="week-day__number">{{ day | date: 'd' : undefined : language.current() }}</span>
+                    <span class="week-day__counts">
+                      {{ 'agenda.daySummary' | translate: { booked: dayBooked(day), free: dayFree(day) } }}
+                    </span>
+                  </header>
+                  <span class="week-day__empty">{{ 'agenda.empty' | translate }}</span>
+                  <span class="week-day__publish">{{ 'agenda.addAvailability' | translate }}</span>
+                </a>
+              } @else {
+                <section
+                  class="week-day"
+                  [class.week-day--today]="isoDate(day) === today"
+                  [attr.aria-label]="day | date: 'fullDate' : undefined : language.current()"
+                >
+                  <header class="week-day__header">
+                    <span class="week-day__weekday">{{ day | date: 'EEE' : undefined : language.current() }}</span>
+                    <span class="week-day__number">{{ day | date: 'd' : undefined : language.current() }}</span>
+                    <span class="week-day__counts">
+                      {{ 'agenda.daySummary' | translate: { booked: dayBooked(day), free: dayFree(day) } }}
+                    </span>
+                  </header>
+                  @if (dayItems(day).length === 0) {
+                    <p class="week-day__empty">
+                      {{ (dayIsEmpty(day) ? 'agenda.empty' : 'agenda.emptyBooked') | translate }}
+                    </p>
+                  } @else {
+                    <ul class="week-day__list">
+                      @for (item of dayItems(day); track item.slotId) {
+                        <li
+                          class="week-slot"
+                          [class.week-slot--free]="item.status === 'FREE'"
+                          [class.week-slot--cancelled]="item.status === 'FREE_CANCELLED'"
+                        >
+                          <time class="week-slot__time" [attr.datetime]="item.startTime">
+                            {{ item.startTime | date: 'shortTime' : undefined : language.current() }} –
+                            {{ item.endTime | date: 'shortTime' : undefined : language.current() }}
+                          </time>
+                          @if (item.status === 'BOOKED') {
+                            <strong class="week-slot__patient">{{ item.patientName }}</strong>
+                            <span class="week-slot__session">
+                              {{ 'appointments.session' | translate: { number: item.sessionNumber, total: item.totalSessions } }}
+                            </span>
+                            @if (item.sessionStatus) {
+                              <app-session-status-chip [status]="item.sessionStatus" />
+                            }
+                          } @else if (item.status === 'FREE_CANCELLED') {
+                            <span class="week-slot__label">{{ 'agenda.freeCancelled' | translate }}</span>
+                          } @else {
+                            <span class="week-slot__label">{{ 'agenda.free' | translate }}</span>
                           }
-                        } @else if (item.status === 'FREE_CANCELLED') {
-                          <span class="week-slot__label">{{ 'agenda.freeCancelled' | translate }}</span>
-                        } @else {
-                          <span class="week-slot__label">{{ 'agenda.free' | translate }}</span>
-                        }
-                      </li>
-                    }
-                  </ul>
-                }
-              </section>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </section>
+              }
             }
           </div>
         }

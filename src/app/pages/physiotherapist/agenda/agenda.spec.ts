@@ -1,14 +1,17 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Routes } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { provideTranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
 import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { AgendaItem } from '../../../core/models/agenda.model';
+import { startOfToday, toIsoDate } from '../../../core/dates';
 import { AgendaPage } from './agenda';
 
 const agendaUrl = `${environment.apiBaseUrl}/physiotherapists/me/agenda`;
+const routes: Routes = [{ path: 'agenda', component: AgendaPage }];
 const physiotherapist: AuthenticatedUser = {
   userId: 2,
   profileId: 2,
@@ -52,7 +55,7 @@ describe('AgendaPage', () => {
     localStorage.setItem('fisiovital.session', JSON.stringify(physiotherapist));
     TestBed.configureTestingModule({
       imports: [AgendaPage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), provideTranslateService()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter(routes), provideTranslateService()],
     });
     http = TestBed.inject(HttpTestingController);
   });
@@ -84,6 +87,15 @@ describe('AgendaPage', () => {
     expect(element.querySelectorAll('.week-day').length).toBe(7);
     expect(element.querySelectorAll('.week-slot').length).toBe(2);
     expect(element.textContent).toContain('Carlos Mendoza');
+    const emptyDays = element.querySelectorAll<HTMLAnchorElement>('.week-day--empty');
+    const availableDays = dates.filter((date) => date >= toIsoDate(startOfToday()) && date !== friday);
+    expect(emptyDays).toHaveLength(availableDays.length);
+    const emptyDayDate = new URL(emptyDays[0].href).searchParams.get('date');
+    expect(emptyDayDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(availableDays).toContain(emptyDayDate);
+    expect(emptyDayDate?.endsWith(`-${emptyDays[0].querySelector('.week-day__number')?.textContent?.padStart(2, '0')}`)).toBe(
+      true,
+    );
 
     const page = fixture.componentInstance as unknown as { showFree: { set: (value: boolean) => void } };
     page.showFree.set(false);
@@ -125,5 +137,65 @@ describe('AgendaPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.week-day').length).toBe(7);
+  });
+
+  it('opens the week containing the requested date from the published availability confirmation', async () => {
+    const requestedDate = `${new Date().getFullYear() + 1}-01-15`;
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(`/agenda?date=${requestedDate}`, AgendaPage);
+
+    const requests = http.match((req) => req.url === agendaUrl);
+    expect(requests).toHaveLength(7);
+    expect(requests.map((request) => request.request.params.get('date'))).toContain(requestedDate);
+    for (const request of requests) {
+      const date = request.request.params.get('date')!;
+      request.flush({ date, items: [], message: null });
+    }
+    await harness.fixture.whenStable();
+  });
+
+  it('does not offer to publish availability on days with free slots hidden by the filter', async () => {
+    const fixture = TestBed.createComponent(AgendaPage);
+    fixture.detectChanges();
+    const requests = http.match((req) => req.url === agendaUrl);
+    const freeDate = requests[0].request.params.get('date')!;
+    for (const request of requests) {
+      const date = request.request.params.get('date')!;
+      request.flush({
+        date,
+        items:
+          date === freeDate
+            ? [
+                {
+                  slotId: 1,
+                  startTime: `${date}T08:00:00`,
+                  endTime: `${date}T08:45:00`,
+                  status: 'FREE',
+                  sessionId: null,
+                  patientName: null,
+                  sessionNumber: null,
+                  totalSessions: null,
+                  sessionStatus: null,
+                },
+              ]
+            : [],
+        message: null,
+      });
+    }
+    await fixture.whenStable();
+
+    const page = fixture.componentInstance as unknown as { showFree: { set: (value: boolean) => void } };
+    page.showFree.set(false);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const availableEmptyDays = element.querySelectorAll<HTMLAnchorElement>('.week-day--empty');
+    expect(availableEmptyDays).toHaveLength(
+      requests.filter(
+        (request) => request.request.params.get('date')! >= toIsoDate(startOfToday()) && request.request.params.get('date') !== freeDate,
+      ).length,
+    );
+    expect([...availableEmptyDays].some((day) => new URL(day.href).searchParams.get('date') === freeDate)).toBe(false);
+    expect(element.textContent).toContain('agenda.emptyBooked');
   });
 });

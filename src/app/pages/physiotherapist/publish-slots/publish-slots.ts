@@ -9,7 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { NotificationsStore } from '../../../core/services/notifications.store';
@@ -17,7 +17,6 @@ import { AgendaItem } from '../../../core/models/agenda.model';
 import { AgendaService } from '../../../core/services/agenda.service';
 import { apiErrorMessage } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { FeedbackService } from '../../../core/services/feedback.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { addDays, fromIsoDate, startOfToday, toIsoDate } from '../../../core/dates';
 import { Slot } from '../../../core/models/slot.model';
@@ -98,85 +97,121 @@ import { SlotsService } from '../../../core/services/slots.service';
           </header>
           <section class="publish-card" aria-labelledby="publish-card-title">
             <h2 id="publish-card-title">{{ 'scheduling.publish.title' | translate }}</h2>
-            <form [formGroup]="form" (ngSubmit)="publish()" novalidate>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'scheduling.publish.date' | translate }}</mat-label>
-                <input matInput type="date" formControlName="date" [min]="today" required />
-                @if (form.controls.date.invalid && form.controls.date.touched) {
-                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
-                }
-              </mat-form-field>
-
-              <div class="time-fields">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'scheduling.publish.startTime' | translate }}</mat-label>
-                  <input matInput type="time" formControlName="startTime" required />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'scheduling.publish.endTime' | translate }}</mat-label>
-                  <input matInput type="time" formControlName="endTime" required />
-                </mat-form-field>
-              </div>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'scheduling.publish.duration' | translate }}</mat-label>
-                <mat-select formControlName="durationMinutes">
-                  @for (minutes of durations; track minutes) {
-                    <mat-option [value]="minutes">
-                      {{ 'scheduling.publish.minutes' | translate: { count: minutes } }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              @if (previewSlots().length > 0) {
-                <div class="preview-summary" aria-live="polite">
-                  <strong>
-                    {{ 'scheduling.publish.previewCount' | translate: { count: previewSlots().length } }}
-                  </strong>
-                  <div class="preview-summary__times">
-                    @for (slot of previewSlots(); track slot.time) {
-                      <span [class.preview-summary__time--overlap]="slot.overlaps">{{ slot.time }}</span>
+            @if (publishedDate(); as date) {
+              <section class="publish-confirmation" role="status" aria-live="polite">
+                <mat-icon class="publish-confirmation__icon" aria-hidden="true">check_circle</mat-icon>
+                <h3>{{ 'scheduling.publish.successTitle' | translate }}</h3>
+                <p>{{ 'scheduling.publish.successMessage' | translate }}</p>
+                <p class="publish-confirmation__date">
+                  <mat-icon aria-hidden="true">event</mat-icon>
+                  <time [attr.datetime]="isoDate(date)">
+                    {{ date | date: 'fullDate' : undefined : language.current() }}
+                  </time>
+                </p>
+                @if (published().length > 0) {
+                  <ul class="publish-confirmation__slots">
+                    @for (slot of published(); track slot.id) {
+                      <li>
+                        <time [attr.datetime]="slot.startTime">
+                          {{ slot.startTime | date: 'shortTime' : undefined : language.current() }} –
+                          {{ slot.endTime | date: 'shortTime' : undefined : language.current() }}
+                        </time>
+                      </li>
                     }
-                  </div>
+                  </ul>
+                }
+                <div class="publish-confirmation__actions">
+                  <a
+                    mat-flat-button
+                    [routerLink]="['/physiotherapist/agenda']"
+                    [queryParams]="{ date: isoDate(date) }"
+                  >
+                    {{ 'scheduling.publish.goAgenda' | translate }}
+                  </a>
+                  <button mat-stroked-button type="button" (click)="publishAnother()">
+                    {{ 'scheduling.publish.publishAnother' | translate }}
+                  </button>
                 </div>
-              }
+              </section>
+            } @else {
+              <form [formGroup]="form" (ngSubmit)="publish()" novalidate>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'scheduling.publish.date' | translate }}</mat-label>
+                  <input matInput type="date" formControlName="date" [min]="today" required />
+                  @if (form.controls.date.invalid && form.controls.date.touched) {
+                    <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                  }
+                </mat-form-field>
 
-              @if (formErrorKey()) {
-                <p class="form-message form-message--error" role="alert">
-                  {{ formErrorKey() | translate }}
-                </p>
-              }
-              @if (overlappingPreview().length > 0 && !formErrorKey()) {
-                <p class="form-message form-message--warning" role="status">
-                  {{ 'scheduling.publish.overlap' | translate: { range: overlapRange() } }}
-                </p>
-              }
-              @if (errorMessage()) {
-                <p class="form-message form-message--error" role="alert">{{ errorMessage() }}</p>
-              }
+                <div class="time-fields">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'scheduling.publish.startTime' | translate }}</mat-label>
+                    <input matInput type="time" formControlName="startTime" required />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'scheduling.publish.endTime' | translate }}</mat-label>
+                    <input matInput type="time" formControlName="endTime" required />
+                  </mat-form-field>
+                </div>
 
-              <button class="publish-button" mat-flat-button type="submit" [disabled]="!canPublish()">
-                {{ 'scheduling.publish.submit' | translate }}
-              </button>
-            </form>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'scheduling.publish.duration' | translate }}</mat-label>
+                  <mat-select formControlName="durationMinutes">
+                    @for (minutes of durations; track minutes) {
+                      <mat-option [value]="minutes">
+                        {{ 'scheduling.publish.minutes' | translate: { count: minutes } }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
 
-            @if (published().length > 0) {
-              <div class="publish-success" role="status">
-                <strong>
-                  {{ 'scheduling.publish.created' | translate: { count: published().length } }}
-                </strong>
-                <a routerLink="/physiotherapist/agenda">{{ 'scheduling.publish.goAgenda' | translate }}</a>
-              </div>
+                @if (previewSlots().length > 0) {
+                  <div class="preview-summary" aria-live="polite">
+                    <strong>
+                      {{ 'scheduling.publish.previewCount' | translate: { count: previewSlots().length } }}
+                    </strong>
+                    <div class="preview-summary__times">
+                      @for (slot of previewSlots(); track slot.time) {
+                        <span [class.preview-summary__time--overlap]="slot.overlaps">
+                          {{ slot.time }}–{{ slot.endTime }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (formErrorKey()) {
+                  <p class="form-message form-message--error" role="alert">
+                    {{ formErrorKey() | translate }}
+                  </p>
+                }
+                @if (overlappingPreview().length > 0 && !formErrorKey()) {
+                  <p class="form-message form-message--warning" role="status">
+                    {{ 'scheduling.publish.overlap' | translate: { range: overlapRange() } }}
+                  </p>
+                }
+                @if (errorMessage()) {
+                  <p class="form-message form-message--error" role="alert">{{ errorMessage() }}</p>
+                }
+
+                <button class="publish-button" mat-flat-button type="submit" [disabled]="!canPublish()">
+                  {{
+                    (saving() ? 'scheduling.publish.publishing' : 'scheduling.publish.submitCount')
+                      | translate: { count: previewSlots().length }
+                  }}
+                </button>
+              </form>
             }
           </section>
 
           <section class="week-card" aria-labelledby="week-title">
             <div class="week-card__header">
-              <h2 id="week-title">
-                {{ 'scheduling.publish.weekTitle' | translate }}
-                <span>{{ week()[0] | date: 'd' : undefined : language.current() }}–{{ week()[6] | date: 'd MMM' : undefined : language.current() }}</span>
-              </h2>
+              <div>
+                <h2 id="week-title">
+                  {{ 'scheduling.publish.weekTitle' | translate }}
+                  <span>{{ week()[0] | date: 'd' : undefined : language.current() }}–{{ week()[6] | date: 'd MMM' : undefined : language.current() }}</span>
+                </h2>
+              </div>
               <div class="week-card__controls">
                 <button
                   mat-icon-button
@@ -208,7 +243,22 @@ import { SlotsService } from '../../../core/services/slots.service';
               <div class="week-grid">
                 @for (day of week(); track isoDate(day)) {
                   <section class="week-day" [attr.aria-label]="day | date: 'fullDate' : undefined : language.current()">
-                    <h3>{{ day | date: 'EEE d' : undefined : language.current() }}</h3>
+                    <h3>
+                      <button
+                        class="week-day__date"
+                        type="button"
+                        [class.week-day__date--selected]="isoDate(day) === selectedDate()"
+                        [disabled]="isoDate(day) < today"
+                        [attr.aria-pressed]="isoDate(day) === selectedDate()"
+                        [attr.aria-label]="
+                          'scheduling.publish.selectDate'
+                            | translate: { date: (day | date: 'fullDate' : undefined : language.current()) }
+                        "
+                        (click)="selectDate(day)"
+                      >
+                        {{ day | date: 'EEE d' : undefined : language.current() }}
+                      </button>
+                    </h3>
                     @if (dayItems(day).length === 0) {
                       <p class="week-day__empty">{{ 'scheduling.publish.noSlots' | translate }}</p>
                     } @else {
@@ -247,9 +297,9 @@ import { SlotsService } from '../../../core/services/slots.service';
 export class PublishSlots {
   private readonly api = inject(SlotsService);
   private readonly agendaApi = inject(AgendaService);
-  private readonly feedback = inject(FeedbackService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly auth = inject(AuthService);
   protected readonly notifications = inject(NotificationsStore);
   protected readonly language = inject(LanguageService);
@@ -260,8 +310,9 @@ export class PublishSlots {
   protected readonly saving = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly published = signal<Slot[]>([]);
+  protected readonly publishedDate = signal<Date | null>(null);
   protected readonly profileMenuOpen = signal(false);
-  protected readonly selectedDate = signal(toIsoDate(addDays(startOfToday(), 1)));
+  protected readonly selectedDate = signal(this.initialDate());
   protected readonly weekLoading = signal(true);
   protected readonly weekError = signal<string | null>(null);
   protected readonly weekItems = signal<Record<string, AgendaItem[]>>({});
@@ -296,7 +347,7 @@ export class PublishSlots {
         const existingEnd = this.toMinutes(item.endTime.slice(11, 16));
         return slotStart < existingEnd && slotEnd > existingStart;
       });
-      return { time: this.formatTime(slotStart), overlaps };
+      return { time: this.formatTime(slotStart), endTime: this.formatTime(slotEnd), overlaps };
     });
   });
 
@@ -328,12 +379,23 @@ export class PublishSlots {
       this.formRevision.update((revision) => revision + 1);
       this.errorMessage.set(null);
       this.published.set([]);
+      this.publishedDate.set(null);
       if (value.date && value.date !== this.selectedDate()) {
+        const previous = fromIsoDate(this.selectedDate());
+        const previousWeek = toIsoDate(addDays(previous, -((previous.getDay() + 6) % 7)));
+        const next = fromIsoDate(value.date);
+        const nextWeek = toIsoDate(addDays(next, -((next.getDay() + 6) % 7)));
         this.selectedDate.set(value.date);
-        this.loadWeek(value.date);
+        if (nextWeek !== previousWeek) this.loadWeek(value.date);
       }
     });
     this.loadWeek(this.selectedDate());
+  }
+
+  private initialDate(): string {
+    const requestedDate = this.route.snapshot.queryParamMap.get('date');
+    if (requestedDate && toIsoDate(fromIsoDate(requestedDate)) === requestedDate) return requestedDate;
+    return toIsoDate(addDays(startOfToday(), 1));
   }
 
   protected initials(fullName: string): string {
@@ -358,7 +420,11 @@ export class PublishSlots {
     const next = toIsoDate(addDays(selected, direction * 7));
     this.selectedDate.set(next);
     this.form.controls.date.setValue(next);
-    this.loadWeek(next);
+  }
+
+  protected selectDate(date: Date): void {
+    const isoDate = toIsoDate(date);
+    if (isoDate >= this.today) this.form.controls.date.setValue(isoDate);
   }
 
   protected loadWeek(anchor = this.selectedDate()): void {
@@ -384,20 +450,31 @@ export class PublishSlots {
       this.form.markAllAsTouched();
       return;
     }
+    const request = this.form.getRawValue();
     this.saving.set(true);
     this.errorMessage.set(null);
-    this.api.publish(this.form.getRawValue()).subscribe({
+    this.form.disable();
+    this.api.publish(request).subscribe({
       next: (slots) => {
         this.saving.set(false);
+        this.form.enable();
         this.published.set(slots);
-        this.feedback.success('scheduling.publish.created', { count: slots.length });
-        this.loadWeek(this.selectedDate());
+        this.publishedDate.set(fromIsoDate(request.date));
+        this.loadWeek(request.date);
       },
       error: (error: HttpErrorResponse) => {
         this.saving.set(false);
+        this.form.enable();
         this.errorMessage.set(apiErrorMessage(error) ?? this.translate.instant('errors.load'));
       },
     });
+  }
+
+  protected publishAnother(): void {
+    const date = this.selectedDate();
+    this.published.set([]);
+    this.publishedDate.set(null);
+    this.form.reset({ date, startTime: '08:00', endTime: '12:00', durationMinutes: 60 });
   }
 
   protected signOut(): void {

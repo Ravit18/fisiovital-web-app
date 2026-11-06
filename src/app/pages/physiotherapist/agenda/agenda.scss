@@ -124,6 +124,26 @@
   background: var(--mat-sys-surface);
 }
 
+.week-day--empty {
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.week-day--empty:hover {
+  border-color: var(--fv-color-primary);
+  background: var(--fv-color-primary-soft);
+}
+
+.week-day--empty:focus-visible {
+  outline: 3px solid var(--fv-color-primary);
+  outline-offset: 3px;
+}
+
 .week-day__header {
   display: flex;
   align-items: center;
@@ -183,6 +203,14 @@
 
 .week-day__empty {
   margin: 12px 8px;
+  text-align: center;
+}
+
+.week-day__publish {
+  margin: auto 8px 12px;
+  color: var(--fv-color-primary);
+  font-size: 12px;
+  font-weight: 700;
   text-align: center;
 }
 
