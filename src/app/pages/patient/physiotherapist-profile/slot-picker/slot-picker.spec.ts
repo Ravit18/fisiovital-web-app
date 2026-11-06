@@ -62,4 +62,27 @@ describe('SlotPicker (US06)', () => {
 
     expect((fixture.nativeElement.querySelector('.picker__slots button') as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('shows only dates with available slots as separate day columns', async () => {
+    const fixture = TestBed.createComponent(SlotPicker);
+    fixture.componentRef.setInput('physiotherapistId', 5);
+    fixture.detectChanges();
+
+    http.expectOne((req) => req.url === slotsUrl).flush({
+      physiotherapistId: 5,
+      from: '2030-03-04',
+      to: '2030-03-10',
+      slots: [
+        { id: 9, startTime: '2030-03-05T09:00:00', endTime: '2030-03-05T10:00:00', status: 'FREE' },
+        { id: 10, startTime: '2030-03-08T11:00:00', endTime: '2030-03-08T12:00:00', status: 'FREE' },
+      ],
+      nextAvailableWeek: null,
+      message: null,
+    });
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelectorAll('.picker__day')).toHaveLength(2);
+    expect(element.querySelectorAll('.picker__slots button')).toHaveLength(2);
+  });
 });
