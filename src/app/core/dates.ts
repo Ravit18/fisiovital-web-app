@@ -10,6 +10,15 @@ export function addDays(date: Date, days: number): Date {
   return result;
 }
 
+/** Returns the seven-day window index used by the availability picker, anchored at its first day. */
+export function weekWindowIndex(value: string, anchor: Date): number {
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  const slotDay = Date.UTC(year, month - 1, day);
+  const [anchorYear, anchorMonth, anchorDay] = toIsoDate(anchor).split('-').map(Number);
+  const anchorDayUtc = Date.UTC(anchorYear, anchorMonth - 1, anchorDay);
+  return Math.floor((slotDay - anchorDayUtc) / (7 * 24 * 60 * 60 * 1000));
+}
+
 export function startOfToday(): Date {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
