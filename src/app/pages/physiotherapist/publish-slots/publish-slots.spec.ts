@@ -38,14 +38,22 @@ describe('PublishSlots', () => {
     localStorage.clear();
   });
 
-  it('previews generated slots and flags overlaps with the real weekly agenda', async () => {
+  /** Clicks the hour button that shows the given time, for example '08:00'. */
+  function clickHour(element: HTMLElement, time: string): HTMLButtonElement {
+    const button = [...element.querySelectorAll<HTMLButtonElement>('.hour-chip')].find(
+      (chip) => chip.querySelector('.hour-chip__time')?.textContent?.trim() === time,
+    )!;
+    button.click();
+    return button;
+  }
+
+  it('blocks hours already published and groups the selected hours into one-hour ranges', async () => {
     const fixture = TestBed.createComponent(PublishSlots);
     fixture.detectChanges();
 
     const component = fixture.componentInstance as unknown as {
       selectedDate: () => string;
-      previewSlots: () => { time: string; endTime: string; overlaps: boolean }[];
-      overlappingPreview: () => { time: string; endTime: string; overlaps: boolean }[];
+      selectedRanges: () => { start: string; end: string }[];
       canPublish: () => boolean;
     };
     const selectedDate = component.selectedDate();
@@ -79,15 +87,103 @@ describe('PublishSlots', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component.previewSlots().map((slot) => slot.time)).toEqual(['08:00', '09:00', '10:00', '11:00']);
-    expect(component.previewSlots().map((slot) => slot.endTime)).toEqual(['09:00', '10:00', '11:00', '12:00']);
-    expect(component.overlappingPreview().map((slot) => slot.time)).toEqual(['10:00']);
+    const element = fixture.nativeElement as HTMLElement;
+    // 07:00 to 20:00: fourteen one-hour sessions; nothing is selected at first.
+    expect(element.querySelectorAll('.hour-chip')).toHaveLength(14);
     expect(component.canPublish()).toBe(false);
-    expect((fixture.nativeElement as HTMLElement).querySelector('.form-message--warning')).toBeTruthy();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.dashboard-brand img')?.getAttribute('src')).toBe(
-      '/images/fisiovital-logo.png',
-    );
-    expect((fixture.nativeElement as HTMLElement).querySelector('.dashboard-nav a[href="/physiotherapist/patients"]')).toBeTruthy();
+
+    const taken = clickHour(element, '10:00');
+    expect(taken.disabled).toBe(true);
+    expect(taken.classList).toContain('hour-chip--taken');
+
+    // A gap at 10:00 (already published) and 12:00 (lunch) splits the selection into ranges.
+    clickHour(element, '08:00');
+    clickHour(element, '09:00');
+    clickHour(element, '11:00');
+    clickHour(element, '13:00');
+    fixture.detectChanges();
+
+    expect(component.selectedRanges()).toEqual([
+      { start: '08:00', end: '10:00' },
+      { start: '11:00', end: '12:00' },
+      { start: '13:00', end: '14:00' },
+    ]);
+    expect(component.canPublish()).toBe(true);
+    expect(element.querySelector('.preview-summary__times')?.textContent).toContain('08:00–10:00');
+
+    // Clicking a selected hour again unselects it.
+    clickHour(element, '13:00');
+    fixture.detectChanges();
+    expect(component.selectedRanges()).toHaveLength(2);
+
+    expect(element.querySelector('.dashboard-brand img')?.getAttribute('src')).toBe('/images/fisiovital-logo.png');
+    expect(element.querySelector('.dashboard-nav a[href="/physiotherapist/patients"]')).toBeTruthy();
+  });
+
+  it('publishes each group of consecutive hours as one request of one-hour sessions', async () => {
+    const fixture = TestBed.createComponent(PublishSlots);
+    fixture.detectChanges();
+    for (const request of http.match((r) => r.url === agendaUrl)) {
+      request.flush({ date: request.request.params.get('date')!, items: [], message: null });
+    }
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const date = (element.querySelector('input[type="date"]') as HTMLInputElement).value;
+    clickHour(element, '08:00');
+    clickHour(element, '09:00');
+    clickHour(element, '14:00');
+    fixture.detectChanges();
+    (element.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+
+    const requests = http.match(`${environment.apiBaseUrl}/physiotherapists/me/slots`);
+    expect(requests.map((request) => request.request.body)).toEqual([
+      { date, startTime: '08:00', endTime: '10:00', durationMinutes: 60 },
+      { date, startTime: '14:00', endTime: '15:00', durationMinutes: 60 },
+    ]);
+    requests[0].flush([
+      { id: 31, startTime: `${date}T08:00:00`, endTime: `${date}T09:00:00`, status: 'FREE' },
+      { id: 32, startTime: `${date}T09:00:00`, endTime: `${date}T10:00:00`, status: 'FREE' },
+    ]);
+    requests[1].flush([{ id: 33, startTime: `${date}T14:00:00`, endTime: `${date}T15:00:00`, status: 'FREE' }]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelectorAll('.publish-confirmation__slots li')).toHaveLength(3);
+    for (const request of http.match((r) => r.url === agendaUrl)) {
+      request.flush({ date: request.request.params.get('date')!, items: [], message: null });
+    }
+  });
+
+  it('shows the backend message when a range cannot be published', async () => {
+    const fixture = TestBed.createComponent(PublishSlots);
+    fixture.detectChanges();
+    for (const request of http.match((r) => r.url === agendaUrl)) {
+      request.flush({ date: request.request.params.get('date')!, items: [], message: null });
+    }
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    clickHour(element, '08:00');
+    fixture.detectChanges();
+    (element.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+
+    http
+      .expectOne(`${environment.apiBaseUrl}/physiotherapists/me/slots`)
+      .flush(
+        { status: 409, message: 'Este horario se cruza con un bloque ya publicado', details: [] },
+        { status: 409, statusText: 'Conflict' },
+      );
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelector('.form-message--error')?.textContent).toContain('Este horario se cruza');
+    expect(element.querySelector('.publish-confirmation')).toBeNull();
+    for (const request of http.match((r) => r.url === agendaUrl)) {
+      request.flush({ date: request.request.params.get('date')!, items: [], message: null });
+    }
   });
 
   it('prefills the selected day from the availability route query parameter', async () => {
@@ -153,13 +249,16 @@ describe('PublishSlots', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     const date = (element.querySelector('input[type="date"]') as HTMLInputElement).value;
+    clickHour(element, '08:00');
+    clickHour(element, '09:00');
+    fixture.detectChanges();
     (element.querySelector('button[type="submit"]') as HTMLButtonElement).click();
 
     const publishRequest = http.expectOne(`${environment.apiBaseUrl}/physiotherapists/me/slots`);
     expect(publishRequest.request.body).toEqual({
       date,
       startTime: '08:00',
-      endTime: '12:00',
+      endTime: '10:00',
       durationMinutes: 60,
     });
     publishRequest.flush([

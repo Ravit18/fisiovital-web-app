@@ -72,6 +72,7 @@ Cada servicio del front corresponde a un controller del backend:
 | `core/services/notifications.store.ts` | `NotificationController` | US13 |
 | `core/services/appointments.service.ts` | `AppointmentHistoryController` | US14–US16 |
 | `core/services/assistant.service.ts` | `AssistantController` | US17–US20 |
+| `core/services/clinical-notes.service.ts` | `ClinicalNoteController` | Historia clínica (ficha del paciente) |
 
 Para verlo en vivo, abre la app, presiona **F12 → Network (Red)**, filtra por `api/v1` y navega: cada fila es una
 llamada al backend, con su URL, sus headers (token e idioma) y el JSON de respuesta.
