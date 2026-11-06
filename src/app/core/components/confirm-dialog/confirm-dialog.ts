@@ -8,6 +8,7 @@ export interface ConfirmDialogData {
   title: string;
   message: string;
   confirm: string;
+  confirmParams?: Record<string, unknown>;
   /** Optional extra warning shown in the error color. */
   warning?: string;
 }
@@ -29,7 +30,7 @@ export interface ConfirmDialogData {
         {{ 'common.back' | translate }}
       </button>
       <button class="confirm-dialog__confirm" mat-flat-button type="button" [mat-dialog-close]="true" cdkFocusInitial>
-        {{ data.confirm | translate }}
+        {{ data.confirm | translate: data.confirmParams }}
       </button>
     </mat-dialog-actions>
   `,

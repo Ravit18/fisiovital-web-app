@@ -244,8 +244,13 @@
       "none": "Enter these details to view available times. Your plan will only be saved when you confirm a time.",
       "pickSlot": "Pick a free slot to book your next session.",
       "full": "You have already booked every session of this plan.",
-      "selectedSlot": "Selected: {{day}} · {{time}}",
-      "reserveSession": "Book session",
+      "selectionHint": "Select up to {{count}} time slots total, with a maximum of {{weekly}} per week. Move to another week to select more.",
+      "weeklyLimitReached": "You reached the limit of {{count}} sessions for that week. Remove a selected time to change it or move to another week.",
+      "weeklyLimitLoadError": "We couldn't check your booked sessions. Reload the page before selecting time slots.",
+      "selectedCount": "You selected {{count}} of the plan's {{limit}} available sessions.",
+      "reserveCount": "Book {{count}} sessions",
+      "createAndReserveCount": "Create plan and book {{count}}",
+      "partialBooking": "{{booked}} of {{total}} time slots were booked. The plan is still available to complete the bookings. Details: {{error}}",
       "continue": "Continue to choose a time",
       "reviewBeforeBooking": "Review your details. You can change them before confirming; the plan has not been saved yet.",
       "editDetails": "Change plan details",
@@ -284,10 +289,11 @@
     },
     "book": {
       "title": "Confirm booking",
-      "message": "Book your session on {{when}} with {{name}}?",
-      "newPlanMessage": "Your treatment plan will be created and a session on {{when}} with {{name}} will be booked. Continue?",
-      "confirm": "Book",
-      "done": "Session {{number}} of {{total}} booked."
+      "multiplePrompt": "You are about to book {{count}} sessions with {{name}}. Review the selected times before confirming.",
+      "newPlanPrompt": "Your plan will be created and {{count}} sessions with {{name}} will be booked. Review the plan details and selected times before confirming.",
+      "planSummary": "Treatment plan to be created",
+      "selectedSlots": "Selected time slots",
+      "multipleDone": "{{count}} sessions booked."
     },
     "reschedule": {
       "action": "Reschedule",

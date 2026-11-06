@@ -91,6 +91,11 @@
                 } @else {
                   <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
                 }
+                @if (plan.status === 'ACTIVE' && plan.bookedSessions === 0) {
+                  <button mat-button type="button" (click)="editSavedPlan(plan)">
+                    {{ 'profiles.plan.editDetails' | translate }}
+                  </button>
+                }
               </div>
             } @else {
               @if (planReady()) {
@@ -150,33 +155,72 @@
                 <p class="plan-note" role="status">{{ 'profiles.plan.full' | translate }}</p>
               }
             </div>
+            @if (weeklyBookingsError()) {
+              <p class="selection-hint plan-note" role="alert">
+                {{ 'profiles.plan.weeklyLimitLoadError' | translate }}
+              </p>
+            }
+            @if (selectionLimit() > 0) {
+              <p class="selection-hint">
+                {{
+                  'profiles.plan.selectionHint'
+                    | translate: { count: selectionLimit(), weekly: weeklyLimit() }
+                }}
+              </p>
+            }
+            @if (weeklyLimitReached()) {
+              <p class="selection-hint plan-note" role="status" aria-live="polite">
+                {{ 'profiles.plan.weeklyLimitReached' | translate: { count: weeklyLimit() } }}
+              </p>
+            }
             @if (saving()) {
               <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
             }
             <app-slot-picker
               [physiotherapistId]="physio.id"
-              [selectable]="!planLoading() && (!plan() || remaining() > 0)"
               [busy]="saving()"
-              [selectedSlotId]="selectedSlot()?.id ?? null"
-              (picked)="selectedSlot.set($event)"
+              [selectedSlotIds]="selectedSlots().map(slot => slot.id)"
+              [selectedSlots]="selectedSlots()"
+              [bookedSlotStartTimes]="bookedSessionStartTimes()"
+              [canSelectMore]="selectedSlots().length < selectionLimit()"
+              [weeklyLimit]="weeklyLimit()"
+              [selectable]="!planLoading() && !weeklyBookingsError() && (!plan() || remaining() > 0)"
+              (picked)="toggleSlot($event)"
             />
-            @if (selectedSlot(); as slot) {
+            @if (selectedSlots().length > 0) {
               <div class="booking-bar">
-                <p>
-                  {{ 'profiles.plan.selectedSlot' | translate: {
-                    day: (slot.startTime | date: 'fullDate' : undefined : language.current()),
-                    time: (slot.startTime | date: 'shortTime' : undefined : language.current())
-                  } }}
-                </p>
+                <div class="booking-bar__selection">
+                  <p>{{ 'profiles.plan.selectedCount' | translate: { count: selectedSlots().length, limit: selectionLimit() } }}</p>
+                  <ul>
+                    @for (slot of selectedSlots(); track slot.id) {
+                      <li>
+                        {{ slot.startTime | date: 'fullDate' : undefined : language.current() }} ·
+                        {{ slot.startTime | date: 'shortTime' : undefined : language.current() }}
+                      </li>
+                    }
+                  </ul>
+                </div>
                 <button
                   mat-flat-button
                   type="button"
-                  [disabled]="saving() || (plan() && remaining() === 0)"
-                  (click)="book(slot)"
+                  [disabled]="saving() || weeklyBookingsError()"
+                  (click)="reserveSelectedSlots()"
                 >
-                  {{ (plan() ? 'profiles.plan.reserveSession' : 'profiles.plan.createAndBook') | translate }}
+                  {{
+                    (plan() ? 'profiles.plan.reserveCount' : 'profiles.plan.createAndReserveCount')
+                      | translate: { count: selectedSlots().length }
+                  }}
                 </button>
               </div>
+            }
+            @if (bookingOutcome(); as outcome) {
+              <p class="booking-outcome" role="alert">
+                {{ 'profiles.plan.partialBooking' | translate: {
+                  booked: outcome.booked,
+                  total: outcome.total,
+                  error: outcome.error
+                } }}
+              </p>
             }
           </section>
         }
