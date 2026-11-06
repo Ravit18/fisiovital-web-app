@@ -241,11 +241,15 @@
     "noSlots": "No hay horarios libres para esta semana.",
     "plan": {
       "title": "Tu plan de tratamiento",
-      "none": "Para reservar, primero crea tu plan de tratamiento con este fisioterapeuta.",
+      "none": "Completa estos datos para ver los horarios. El plan solo se guardará cuando confirmes una hora.",
       "pickSlot": "Elige un horario libre para reservar tu siguiente sesión.",
       "full": "Ya reservaste todas las sesiones de este plan.",
       "selectedSlot": "Seleccionado: {{day}} · {{time}}",
-      "reserveSession": "Reservar sesión"
+      "reserveSession": "Reservar sesión",
+      "continue": "Continuar para elegir horario",
+      "reviewBeforeBooking": "Revisa los datos. Puedes cambiarlos antes de confirmar; el plan aún no se ha guardado.",
+      "editDetails": "Cambiar datos del plan",
+      "createAndBook": "Crear plan y reservar"
     }
   },
   "treatment": {
@@ -281,6 +285,7 @@
     "book": {
       "title": "Confirmar reserva",
       "message": "¿Reservar tu sesión del {{when}} con {{name}}?",
+      "newPlanMessage": "Se creará tu plan de tratamiento y se reservará una sesión del {{when}} con {{name}}. ¿Deseas continuar?",
       "confirm": "Reservar",
       "done": "Sesión {{number}} de {{total}} reservada."
     },

@@ -241,11 +241,15 @@
     "noSlots": "There are no free slots this week.",
     "plan": {
       "title": "Your treatment plan",
-      "none": "To book, first create your treatment plan with this physiotherapist.",
+      "none": "Enter these details to view available times. Your plan will only be saved when you confirm a time.",
       "pickSlot": "Pick a free slot to book your next session.",
       "full": "You have already booked every session of this plan.",
       "selectedSlot": "Selected: {{day}} · {{time}}",
-      "reserveSession": "Book session"
+      "reserveSession": "Book session",
+      "continue": "Continue to choose a time",
+      "reviewBeforeBooking": "Review your details. You can change them before confirming; the plan has not been saved yet.",
+      "editDetails": "Change plan details",
+      "createAndBook": "Create plan and book"
     }
   },
   "treatment": {
@@ -281,6 +285,7 @@
     "book": {
       "title": "Confirm booking",
       "message": "Book your session on {{when}} with {{name}}?",
+      "newPlanMessage": "Your treatment plan will be created and a session on {{when}} with {{name}} will be booked. Continue?",
       "confirm": "Book",
       "done": "Session {{number}} of {{total}} booked."
     },

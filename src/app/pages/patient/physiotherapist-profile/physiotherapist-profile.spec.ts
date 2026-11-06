@@ -79,37 +79,75 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
       .flush({ physiotherapistId: 5, from: '', to: '', slots: [slot], nextAvailableWeek: null, message: null });
   }
 
-  it('asks for a treatment plan first and lets the patient book once it exists', async () => {
+  it('shows slots after plan details are reviewed and creates the plan only when booking is confirmed', async () => {
     const fixture = await open();
     http.expectOne(`${api}/treatment-plans/me`).flush([]);
     await fixture.whenStable();
-    flushSlots();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('.dashboard-nav .dashboard-nav__link--active')?.textContent).toContain(
       'home.navSpecialists',
     );
     expect(element.querySelector('.dashboard-header .mat-button-toggle-group')).toBeNull();
-    expect((element.querySelector('.picker__slots button') as HTMLButtonElement).disabled).toBe(true);
+    expect(element.querySelector('app-slot-picker')).toBeNull();
 
     const diagnosis = element.querySelector('input[formControlName="diagnosis"]') as HTMLInputElement;
     diagnosis.value = 'Esguince';
     diagnosis.dispatchEvent(new Event('input'));
     (element.querySelector('.plan-form button[type="submit"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(http.match(`${api}/treatment-plans`)).toHaveLength(0);
+    flushSlots();
+    await fixture.whenStable();
+
+    expect(element.querySelector('.plan-summary__diagnosis')?.textContent).toContain('Esguince');
+    (element.querySelector('.plan-summary button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const revisedDiagnosis = element.querySelector('input[formControlName="diagnosis"]') as HTMLInputElement;
+    revisedDiagnosis.value = 'Lesión muscular';
+    revisedDiagnosis.dispatchEvent(new Event('input'));
+    (element.querySelector('.plan-form button[type="submit"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    flushSlots();
+    await fixture.whenStable();
+
+    expect(http.match(`${api}/treatment-plans`)).toHaveLength(0);
+    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
     const create = http.expectOne(`${api}/treatment-plans`);
-    expect(create.request.body).toEqual({ physiotherapistId: 5, diagnosis: 'Esguince', totalSessions: 8, frequencyPerWeek: 2 });
+    expect(create.request.body).toEqual({
+      physiotherapistId: 5,
+      diagnosis: 'Lesión muscular',
+      totalSessions: 8,
+      frequencyPerWeek: 2,
+    });
     create.flush(plan);
     await fixture.whenStable();
 
-    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(element.querySelector('.booking-bar')).not.toBeNull();
-    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
     const book = http.expectOne(`${api}/treatment-plans/3/sessions`);
     expect(book.request.body).toEqual({ slotId: 9 });
     book.flush({ id: 1, sessionNumber: 1, totalSessions: 4 });
 
+    http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 1 }]);
+    flushSlots();
+  });
+
+  it('books a slot against an existing plan without creating another one', async () => {
+    const fixture = await open();
+    http.expectOne(`${api}/treatment-plans/me`).flush([plan]);
+    await fixture.whenStable();
+    flushSlots();
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
+
+    http.expectNone(`${api}/treatment-plans`);
+    http.expectOne(`${api}/treatment-plans/3/sessions`).flush({ id: 1, sessionNumber: 1, totalSessions: 4 });
     http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 1 }]);
     flushSlots();
   });
