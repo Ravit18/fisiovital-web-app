@@ -234,6 +234,14 @@
                     <span>
                       {{ 'appointments.session' | translate: { number: item.sessionNumber, total: item.totalSessions } }}
                     </span>
+                    <a
+                      class="record-link"
+                      routerLink="/physiotherapist/patients"
+                      [queryParams]="{ patient: item.patientName }"
+                      [attr.aria-label]="'appointments.record.open' | translate: { name: item.patientName }"
+                    >
+                      {{ 'appointments.record.viewHistory' | translate }}
+                    </a>
                   } @else if (item.status === 'FREE_CANCELLED') {
                     <strong>{{ 'home.physio.freeBlock' | translate }}</strong>
                     <span>{{ 'home.physio.cancelledDescription' | translate }}</span>
