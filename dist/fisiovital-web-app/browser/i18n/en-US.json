@@ -193,7 +193,6 @@
     "notificationsTitle": "Notifications",
     "noNotifications": "You don't have any notifications right now.",
     "upcomingDetailsTitle": "Session details",
-    "assistantButton": "FisioVital Assistant",
     "physio": {
       "eyebrow": "DAILY AGENDA",
       "panelNav": "Dashboard",
@@ -250,9 +249,12 @@
       "selectedCount": "You selected {{count}} of the plan's {{limit}} available sessions.",
       "reserveCount": "Book {{count}} sessions",
       "createAndReserveCount": "Create plan and book {{count}}",
+      "updateAndReserveCount": "Save changes and book {{count}}",
       "partialBooking": "{{booked}} of {{total}} time slots were booked. The plan is still available to complete the bookings. Details: {{error}}",
       "continue": "Continue to choose a time",
       "reviewBeforeBooking": "Review your details. You can change them before confirming; the plan has not been saved yet.",
+      "editSavedIntro": "Update the plan details. Your changes will be saved when you confirm a booking.",
+      "editReviewBeforeBooking": "Review the plan changes. They will be saved with your booking.",
       "editDetails": "Change plan details",
       "createAndBook": "Create plan and book"
     }
@@ -291,9 +293,16 @@
       "title": "Confirm booking",
       "multiplePrompt": "You are about to book {{count}} sessions with {{name}}. Review the selected times before confirming.",
       "newPlanPrompt": "Your plan will be created and {{count}} sessions with {{name}} will be booked. Review the plan details and selected times before confirming.",
+      "updatePlanPrompt": "Your plan details will be updated and {{count}} sessions with {{name}} will be booked. Review the plan details and selected times before confirming.",
       "planSummary": "Treatment plan to be created",
+      "updatedPlanSummary": "Updated treatment plan details",
       "selectedSlots": "Selected time slots",
-      "multipleDone": "{{count}} sessions booked."
+      "completeTitle": "Booking confirmed!",
+      "completeMessage": "{{count}} sessions booked.",
+      "moreAvailable": "You can still book {{count}} more sessions. What would you like to do next?",
+      "planComplete": "You have booked all sessions in this plan. You can review your schedule in My sessions.",
+      "bookMore": "Book more sessions",
+      "viewAppointments": "View my sessions"
     },
     "reschedule": {
       "action": "Reschedule",
@@ -457,11 +466,11 @@
   "assistant": {
     "title": "FisioVital assistant",
     "subtitle": "Ask about the cancellation policy or which specialist suits you, or ask it to book or reschedule a session.",
+    "subtitlePhysio": "Ask about the platform's policies or which specialty fits a patient's case.",
     "disclaimer": "The assistant uses artificial intelligence and does not replace a medical consultation. In an emergency call 106.",
     "newConversation": "New conversation",
     "try": "Try:",
-    "you": "You",
-    "name": "Assistant",
+    "minimize": "Minimize",
     "safety": "safety answer",
     "thinking": "The assistant is typing…",
     "placeholder": "Type your message",
@@ -470,7 +479,9 @@
       "policy": "What is the cancellation policy?",
       "specialist": "My lower back hurts when I sit, which specialist do you recommend?",
       "book": "I want to book a session with my physiotherapist",
-      "reschedule": "I want to reschedule my next session"
+      "reschedule": "I want to reschedule my next session",
+      "physioReschedule": "How far in advance can a patient reschedule a session?",
+      "physioReferral": "A patient has lower back pain when sitting, which specialty fits the case?"
     }
   },
   "validation": {
