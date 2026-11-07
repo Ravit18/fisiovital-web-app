@@ -281,43 +281,6 @@
   color: var(--fv-color-error);
 }
 
-.assistant-button {
-  position: fixed;
-  z-index: 5;
-  right: max(24px, calc((100vw - 1200px) / 2 + 24px));
-  bottom: 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 22px 0 18px;
-  background: var(--fv-color-forest);
-  box-shadow: 0 8px 20px #23352a30;
-  color: var(--fv-color-surface);
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background-color 0.15s ease;
-
-  mat-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: var(--fv-color-primary-dark);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--fv-color-primary-focus);
-    outline-offset: 3px;
-  }
-}
 
 @media (max-width: 760px) {
   .profile-page {
@@ -334,11 +297,6 @@
   .availability-card {
     border-radius: 18px;
     padding: 20px;
-  }
-
-  .assistant-button {
-    right: 16px;
-    bottom: 16px;
   }
 }
 

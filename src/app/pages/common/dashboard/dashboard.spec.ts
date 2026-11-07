@@ -72,9 +72,6 @@ describe('Dashboard', () => {
     expect(compiled.querySelector('a[href="/patient/appointments"]')?.textContent).toContain('home.navSessions');
     expect(compiled.querySelector('a[href="/patient/appointments?view=history"]')?.textContent).toContain('home.navHistory');
     expect(compiled.querySelector('a[href="/specialists"]')).toBeNull();
-    const assistantButton = compiled.querySelector<HTMLAnchorElement>('.assistant-button');
-    expect(assistantButton?.getAttribute('href')).toBe('/patient/assistant');
-    expect(assistantButton?.textContent).toContain('home.assistantButton');
   });
 
   it('loads real plan progress and selects the nearest upcoming session', async () => {

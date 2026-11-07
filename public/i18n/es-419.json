@@ -193,7 +193,6 @@
     "notificationsTitle": "Notificaciones",
     "noNotifications": "No tienes notificaciones por ahora.",
     "upcomingDetailsTitle": "Detalles de la sesión",
-    "assistantButton": "Asistente FisioVital",
     "physio": {
       "eyebrow": "AGENDA DIARIA",
       "panelNav": "Panel",
@@ -457,11 +456,11 @@
   "assistant": {
     "title": "Asistente FisioVital",
     "subtitle": "Pregúntale por la política de cancelación, qué especialista te conviene, o pídele reservar o reprogramar una sesión.",
+    "subtitlePhysio": "Resuelve dudas sobre las políticas de la plataforma o qué especialidad le corresponde a un caso.",
     "disclaimer": "El asistente usa inteligencia artificial y no reemplaza una consulta médica. Ante una emergencia llama al 106.",
     "newConversation": "Nueva conversación",
     "try": "Prueba con:",
-    "you": "Tú",
-    "name": "Asistente",
+    "minimize": "Minimizar",
     "safety": "respuesta de seguridad",
     "thinking": "El asistente está escribiendo…",
     "placeholder": "Escribe tu mensaje",
@@ -470,7 +469,9 @@
       "policy": "¿Cuál es la política de cancelación?",
       "specialist": "Tengo dolor de espalda baja al estar sentado, ¿qué especialista me recomiendas?",
       "book": "Quiero reservar una sesión con mi fisioterapeuta",
-      "reschedule": "Quiero reprogramar mi próxima sesión"
+      "reschedule": "Quiero reprogramar mi próxima sesión",
+      "physioReschedule": "¿Con cuánta anticipación puede un paciente reprogramar una sesión?",
+      "physioReferral": "Un paciente tiene dolor de espalda baja al estar sentado, ¿qué especialidad le corresponde?"
     }
   },
   "validation": {

@@ -21,6 +21,27 @@ describe('AssistantChat (US17-US20)', () => {
 
   afterEach(() => http.verify());
 
+  function openPanel(fixture: { nativeElement: HTMLElement; detectChanges: () => void }): void {
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector<HTMLButtonElement>('.launcher')!.click();
+    fixture.detectChanges();
+  }
+
+  it('opens and minimizes the floating panel from the launcher', () => {
+    const fixture = TestBed.createComponent(AssistantChat);
+    const root = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(root.querySelector('.panel')).toBeNull();
+
+    openPanel(fixture);
+    expect(root.querySelector('.panel')).not.toBeNull();
+    expect(root.querySelector('.launcher')?.getAttribute('aria-expanded')).toBe('true');
+
+    root.querySelector<HTMLButtonElement>('.launcher')!.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.panel')).toBeNull();
+  });
+
   function send(fixture: { componentInstance: unknown }, text: string): void {
     const chat = fixture.componentInstance as { draft: string; send: () => void };
     chat.draft = text;
@@ -29,6 +50,7 @@ describe('AssistantChat (US17-US20)', () => {
 
   it('keeps the conversation id so the assistant remembers the context', async () => {
     const fixture = TestBed.createComponent(AssistantChat);
+    openPanel(fixture);
     send(fixture, 'Quiero reservar una sesión');
     const first = http.expectOne(assistantUrl);
     expect(first.request.body).toEqual({ conversationId: null, message: 'Quiero reservar una sesión' });
@@ -45,6 +67,7 @@ describe('AssistantChat (US17-US20)', () => {
 
   it('shows the backend message when the AI is unavailable', async () => {
     const fixture = TestBed.createComponent(AssistantChat);
+    openPanel(fixture);
     send(fixture, '¿Cuál es la política de cancelación?');
     http
       .expectOne(assistantUrl)

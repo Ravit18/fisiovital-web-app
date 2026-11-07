@@ -53,3 +53,7 @@
     </nav>
   </footer>
 }
+
+@if (auth.currentUser()) {
+  <app-assistant-chat />
+}

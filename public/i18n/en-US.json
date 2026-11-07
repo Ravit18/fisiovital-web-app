@@ -193,7 +193,6 @@
     "notificationsTitle": "Notifications",
     "noNotifications": "You don't have any notifications right now.",
     "upcomingDetailsTitle": "Session details",
-    "assistantButton": "FisioVital Assistant",
     "physio": {
       "eyebrow": "DAILY AGENDA",
       "panelNav": "Dashboard",
@@ -457,11 +456,11 @@
   "assistant": {
     "title": "FisioVital assistant",
     "subtitle": "Ask about the cancellation policy or which specialist suits you, or ask it to book or reschedule a session.",
+    "subtitlePhysio": "Ask about the platform's policies or which specialty fits a patient's case.",
     "disclaimer": "The assistant uses artificial intelligence and does not replace a medical consultation. In an emergency call 106.",
     "newConversation": "New conversation",
     "try": "Try:",
-    "you": "You",
-    "name": "Assistant",
+    "minimize": "Minimize",
     "safety": "safety answer",
     "thinking": "The assistant is typing…",
     "placeholder": "Type your message",
@@ -470,7 +469,9 @@
       "policy": "What is the cancellation policy?",
       "specialist": "My lower back hurts when I sit, which specialist do you recommend?",
       "book": "I want to book a session with my physiotherapist",
-      "reschedule": "I want to reschedule my next session"
+      "reschedule": "I want to reschedule my next session",
+      "physioReschedule": "How far in advance can a patient reschedule a session?",
+      "physioReferral": "A patient has lower back pain when sitting, which specialty fits the case?"
     }
   },
   "validation": {
