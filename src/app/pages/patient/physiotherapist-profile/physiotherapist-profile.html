@@ -57,7 +57,10 @@
         <a mat-button routerLink="/patient/physiotherapists">{{ 'profiles.search.back' | translate }}</a>
       </div>
     } @else if (physio(); as physio) {
-      <div class="profile-layout" [class.profile-layout--plan-first]="!plan() && !planReady()">
+      <div
+        class="profile-layout"
+        [class.profile-layout--plan-first]="(!plan() || planEditing()) && !planReady()"
+      >
         <section class="profile-card" aria-labelledby="profile-title">
           <a class="back-link" mat-button routerLink="/patient/physiotherapists">
             <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'profiles.search.back' | translate }}
@@ -80,6 +83,56 @@
             @if (planLoading()) {
               <mat-progress-bar mode="indeterminate" [attr.aria-label]="'common.loading' | translate" />
             } @else if (plan(); as plan) {
+              @if (planEditing() && !planReady()) {
+                <p class="plan-intro">{{ 'profiles.plan.editSavedIntro' | translate }}</p>
+                <form class="plan-form" [formGroup]="planForm" (ngSubmit)="continueToSlots()" novalidate>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.diagnosis' | translate }}</mat-label>
+                    <input matInput formControlName="diagnosis" required />
+                    @if (planForm.controls.diagnosis.invalid && planForm.controls.diagnosis.touched) {
+                      <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.totalSessions' | translate }}</mat-label>
+                    <input matInput type="number" min="1" max="30" formControlName="totalSessions" required />
+                    @if (planForm.controls.totalSessions.invalid && planForm.controls.totalSessions.touched) {
+                      <mat-error>{{ 'validation.sessions' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'treatment.plan.frequencyPerWeek' | translate }}</mat-label>
+                    <input matInput type="number" min="1" max="7" formControlName="frequencyPerWeek" required />
+                    @if (planForm.controls.frequencyPerWeek.invalid && planForm.controls.frequencyPerWeek.touched) {
+                      <mat-error>{{ 'validation.frequency' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                  <div class="plan-form__actions">
+                    <button mat-button type="button" (click)="cancelPlanEdit()">
+                      {{ 'common.back' | translate }}
+                    </button>
+                    <button mat-flat-button type="submit" [disabled]="saving()">
+                      {{ 'profiles.plan.continue' | translate }}
+                    </button>
+                  </div>
+                </form>
+              } @else if (planEditing() && planReady()) {
+                <p class="plan-intro">{{ 'profiles.plan.editReviewBeforeBooking' | translate }}</p>
+                <div class="plan-summary">
+                  <p class="plan-summary__diagnosis">{{ planForm.controls.diagnosis.value }}</p>
+                  <p>
+                    {{ 'treatment.plan.totalSessions' | translate }}:
+                    {{ planForm.controls.totalSessions.value }}
+                  </p>
+                  <p>
+                    {{ 'treatment.plan.frequencyPerWeek' | translate }}:
+                    {{ planForm.controls.frequencyPerWeek.value }}
+                  </p>
+                  <button mat-button type="button" (click)="editPlanDetails()">
+                    {{ 'profiles.plan.editDetails' | translate }}
+                  </button>
+                </div>
+              } @else {
               <div class="plan-summary">
                 <p class="plan-summary__diagnosis">{{ plan.diagnosis }}</p>
                 <p>
@@ -97,6 +150,7 @@
                   </button>
                 }
               </div>
+              }
             } @else {
               @if (planReady()) {
                 <p class="plan-intro">{{ 'profiles.plan.reviewBeforeBooking' | translate }}</p>
@@ -147,7 +201,7 @@
           </div>
         </section>
 
-        @if (plan() || planReady()) {
+        @if ((plan() && !planEditing()) || planReady()) {
           <section class="availability-card" aria-labelledby="availability-title">
             <div class="availability-heading">
               <h2 id="availability-title">{{ 'profiles.availability' | translate }}</h2>

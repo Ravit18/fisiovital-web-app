@@ -24,8 +24,12 @@ import { TreatmentPlan } from '../../../core/models/treatment-plan.model';
 import { TreatmentPlansService } from '../../../core/services/treatment-plans.service';
 import { Physiotherapist } from '../../../core/models/physiotherapist.model';
 import { PhysiotherapistsService } from '../../../core/services/physiotherapists.service';
-import { EditPlanDialog } from '../treatment-plans/edit-plan-dialog/edit-plan-dialog';
 import { BookingConfirmDialog, BookingConfirmDialogData } from './booking-confirm-dialog';
+import {
+  BookingCompleteAction,
+  BookingCompleteDialog,
+  BookingCompleteDialogData,
+} from './booking-complete-dialog';
 
 /**
  * US05 profile + US06 free slots. A patient books here: first a treatment plan with this
@@ -71,6 +75,7 @@ export class PhysiotherapistProfile implements OnInit {
   protected readonly weeklyBookingsError = signal(false);
   protected readonly saving = signal(false);
   protected readonly planReady = signal(false);
+  protected readonly planEditing = signal(false);
   protected readonly selectedSlots = signal<Slot[]>([]);
   protected readonly bookedSessionStartTimes = signal<string[]>([]);
   protected readonly bookingOutcome = signal<{ booked: number; total: number; error: string } | null>(null);
@@ -84,12 +89,16 @@ export class PhysiotherapistProfile implements OnInit {
   });
   protected readonly selectionLimit = computed(() => {
     this.planFormRevision();
-    return this.plan() ? this.remaining() : Number(this.planForm.controls.totalSessions.value);
+    return this.plan() && !this.planEditing()
+      ? this.remaining()
+      : Number(this.planForm.controls.totalSessions.value);
   });
   protected readonly weeklyLimit = computed(() => {
     this.planFormRevision();
     const plan = this.plan();
-    return plan ? plan.frequencyPerWeek : Number(this.planForm.controls.frequencyPerWeek.value);
+    return plan && !this.planEditing()
+      ? plan.frequencyPerWeek
+      : Number(this.planForm.controls.frequencyPerWeek.value);
   });
   protected readonly weeklyLimitReached = computed(() => {
     const counts = new Map<string, number>();
@@ -138,15 +147,30 @@ export class PhysiotherapistProfile implements OnInit {
   }
 
   protected editSavedPlan(plan: TreatmentPlan): void {
-    this.dialog
-      .open<EditPlanDialog, TreatmentPlan, TreatmentPlan>(EditPlanDialog, { data: plan })
-      .afterClosed()
-      .pipe(filter(Boolean))
-      .subscribe((updatedPlan) => {
-        this.plan.set(updatedPlan);
-        this.selectedSlots.set([]);
-        this.feedback.success('treatment.plan.updated');
-      });
+    this.planForm.setValue({
+      diagnosis: plan.diagnosis,
+      totalSessions: plan.totalSessions,
+      frequencyPerWeek: plan.frequencyPerWeek,
+    });
+    this.planFormRevision.update((revision) => revision + 1);
+    this.planEditing.set(true);
+    this.planReady.set(false);
+    this.selectedSlots.set([]);
+    this.bookingOutcome.set(null);
+  }
+
+  protected cancelPlanEdit(): void {
+    const plan = this.plan();
+    if (!plan) return;
+    this.planForm.setValue({
+      diagnosis: plan.diagnosis,
+      totalSessions: plan.totalSessions,
+      frequencyPerWeek: plan.frequencyPerWeek,
+    });
+    this.planFormRevision.update((revision) => revision + 1);
+    this.planEditing.set(false);
+    this.planReady.set(false);
+    this.selectedSlots.set([]);
   }
 
   protected toggleSlot(slot: Slot): void {
@@ -173,7 +197,7 @@ export class PhysiotherapistProfile implements OnInit {
 
   protected reserveSelectedSlots(): void {
     if (this.weeklyBookingsError()) return;
-    if (!this.plan() && this.planForm.invalid) {
+    if ((!this.plan() || this.planEditing()) && this.planForm.invalid) {
       this.planForm.markAllAsTouched();
       this.planReady.set(false);
       return;
@@ -182,6 +206,12 @@ export class PhysiotherapistProfile implements OnInit {
     if (slots.length === 0 || slots.length > this.selectionLimit()) return;
 
     const creatingPlan = !this.plan();
+    const editingPlan = !!this.plan() && this.planEditing();
+    const bookedBefore = this.plan()?.bookedSessions ?? 0;
+    const totalSessions =
+      creatingPlan || editingPlan
+        ? Number(this.planForm.controls.totalSessions.value)
+        : (this.plan()?.totalSessions ?? 0);
     let bookedCount = 0;
     let bookingStarted = false;
     this.dialog
@@ -190,7 +220,8 @@ export class PhysiotherapistProfile implements OnInit {
           physiotherapistName: this.physio()?.fullName ?? '',
           slots,
           creatingPlan,
-          ...(creatingPlan ? this.planForm.getRawValue() : {}),
+          editingPlan,
+          ...(creatingPlan || editingPlan ? this.planForm.getRawValue() : {}),
         },
       })
       .afterClosed()
@@ -200,11 +231,14 @@ export class PhysiotherapistProfile implements OnInit {
           this.saving.set(true);
           const existingPlan = this.plan();
           const plan$ = existingPlan
-            ? of(existingPlan)
+            ? editingPlan
+              ? this.plansApi.update(existingPlan.id, this.planForm.getRawValue())
+              : of(existingPlan)
             : this.plansApi.create({ physiotherapistId: this.physioId(), ...this.planForm.getRawValue() });
           return plan$.pipe(
             tap((plan) => {
               this.plan.set(plan);
+              this.planEditing.set(false);
               this.planReady.set(false);
             }),
             switchMap((plan) =>
@@ -224,7 +258,20 @@ export class PhysiotherapistProfile implements OnInit {
           this.saving.set(false);
           this.selectedSlots.set([]);
           this.bookingOutcome.set(null);
-          this.feedback.success('treatment.book.multipleDone', { count: bookedCount });
+          this.dialog
+            .open<BookingCompleteDialog, BookingCompleteDialogData, BookingCompleteAction>(
+              BookingCompleteDialog,
+              {
+                data: {
+                  booked: bookedCount,
+                  remaining: Math.max(0, totalSessions - bookedBefore - bookedCount),
+                },
+              },
+            )
+            .afterClosed()
+            .subscribe((action) => {
+              if (action === 'appointments') this.router.navigate(['/patient/appointments']);
+            });
           this.loadPlan();
           this.slotPicker()?.reload();
         },
