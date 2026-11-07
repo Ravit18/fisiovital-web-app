@@ -7,6 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
+import { AssistantChat } from '../../core/components/assistant-chat/assistant-chat';
 import { LanguageSwitcher } from '../../core/components/language-switcher/language-switcher';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationsStore } from '../../core/services/notifications.store';
@@ -27,6 +28,7 @@ const OWN_HEADER = ['/physiotherapist/home', '/physiotherapist/availability', '/
     RouterOutlet,
     TranslatePipe,
     LanguageSwitcher,
+    AssistantChat,
   ],
   templateUrl: './physiotherapist-layout.html',
   styleUrl: '../../styles/app-layout.scss',
@@ -46,7 +48,6 @@ export class PhysiotherapistLayout {
     { path: '/physiotherapist/agenda', icon: 'calendar_month', label: 'nav.agenda' },
     { path: '/physiotherapist/availability', icon: 'more_time', label: 'nav.availability' },
     { path: '/physiotherapist/patients', icon: 'history', label: 'nav.patients' },
-    { path: '/physiotherapist/assistant', icon: 'smart_toy', label: 'nav.assistant' },
   ];
 
   constructor() {

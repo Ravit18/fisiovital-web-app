@@ -298,12 +298,5 @@
         </div>
       }
     }
-
-    @if (user.role === 'PATIENT') {
-      <a class="assistant-button" [routerLink]="auth.basePath() + '/assistant'">
-        <mat-icon aria-hidden="true">smart_toy</mat-icon>
-        {{ 'home.assistantButton' | translate }}
-      </a>
-    }
   </section>
 }
