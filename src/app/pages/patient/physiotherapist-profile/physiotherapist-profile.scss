@@ -6,9 +6,12 @@
 
 .profile-page {
   position: relative;
+  width: min(100%, 1200px);
+  box-sizing: border-box;
   min-height: 100%;
   overflow: hidden;
-  padding: 12px 24px 64px;
+  margin: 0 auto;
+  padding: 12px 24px 56px;
 
   &::before,
   &::after {
@@ -43,11 +46,16 @@
 
 .profile-layout {
   display: grid;
-  width: min(100%, 1240px);
+  width: 100%;
   grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.65fr);
   align-items: stretch;
   gap: 28px;
-  margin: 40px auto 0;
+  margin: 36px auto 0;
+}
+
+.profile-layout--plan-first {
+  grid-template-columns: minmax(0, 780px);
+  justify-content: center;
 }
 
 .profile-card,
@@ -181,6 +189,12 @@
   }
 }
 
+.plan-summary button {
+  margin: 12px 0 0 -8px;
+  background: var(--fv-color-accent);
+  color: var(--fv-color-forest);
+}
+
 .availability-card {
   padding: 22px;
 }
@@ -203,6 +217,13 @@
   }
 }
 
+.selection-hint {
+  margin: 0 0 12px;
+  color: var(--fv-color-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .booking-bar {
   display: flex;
   align-items: center;
@@ -220,6 +241,14 @@
     line-height: 1.5;
   }
 
+  ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #445449;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
   button {
     flex: 0 0 auto;
     border-radius: 999px;
@@ -228,11 +257,21 @@
   }
 }
 
+.booking-outcome {
+  margin: 14px 0 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--fv-color-primary-soft);
+  color: var(--fv-color-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .profile-error,
 .profile-loading {
-  width: min(100%, 1240px);
+  width: 100%;
   box-sizing: border-box;
-  margin: 40px auto;
+  margin: 36px auto;
   border-radius: 18px;
   padding: 22px;
   background: var(--fv-color-surface);
@@ -242,64 +281,22 @@
   color: var(--fv-color-error);
 }
 
-.assistant-button {
-  position: fixed;
-  z-index: 5;
-  right: max(24px, calc((100vw - 1200px) / 2 + 24px));
-  bottom: 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 22px 0 18px;
-  background: var(--fv-color-forest);
-  box-shadow: 0 8px 20px #23352a30;
-  color: var(--fv-color-surface);
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background-color 0.15s ease;
-
-  mat-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: var(--fv-color-primary-dark);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--fv-color-primary-focus);
-    outline-offset: 3px;
-  }
-}
 
 @media (max-width: 760px) {
   .profile-page {
-    padding: 28px 16px 40px;
+    padding: 12px 16px 40px;
   }
 
   .profile-layout {
     grid-template-columns: 1fr;
     gap: 16px;
-    margin-top: 26px;
+    margin-top: 24px;
   }
 
   .profile-card,
   .availability-card {
     border-radius: 18px;
     padding: 20px;
-  }
-
-  .assistant-button {
-    right: 16px;
-    bottom: 16px;
   }
 }
 
