@@ -2,13 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { addDays, toIsoDate } from '../../../core/dates';
 import { environment } from '../../../../environments/environment';
 import { AuthenticatedUser } from '../../../core/models/authenticated-user.model';
 import { PhysiotherapistProfile } from './physiotherapist-profile';
+import { BookingCompleteDialog } from './booking-complete-dialog';
 
 const api = environment.apiBaseUrl;
 const patient: AuthenticatedUser = {
@@ -48,12 +50,14 @@ const secondSlot = { id: 10, startTime: '2030-03-06T11:00:00', endTime: '2030-03
 
 describe('PhysiotherapistProfile (US05, US09, US10)', () => {
   let http: HttpTestingController;
-  let dialogResponse: unknown;
+  let dialogResponses: unknown[];
   let openedDialogData: unknown;
+  let openedDialogs: Array<{ component: unknown; data?: unknown }>;
 
   beforeEach(() => {
-    dialogResponse = true;
+    dialogResponses = [true, true];
     openedDialogData = undefined;
+    openedDialogs = [];
     localStorage.setItem('fisiovital.session', JSON.stringify(patient));
     TestBed.configureTestingModule({
       imports: [PhysiotherapistProfile],
@@ -65,9 +69,10 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
         {
           provide: MatDialog,
           useValue: {
-            open: (_component: unknown, config: { data?: unknown }) => {
+            open: (component: unknown, config: { data?: unknown }) => {
               openedDialogData = config.data;
-              return { afterClosed: () => of(dialogResponse) };
+              openedDialogs.push({ component, data: config.data });
+              return { afterClosed: () => of(dialogResponses.shift()) };
             },
           },
         },
@@ -156,6 +161,7 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
       physiotherapistName: 'Mariana Rojas',
       slots: [slot, secondSlot],
       creatingPlan: true,
+      editingPlan: false,
       diagnosis: 'Lesión muscular',
       totalSessions: 8,
       frequencyPerWeek: 2,
@@ -200,7 +206,7 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
     flushSlots();
   });
 
-  it('lets the patient edit an active saved plan before booking any sessions', async () => {
+  it('centers the saved-plan form first and returns to the two-column review before booking', async () => {
     const fixture = await open();
     http.expectOne(`${api}/treatment-plans/me`).flush([plan]);
     flushAppointments();
@@ -212,14 +218,52 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
     const element = fixture.nativeElement as HTMLElement;
     const editButton = element.querySelector('.plan-summary button') as HTMLButtonElement;
     expect(editButton).not.toBeNull();
-
-    const updatedPlan = { ...plan, diagnosis: 'Lesión muscular' };
-    dialogResponse = updatedPlan;
     editButton.click();
     fixture.detectChanges();
 
-    expect(openedDialogData).toEqual(plan);
+    expect(element.querySelector('.profile-layout--plan-first')).not.toBeNull();
+    expect(element.querySelector('app-slot-picker')).toBeNull();
+
+    const diagnosis = element.querySelector('input[formControlName="diagnosis"]') as HTMLInputElement;
+    expect(diagnosis.value).toBe(plan.diagnosis);
+    diagnosis.value = 'Lesión muscular';
+    diagnosis.dispatchEvent(new Event('input'));
+    (element.querySelector('.plan-form button[type="submit"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    flushSlots();
+    await fixture.whenStable();
+
+    expect(element.querySelector('.profile-layout--plan-first')).toBeNull();
+    expect(element.querySelector('app-slot-picker')).not.toBeNull();
     expect(element.querySelector('.plan-summary__diagnosis')?.textContent).toContain('Lesión muscular');
+
+    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
+
+    expect(openedDialogData).toEqual(
+      expect.objectContaining({
+        creatingPlan: false,
+        editingPlan: true,
+        diagnosis: 'Lesión muscular',
+        totalSessions: plan.totalSessions,
+        frequencyPerWeek: plan.frequencyPerWeek,
+      }),
+    );
+    const update = http.expectOne(`${api}/treatment-plans/3`);
+    expect(update.request.method).toBe('PUT');
+    expect(update.request.body).toEqual({
+      diagnosis: 'Lesión muscular',
+      totalSessions: plan.totalSessions,
+      frequencyPerWeek: plan.frequencyPerWeek,
+    });
+    update.flush({ ...plan, diagnosis: 'Lesión muscular' });
+    http.expectOne(`${api}/treatment-plans/3/sessions`).flush({ id: 1, sessionNumber: 1, totalSessions: 4 });
+    http
+      .expectOne(`${api}/treatment-plans/me`)
+      .flush([{ ...plan, diagnosis: 'Lesión muscular', bookedSessions: 1 }]);
+    flushAppointments();
+    flushSlots();
   });
 
   it('does not offer editing a saved plan after at least one session has been booked', async () => {
@@ -299,6 +343,65 @@ describe('PhysiotherapistProfile (US05, US09, US10)', () => {
     http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 2 }]);
     flushAppointments();
     flushSlots();
+  });
+
+  it('offers to keep booking when the plan still has sessions available', async () => {
+    dialogResponses = [true, 'more'];
+    const fixture = await open();
+    http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 1 }]);
+    flushAppointments();
+    await fixture.whenStable();
+    flushSlots();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
+
+    http.expectOne(`${api}/treatment-plans/3/sessions`).flush({ id: 2, sessionNumber: 2, totalSessions: 4 });
+    http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 2 }]);
+    flushAppointments();
+    flushSlots();
+    await fixture.whenStable();
+
+    expect(openedDialogs[1]).toEqual({
+      component: BookingCompleteDialog,
+      data: { booked: 1, remaining: 2 },
+    });
+    expect(navigate).not.toHaveBeenCalled();
+    expect(element.querySelector('app-slot-picker')).not.toBeNull();
+  });
+
+  it('offers only the appointments destination after the last session is booked', async () => {
+    dialogResponses = [true, 'appointments'];
+    const fixture = await open();
+    http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, totalSessions: 4, bookedSessions: 3 }]);
+    flushAppointments();
+    await fixture.whenStable();
+    flushSlots();
+    await fixture.whenStable();
+
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('.picker__slots button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.booking-bar button') as HTMLButtonElement).click();
+
+    http.expectOne(`${api}/treatment-plans/3/sessions`).flush({ id: 4, sessionNumber: 4, totalSessions: 4 });
+    http.expectOne(`${api}/treatment-plans/me`).flush([{ ...plan, bookedSessions: 4 }]);
+    flushAppointments();
+    flushSlots();
+    await fixture.whenStable();
+
+    expect(openedDialogs[1]).toEqual({
+      component: BookingCompleteDialog,
+      data: { booked: 1, remaining: 0 },
+    });
+    expect(navigate).toHaveBeenCalledWith(['/patient/appointments']);
   });
 
   it('limits selection to the number of sessions still available in the active plan', async () => {

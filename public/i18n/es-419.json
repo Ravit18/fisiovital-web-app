@@ -249,9 +249,12 @@
       "selectedCount": "Seleccionaste {{count}} de {{limit}} sesiones disponibles del plan.",
       "reserveCount": "Reservar {{count}} sesiones",
       "createAndReserveCount": "Crear plan y reservar {{count}}",
+      "updateAndReserveCount": "Guardar cambios y reservar {{count}}",
       "partialBooking": "Se reservaron {{booked}} de {{total}} horarios. El plan permanece disponible para completar las reservas. Detalle: {{error}}",
       "continue": "Continuar para elegir horario",
       "reviewBeforeBooking": "Revisa los datos. Puedes cambiarlos antes de confirmar; el plan aún no se ha guardado.",
+      "editSavedIntro": "Modifica los datos del plan. Los cambios se guardarán cuando confirmes la reserva.",
+      "editReviewBeforeBooking": "Revisa los cambios del plan. Se guardarán junto con la reserva.",
       "editDetails": "Cambiar datos del plan",
       "createAndBook": "Crear plan y reservar"
     }
@@ -290,9 +293,16 @@
       "title": "Confirmar reserva",
       "multiplePrompt": "Vas a reservar {{count}} sesiones con {{name}}. Revisa los horarios antes de confirmar.",
       "newPlanPrompt": "Se creará tu plan y reservarás {{count}} sesiones con {{name}}. Revisa los datos y horarios antes de confirmar.",
+      "updatePlanPrompt": "Se actualizarán los datos del plan y reservarás {{count}} sesiones con {{name}}. Revisa los datos y horarios antes de confirmar.",
       "planSummary": "Plan que vas a crear",
+      "updatedPlanSummary": "Datos actualizados del plan",
       "selectedSlots": "Horarios seleccionados",
-      "multipleDone": "Se reservaron {{count}} sesiones."
+      "completeTitle": "¡Reserva confirmada!",
+      "completeMessage": "Se reservaron {{count}} sesiones.",
+      "moreAvailable": "Aún puedes reservar {{count}} sesiones más. ¿Qué quieres hacer ahora?",
+      "planComplete": "Ya reservaste todas las sesiones del plan. Puedes revisar tu horario en Mis sesiones.",
+      "bookMore": "Reservar más sesiones",
+      "viewAppointments": "Ver mis sesiones"
     },
     "reschedule": {
       "action": "Reprogramar",

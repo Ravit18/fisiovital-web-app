@@ -9,6 +9,7 @@ export interface BookingConfirmDialogData {
   physiotherapistName: string;
   slots: Array<{ id: number; startTime: string; endTime: string }>;
   creatingPlan: boolean;
+  editingPlan?: boolean;
   diagnosis?: string;
   totalSessions?: number;
   frequencyPerWeek?: number;
@@ -22,13 +23,19 @@ export interface BookingConfirmDialogData {
     <mat-dialog-content>
       <p class="booking-confirm__intro">
         {{
-          (data.creatingPlan ? 'treatment.book.newPlanPrompt' : 'treatment.book.multiplePrompt')
+          (data.creatingPlan
+            ? 'treatment.book.newPlanPrompt'
+            : data.editingPlan
+              ? 'treatment.book.updatePlanPrompt'
+              : 'treatment.book.multiplePrompt')
             | translate: { count: data.slots.length, name: data.physiotherapistName }
         }}
       </p>
-      @if (data.creatingPlan) {
+      @if (data.creatingPlan || data.editingPlan) {
         <section class="booking-confirm__plan" aria-labelledby="booking-plan-title">
-          <h3 id="booking-plan-title">{{ 'treatment.book.planSummary' | translate }}</h3>
+          <h3 id="booking-plan-title">
+            {{ (data.creatingPlan ? 'treatment.book.planSummary' : 'treatment.book.updatedPlanSummary') | translate }}
+          </h3>
           <p class="booking-confirm__diagnosis">{{ data.diagnosis }}</p>
           <p>
             {{ 'treatment.plan.totalSessions' | translate }}:
@@ -61,7 +68,11 @@ export interface BookingConfirmDialogData {
       </button>
       <button class="booking-confirm__submit" mat-flat-button type="button" [mat-dialog-close]="true" cdkFocusInitial>
         {{
-          (data.creatingPlan ? 'profiles.plan.createAndReserveCount' : 'profiles.plan.reserveCount')
+          (data.creatingPlan
+            ? 'profiles.plan.createAndReserveCount'
+            : data.editingPlan
+              ? 'profiles.plan.updateAndReserveCount'
+              : 'profiles.plan.reserveCount')
             | translate: { count: data.slots.length }
         }}
       </button>
