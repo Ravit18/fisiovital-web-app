@@ -99,10 +99,92 @@
   width: 100%;
 }
 
-.time-fields {
+.hour-picker {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
+  margin: 0 0 12px;
+  border: 0;
+  padding: 0;
+}
+
+.hour-picker legend {
+  padding: 0;
+  color: var(--fv-color-text-strong);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hour-picker__hint {
+  margin: 0;
+  color: var(--fv-color-text-muted);
+  font-size: 12px;
+}
+
+.hour-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+}
+
+.hour-chip {
+  display: grid;
+  min-height: 44px;
+  place-content: center;
+  gap: 2px;
+  border: 1px solid var(--fv-color-border-strong);
+  border-radius: 12px;
+  padding: 6px 4px;
+  background: var(--fv-color-surface);
+  color: var(--fv-color-text-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--fv-color-primary);
+    background: var(--fv-color-primary-softer);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fv-color-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.hour-chip--selected {
+  border-color: var(--fv-color-primary);
+  background: var(--fv-color-primary);
+  color: var(--fv-color-surface);
+
+  &:hover:not(:disabled) {
+    background: var(--fv-color-primary-dark);
+  }
+}
+
+.hour-chip--taken:disabled {
+  border-style: dashed;
+  background: var(--fv-color-background-soft);
+  opacity: 0.8;
+}
+
+.hour-chip__state {
+  color: var(--fv-color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.hour-picker__clear {
+  justify-self: start;
 }
 
 .preview-summary {
@@ -123,11 +205,6 @@
   font-size: 12px;
 }
 
-.preview-summary__time--overlap {
-  color: var(--fv-color-error);
-  text-decoration: line-through;
-}
-
 .form-message {
   border-radius: 12px;
   margin: 8px 0 0;
@@ -141,11 +218,6 @@
   color: var(--fv-color-error);
 }
 
-.form-message--warning {
-  background: #fff3da;
-  color: #85621c;
-}
-
 .publish-button {
   width: 100%;
   min-height: 42px;
@@ -155,27 +227,62 @@
   color: var(--fv-color-surface) !important;
 }
 
-.publish-success {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 14px;
-  border-radius: 12px;
-  padding: 12px;
+.publish-confirmation {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  border: 2px solid var(--fv-color-primary);
+  border-radius: 18px;
+  padding: 24px 20px;
   background: var(--fv-color-primary-soft);
   color: var(--fv-color-text);
-  font-size: 13px;
-
-  a {
-    color: var(--fv-color-primary);
-    font-weight: 700;
-  }
+  text-align: center;
 }
 
-.week-card {
-  padding: 20px;
+.publish-confirmation__icon {
+  color: var(--fv-color-primary);
+  font-size: 48px;
+}
+
+.publish-confirmation h3,
+.publish-confirmation p {
+  margin: 0;
+}
+
+.publish-confirmation h3 {
+  color: var(--fv-color-forest);
+  font-size: 20px;
+}
+
+.publish-confirmation__slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.publish-confirmation__slots li {
+  border: 1px solid var(--fv-color-border-strong);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--fv-color-surface);
+  font-weight: 700;
+}
+
+.publish-confirmation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.publish-confirmation__actions a {
+  background: var(--fv-color-forest) !important;
+  color: var(--fv-color-surface) !important;
 }
 
 .week-card__header {
@@ -190,11 +297,7 @@
   font-size: 16px;
 }
 
-.week-card__header h2 span {
-  color: var(--fv-color-text-muted);
-  font-size: 14px;
-  font-weight: 500;
-}
+.week-card__header h2 span { color: var(--fv-color-text-muted); font-size: 14px; }
 
 .week-card__controls {
   display: flex;
@@ -214,9 +317,21 @@
 
 .week-day h3 {
   margin: 0 0 8px;
-  color: var(--fv-color-text);
-  font-size: 13px;
-  font-weight: 700;
+}
+
+.week-day__date {
+  border: 0;
+  background: transparent;
+  color: var(--fv-color-primary);
+  font: inherit;
+}
+
+.week-day__date--selected {
+  background: var(--fv-color-primary-soft);
+}
+
+.week-day__date:disabled {
+  opacity: 0.6;
 }
 
 .week-day ul {

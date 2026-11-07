@@ -193,7 +193,6 @@
     "notificationsTitle": "Notificaciones",
     "noNotifications": "No tienes notificaciones por ahora.",
     "upcomingDetailsTitle": "Detalles de la sesión",
-    "assistantButton": "Asistente FisioVital",
     "physio": {
       "eyebrow": "AGENDA DIARIA",
       "panelNav": "Panel",
@@ -241,11 +240,23 @@
     "noSlots": "No hay horarios libres para esta semana.",
     "plan": {
       "title": "Tu plan de tratamiento",
-      "none": "Para reservar, primero crea tu plan de tratamiento con este fisioterapeuta.",
+      "none": "Completa estos datos para ver los horarios. El plan solo se guardará cuando confirmes una hora.",
       "pickSlot": "Elige un horario libre para reservar tu siguiente sesión.",
       "full": "Ya reservaste todas las sesiones de este plan.",
-      "selectedSlot": "Seleccionado: {{day}} · {{time}}",
-      "reserveSession": "Reservar sesión"
+      "selectionHint": "Selecciona hasta {{count}} horarios en total, con un máximo de {{weekly}} por semana. Puedes navegar a otra semana.",
+      "weeklyLimitReached": "Llegaste al máximo de {{count}} sesiones para esa semana. Quita una hora seleccionada para cambiarla o navega a otra semana.",
+      "weeklyLimitLoadError": "No pudimos comprobar tus sesiones reservadas. Vuelve a cargar la página antes de elegir horarios.",
+      "selectedCount": "Seleccionaste {{count}} de {{limit}} sesiones disponibles del plan.",
+      "reserveCount": "Reservar {{count}} sesiones",
+      "createAndReserveCount": "Crear plan y reservar {{count}}",
+      "updateAndReserveCount": "Guardar cambios y reservar {{count}}",
+      "partialBooking": "Se reservaron {{booked}} de {{total}} horarios. El plan permanece disponible para completar las reservas. Detalle: {{error}}",
+      "continue": "Continuar para elegir horario",
+      "reviewBeforeBooking": "Revisa los datos. Puedes cambiarlos antes de confirmar; el plan aún no se ha guardado.",
+      "editSavedIntro": "Modifica los datos del plan. Los cambios se guardarán cuando confirmes la reserva.",
+      "editReviewBeforeBooking": "Revisa los cambios del plan. Se guardarán junto con la reserva.",
+      "editDetails": "Cambiar datos del plan",
+      "createAndBook": "Crear plan y reservar"
     }
   },
   "treatment": {
@@ -280,9 +291,18 @@
     },
     "book": {
       "title": "Confirmar reserva",
-      "message": "¿Reservar tu sesión del {{when}} con {{name}}?",
-      "confirm": "Reservar",
-      "done": "Sesión {{number}} de {{total}} reservada."
+      "multiplePrompt": "Vas a reservar {{count}} sesiones con {{name}}. Revisa los horarios antes de confirmar.",
+      "newPlanPrompt": "Se creará tu plan y reservarás {{count}} sesiones con {{name}}. Revisa los datos y horarios antes de confirmar.",
+      "updatePlanPrompt": "Se actualizarán los datos del plan y reservarás {{count}} sesiones con {{name}}. Revisa los datos y horarios antes de confirmar.",
+      "planSummary": "Plan que vas a crear",
+      "updatedPlanSummary": "Datos actualizados del plan",
+      "selectedSlots": "Horarios seleccionados",
+      "completeTitle": "¡Reserva confirmada!",
+      "completeMessage": "Se reservaron {{count}} sesiones.",
+      "moreAvailable": "Aún puedes reservar {{count}} sesiones más. ¿Qué quieres hacer ahora?",
+      "planComplete": "Ya reservaste todas las sesiones del plan. Puedes revisar tu horario en Mis sesiones.",
+      "bookMore": "Reservar más sesiones",
+      "viewAppointments": "Ver mis sesiones"
     },
     "reschedule": {
       "action": "Reprogramar",
@@ -307,25 +327,30 @@
       "pageEyebrow": "GESTIONA TU DISPONIBILIDAD",
       "pageTitle": "Publicar disponibilidad",
       "title": "Publicar horarios",
-      "subtitle": "Elige un día y un rango de horas; se dividirá en horarios de la duración que indiques.",
+      "subtitle": "Elige un día y marca las horas en las que atiendes. Cada sesión dura 1 hora.",
       "date": "Fecha",
-      "startTime": "Desde",
-      "endTime": "Hasta",
-      "duration": "Duración de cada sesión",
-      "minutes": "{{count}} minutos",
       "weekTitle": "Mi disponibilidad · Semana",
+      "selectDate": "Seleccionar {{date}}",
       "noSlots": "Sin bloques",
-      "previewCount": "Se crearán {{count}} bloques libres",
-      "overlap": "Cruce de horario: ya publicaste de {{range}} ese día.",
+      "previewCount": "Horarios que se publicarán ({{count}})",
       "invalidDate": "Selecciona una fecha válida.",
       "pastDate": "No puedes publicar horarios en fechas pasadas.",
-      "invalidRange": "La hora de fin debe ser posterior a la hora de inicio.",
-      "noCompleteSlots": "El rango no alcanza para crear un bloque completo con esa duración.",
       "reserved": "Reservada",
       "free": "Libre",
       "submit": "Publicar",
-      "created": "Se publicaron {{count}} horarios",
-      "goAgenda": "Ver mi agenda"
+      "submitCount": "Publicar {{count}} horarios",
+      "publishing": "Publicando…",
+      "successTitle": "¡Disponibilidad publicada!",
+      "successMessage": "Estos horarios ya están disponibles para que tus pacientes los reserven.",
+      "publishAnother": "Publicar otros horarios",
+      "goAgenda": "Ver agenda de esa semana",
+      "hoursLabel": "Horas de atención",
+      "hoursHint": "Toca cada hora que quieras publicar. Deja sin marcar tus descansos, como la hora de almuerzo.",
+      "clearSelection": "Limpiar selección",
+      "alreadyPublished": "Publicada",
+      "hourAvailable": "Publicar de {{time}} por 1 hora",
+      "hourTaken": "{{time}}: ya publicaste esta hora",
+      "hourPast": "{{time}}: esta hora ya pasó"
     }
   },
   "appointments": {
@@ -359,7 +384,6 @@
       "titlePrefix": "Historial de",
       "titleAccent": "citas",
       "subtitle": "Todas tus citas, de la más nueva a la más antigua.",
-      "patientHistory": "Ver historial de paciente",
       "patientName": "Nombre completo del paciente",
       "search": "Buscar",
       "showAll": "Ver todos",
@@ -373,6 +397,36 @@
       "patient": "Paciente",
       "session": "Sesión",
       "status": "Estado"
+    },
+    "record": {
+      "eyebrow": "FICHA DEL PACIENTE",
+      "since": "Primera cita: {{date}}",
+      "completed": "Sesiones realizadas",
+      "upcoming": "Próximas",
+      "cancelled": "Canceladas",
+      "next": "Próxima cita",
+      "noNext": "Sin citas pendientes",
+      "treatments": "Tratamientos",
+      "progress": "{{completed}} de {{total}} sesiones realizadas",
+      "upcomingCount": "{{count}} por venir",
+      "lastVisit": "última visita el {{date}}",
+      "open": "Ver ficha de {{name}}",
+      "viewHistory": "Ver historial",
+      "clinicalTitle": "Historia clínica",
+      "noNotes": "Aún no hay notas. Escribe lo que encontraste o con qué cuenta el paciente.",
+      "latestNote": "Última nota:",
+      "noteLabel": "Nueva nota clínica",
+      "notePlaceholder": "Ej.: Se encontró inflamación leve en el tobillo; el paciente cuenta con una resonancia.",
+      "saveNote": "Guardar nota",
+      "savingNote": "Guardando…",
+      "sessionLabel": "¿De qué sesión es la nota?",
+      "generalOption": "Nota general (sin sesión)",
+      "sessionOption": "Sesión {{number}} de {{total}} · {{date}}",
+      "sessionTag": "Sesión {{number}} · {{date}}",
+      "generalTag": "Nota general",
+      "evolution": "Evolución",
+      "noEvolution": "Sin notas",
+      "sessionHint": "Solo aparecen las sesiones que ya ocurrieron; una nota guardada no se edita."
     }
   },
   "agenda": {
@@ -390,6 +444,7 @@
     "free": "Horario libre",
     "freeCancelled": "Libre por cancelación",
     "empty": "Sin horarios",
+    "addAvailability": "Agregar disponibilidad",
     "emptyBooked": "Sin citas"
   },
   "notifications": {
@@ -411,11 +466,11 @@
   "assistant": {
     "title": "Asistente FisioVital",
     "subtitle": "Pregúntale por la política de cancelación, qué especialista te conviene, o pídele reservar o reprogramar una sesión.",
+    "subtitlePhysio": "Resuelve dudas sobre las políticas de la plataforma o qué especialidad le corresponde a un caso.",
     "disclaimer": "El asistente usa inteligencia artificial y no reemplaza una consulta médica. Ante una emergencia llama al 106.",
     "newConversation": "Nueva conversación",
     "try": "Prueba con:",
-    "you": "Tú",
-    "name": "Asistente",
+    "minimize": "Minimizar",
     "safety": "respuesta de seguridad",
     "thinking": "El asistente está escribiendo…",
     "placeholder": "Escribe tu mensaje",
@@ -424,7 +479,9 @@
       "policy": "¿Cuál es la política de cancelación?",
       "specialist": "Tengo dolor de espalda baja al estar sentado, ¿qué especialista me recomiendas?",
       "book": "Quiero reservar una sesión con mi fisioterapeuta",
-      "reschedule": "Quiero reprogramar mi próxima sesión"
+      "reschedule": "Quiero reprogramar mi próxima sesión",
+      "physioReschedule": "¿Con cuánta anticipación puede un paciente reprogramar una sesión?",
+      "physioReferral": "Un paciente tiene dolor de espalda baja al estar sentado, ¿qué especialidad le corresponde?"
     }
   },
   "validation": {

@@ -10,12 +10,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { filter, switchMap } from 'rxjs';
+import { EMPTY, concatMap, expand, filter, from, map, of, reduce, switchMap, tap, toArray } from 'rxjs';
+import { startOfToday, weekWindowIndex } from '../../../core/dates';
 import { AuthService } from '../../../core/services/auth.service';
+import { AppointmentsService } from '../../../core/services/appointments.service';
 import { NotificationsStore } from '../../../core/services/notifications.store';
 import { SlotPicker } from './slot-picker/slot-picker';
 import { Slot } from '../../../core/models/slot.model';
-import { ConfirmDialog, ConfirmDialogData } from '../../../core/components/confirm-dialog/confirm-dialog';
 import { apiErrorMessage } from '../../../core/models/api-error.model';
 import { FeedbackService } from '../../../core/services/feedback.service';
 import { LanguageService } from '../../../core/services/language.service';
@@ -23,6 +24,12 @@ import { TreatmentPlan } from '../../../core/models/treatment-plan.model';
 import { TreatmentPlansService } from '../../../core/services/treatment-plans.service';
 import { Physiotherapist } from '../../../core/models/physiotherapist.model';
 import { PhysiotherapistsService } from '../../../core/services/physiotherapists.service';
+import { BookingConfirmDialog, BookingConfirmDialogData } from './booking-confirm-dialog';
+import {
+  BookingCompleteAction,
+  BookingCompleteDialog,
+  BookingCompleteDialogData,
+} from './booking-complete-dialog';
 
 /**
  * US05 profile + US06 free slots. A patient books here: first a treatment plan with this
@@ -48,11 +55,11 @@ import { PhysiotherapistsService } from '../../../core/services/physiotherapists
 export class PhysiotherapistProfile implements OnInit {
   private readonly physiotherapistsApi = inject(PhysiotherapistsService);
   private readonly plansApi = inject(TreatmentPlansService);
+  private readonly appointmentsApi = inject(AppointmentsService);
   private readonly dialog = inject(MatDialog);
   private readonly feedback = inject(FeedbackService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
-  private readonly datePipe = new DatePipe('en-US');
   protected readonly auth = inject(AuthService);
   protected readonly notifications = inject(NotificationsStore);
   protected readonly language = inject(LanguageService);
@@ -65,14 +72,46 @@ export class PhysiotherapistProfile implements OnInit {
   protected readonly loadError = signal<string | null>(null);
   protected readonly plan = signal<TreatmentPlan | null>(null);
   protected readonly planLoading = signal(true);
+  protected readonly weeklyBookingsError = signal(false);
   protected readonly saving = signal(false);
-  protected readonly selectedSlot = signal<Slot | null>(null);
+  protected readonly planReady = signal(false);
+  protected readonly planEditing = signal(false);
+  protected readonly selectedSlots = signal<Slot[]>([]);
+  protected readonly bookedSessionStartTimes = signal<string[]>([]);
+  protected readonly bookingOutcome = signal<{ booked: number; total: number; error: string } | null>(null);
   protected readonly profileMenuOpen = signal(false);
   protected readonly physioId = computed(() => Number(this.id()));
+  private readonly planFormRevision = signal(0);
   /** Sessions still available in the active plan. */
   protected readonly remaining = computed(() => {
     const plan = this.plan();
     return plan ? plan.totalSessions - plan.bookedSessions : 0;
+  });
+  protected readonly selectionLimit = computed(() => {
+    this.planFormRevision();
+    return this.plan() && !this.planEditing()
+      ? this.remaining()
+      : Number(this.planForm.controls.totalSessions.value);
+  });
+  protected readonly weeklyLimit = computed(() => {
+    this.planFormRevision();
+    const plan = this.plan();
+    return plan && !this.planEditing()
+      ? plan.frequencyPerWeek
+      : Number(this.planForm.controls.frequencyPerWeek.value);
+  });
+  protected readonly weeklyLimitReached = computed(() => {
+    const counts = new Map<string, number>();
+    const anchor = startOfToday();
+    for (const startTime of this.bookedSessionStartTimes()) {
+      const week = weekWindowIndex(startTime, anchor);
+      if (week >= 0) counts.set(String(week), (counts.get(String(week)) ?? 0) + 1);
+    }
+    for (const slot of this.selectedSlots()) {
+      const week = String(weekWindowIndex(slot.startTime, anchor));
+      counts.set(week, (counts.get(week) ?? 0) + 1);
+    }
+    return [...counts.values()].some((count) => count >= this.weeklyLimit());
   });
 
   protected readonly planForm = inject(NonNullableFormBuilder).group({
@@ -90,37 +129,99 @@ export class PhysiotherapistProfile implements OnInit {
     this.loadPlan();
   }
 
-  protected createPlan(): void {
+  protected continueToSlots(): void {
     if (this.planForm.invalid) {
       this.planForm.markAllAsTouched();
       return;
     }
-    this.saving.set(true);
-    this.plansApi.create({ physiotherapistId: this.physioId(), ...this.planForm.getRawValue() }).subscribe({
-      next: (plan) => {
-        this.plan.set(plan);
-        this.saving.set(false);
-        this.feedback.success('treatment.plan.created');
-      },
-      error: (error: HttpErrorResponse) => {
-        this.saving.set(false);
-        this.feedback.error(error);
-        // 409: there is already an active plan with this physiotherapist; show it.
-        if (error.status === 409) this.loadPlan();
-      },
-    });
+    this.planFormRevision.update((revision) => revision + 1);
+    this.selectedSlots.set([]);
+    this.bookingOutcome.set(null);
+    this.planReady.set(true);
   }
 
-  protected book(slot: Slot): void {
+  protected editPlanDetails(): void {
+    this.selectedSlots.set([]);
+    this.bookingOutcome.set(null);
+    this.planReady.set(false);
+  }
+
+  protected editSavedPlan(plan: TreatmentPlan): void {
+    this.planForm.setValue({
+      diagnosis: plan.diagnosis,
+      totalSessions: plan.totalSessions,
+      frequencyPerWeek: plan.frequencyPerWeek,
+    });
+    this.planFormRevision.update((revision) => revision + 1);
+    this.planEditing.set(true);
+    this.planReady.set(false);
+    this.selectedSlots.set([]);
+    this.bookingOutcome.set(null);
+  }
+
+  protected cancelPlanEdit(): void {
     const plan = this.plan();
     if (!plan) return;
-    const when = `${this.datePipe.transform(slot.startTime, 'fullDate', undefined, this.language.current())} · ${this.datePipe.transform(slot.startTime, 'shortTime', undefined, this.language.current())}`;
+    this.planForm.setValue({
+      diagnosis: plan.diagnosis,
+      totalSessions: plan.totalSessions,
+      frequencyPerWeek: plan.frequencyPerWeek,
+    });
+    this.planFormRevision.update((revision) => revision + 1);
+    this.planEditing.set(false);
+    this.planReady.set(false);
+    this.selectedSlots.set([]);
+  }
+
+  protected toggleSlot(slot: Slot): void {
+    if (this.weeklyBookingsError()) return;
+    const selected = this.selectedSlots();
+    const alreadySelected = selected.some((item) => item.id === slot.id);
+    if (alreadySelected) {
+      this.selectedSlots.set(selected.filter((item) => item.id !== slot.id));
+    } else if (
+      selected.length < this.selectionLimit() &&
+      this.bookedSessionStartTimes().filter(
+        (startTime) =>
+          weekWindowIndex(startTime, startOfToday()) === weekWindowIndex(slot.startTime, startOfToday()),
+      ).length +
+        selected.filter(
+          (item) => weekWindowIndex(item.startTime, startOfToday()) === weekWindowIndex(slot.startTime, startOfToday()),
+        ).length <
+        this.weeklyLimit()
+    ) {
+      this.selectedSlots.set([...selected, slot]);
+    }
+    this.bookingOutcome.set(null);
+  }
+
+  protected reserveSelectedSlots(): void {
+    if (this.weeklyBookingsError()) return;
+    if ((!this.plan() || this.planEditing()) && this.planForm.invalid) {
+      this.planForm.markAllAsTouched();
+      this.planReady.set(false);
+      return;
+    }
+    const slots = this.selectedSlots();
+    if (slots.length === 0 || slots.length > this.selectionLimit()) return;
+
+    const creatingPlan = !this.plan();
+    const editingPlan = !!this.plan() && this.planEditing();
+    const bookedBefore = this.plan()?.bookedSessions ?? 0;
+    const totalSessions =
+      creatingPlan || editingPlan
+        ? Number(this.planForm.controls.totalSessions.value)
+        : (this.plan()?.totalSessions ?? 0);
+    let bookedCount = 0;
+    let bookingStarted = false;
     this.dialog
-      .open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      .open<BookingConfirmDialog, BookingConfirmDialogData, boolean>(BookingConfirmDialog, {
         data: {
-          title: 'treatment.book.title',
-          message: this.translate.instant('treatment.book.message', { when, name: this.physio()?.fullName }),
-          confirm: 'treatment.book.confirm',
+          physiotherapistName: this.physio()?.fullName ?? '',
+          slots,
+          creatingPlan,
+          editingPlan,
+          ...(creatingPlan || editingPlan ? this.planForm.getRawValue() : {}),
         },
       })
       .afterClosed()
@@ -128,22 +229,64 @@ export class PhysiotherapistProfile implements OnInit {
         filter(Boolean),
         switchMap(() => {
           this.saving.set(true);
-          return this.plansApi.bookSession(plan.id, slot.id);
+          const existingPlan = this.plan();
+          const plan$ = existingPlan
+            ? editingPlan
+              ? this.plansApi.update(existingPlan.id, this.planForm.getRawValue())
+              : of(existingPlan)
+            : this.plansApi.create({ physiotherapistId: this.physioId(), ...this.planForm.getRawValue() });
+          return plan$.pipe(
+            tap((plan) => {
+              this.plan.set(plan);
+              this.planEditing.set(false);
+              this.planReady.set(false);
+            }),
+            switchMap((plan) =>
+              from(slots).pipe(
+                concatMap((slot) => {
+                  bookingStarted = true;
+                  return this.plansApi.bookSession(plan.id, slot.id).pipe(tap(() => (bookedCount += 1)));
+                }),
+                reduce((count) => count + 1, 0),
+              ),
+            ),
+          );
         }),
       )
       .subscribe({
-        next: (session) => {
+        next: () => {
           this.saving.set(false);
-          this.selectedSlot.set(null);
-          this.feedback.success('treatment.book.done', { number: session.sessionNumber, total: session.totalSessions });
+          this.selectedSlots.set([]);
+          this.bookingOutcome.set(null);
+          this.dialog
+            .open<BookingCompleteDialog, BookingCompleteDialogData, BookingCompleteAction>(
+              BookingCompleteDialog,
+              {
+                data: {
+                  booked: bookedCount,
+                  remaining: Math.max(0, totalSessions - bookedBefore - bookedCount),
+                },
+              },
+            )
+            .afterClosed()
+            .subscribe((action) => {
+              if (action === 'appointments') this.router.navigate(['/patient/appointments']);
+            });
           this.loadPlan();
           this.slotPicker()?.reload();
         },
         error: (error: HttpErrorResponse) => {
-          // US10: 409 when another patient took the slot first; the list is refreshed.
           this.saving.set(false);
-          this.selectedSlot.set(null);
+          if (bookingStarted) {
+            this.selectedSlots.set([]);
+            this.bookingOutcome.set({
+              booked: bookedCount,
+              total: slots.length,
+              error: apiErrorMessage(error) ?? this.translate.instant('errors.network'),
+            });
+          }
           this.feedback.error(error);
+          this.loadPlan();
           this.slotPicker()?.reload();
         },
       });
@@ -166,15 +309,53 @@ export class PhysiotherapistProfile implements OnInit {
 
   private loadPlan(): void {
     this.planLoading.set(true);
-    this.plansApi.getMine().subscribe({
-      next: (plans) => {
-        this.plan.set(plans.find((p) => p.physiotherapistId === this.physioId() && p.status === 'ACTIVE') ?? null);
-        this.planLoading.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.planLoading.set(false);
-        this.feedback.error(error);
-      },
-    });
+    this.weeklyBookingsError.set(false);
+    this.bookedSessionStartTimes.set([]);
+    this.plansApi
+      .getMine()
+      .pipe(
+        switchMap((plans) => {
+          const activePlan =
+            plans.find((p) => p.physiotherapistId === this.physioId() && p.status === 'ACTIVE') ?? null;
+          this.plan.set(activePlan);
+          if (!activePlan) return of([]);
+          return this.loadBookedSessions(activePlan).pipe(
+            tap((startTimes) => this.bookedSessionStartTimes.set(startTimes)),
+            tap(() => this.planReady.set(false)),
+          );
+        }),
+      )
+      .subscribe({
+        next: () => this.planLoading.set(false),
+        error: (error: HttpErrorResponse) => {
+          this.weeklyBookingsError.set(true);
+          this.planLoading.set(false);
+          this.feedback.error(error);
+        },
+      });
+  }
+
+  private loadBookedSessions(plan: TreatmentPlan) {
+    return this.appointmentsApi.getMine(0, 100).pipe(
+      expand((history, index) => {
+        const page = history.page ?? index;
+        const totalPages =
+          history.totalPages ??
+          (history.totalElements !== null && history.size ? Math.ceil(history.totalElements / history.size) : page + 1);
+        return page + 1 < totalPages ? this.appointmentsApi.getMine(page + 1, 100) : EMPTY;
+      }),
+      toArray(),
+      map((histories) =>
+        histories
+          .flatMap((history) => history.appointments)
+          // Appointment history has no plan ID; only one active plan per physiotherapist is allowed.
+          .filter(
+            (appointment) =>
+              appointment.physiotherapistId === plan.physiotherapistId &&
+              (appointment.status === 'RESERVED' || appointment.status === 'COMPLETED'),
+          )
+          .map((appointment) => appointment.startTime),
+      ),
+    );
   }
 }

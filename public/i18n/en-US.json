@@ -193,7 +193,6 @@
     "notificationsTitle": "Notifications",
     "noNotifications": "You don't have any notifications right now.",
     "upcomingDetailsTitle": "Session details",
-    "assistantButton": "FisioVital Assistant",
     "physio": {
       "eyebrow": "DAILY AGENDA",
       "panelNav": "Dashboard",
@@ -241,11 +240,23 @@
     "noSlots": "There are no free slots this week.",
     "plan": {
       "title": "Your treatment plan",
-      "none": "To book, first create your treatment plan with this physiotherapist.",
+      "none": "Enter these details to view available times. Your plan will only be saved when you confirm a time.",
       "pickSlot": "Pick a free slot to book your next session.",
       "full": "You have already booked every session of this plan.",
-      "selectedSlot": "Selected: {{day}} · {{time}}",
-      "reserveSession": "Book session"
+      "selectionHint": "Select up to {{count}} time slots total, with a maximum of {{weekly}} per week. Move to another week to select more.",
+      "weeklyLimitReached": "You reached the limit of {{count}} sessions for that week. Remove a selected time to change it or move to another week.",
+      "weeklyLimitLoadError": "We couldn't check your booked sessions. Reload the page before selecting time slots.",
+      "selectedCount": "You selected {{count}} of the plan's {{limit}} available sessions.",
+      "reserveCount": "Book {{count}} sessions",
+      "createAndReserveCount": "Create plan and book {{count}}",
+      "updateAndReserveCount": "Save changes and book {{count}}",
+      "partialBooking": "{{booked}} of {{total}} time slots were booked. The plan is still available to complete the bookings. Details: {{error}}",
+      "continue": "Continue to choose a time",
+      "reviewBeforeBooking": "Review your details. You can change them before confirming; the plan has not been saved yet.",
+      "editSavedIntro": "Update the plan details. Your changes will be saved when you confirm a booking.",
+      "editReviewBeforeBooking": "Review the plan changes. They will be saved with your booking.",
+      "editDetails": "Change plan details",
+      "createAndBook": "Create plan and book"
     }
   },
   "treatment": {
@@ -280,9 +291,18 @@
     },
     "book": {
       "title": "Confirm booking",
-      "message": "Book your session on {{when}} with {{name}}?",
-      "confirm": "Book",
-      "done": "Session {{number}} of {{total}} booked."
+      "multiplePrompt": "You are about to book {{count}} sessions with {{name}}. Review the selected times before confirming.",
+      "newPlanPrompt": "Your plan will be created and {{count}} sessions with {{name}} will be booked. Review the plan details and selected times before confirming.",
+      "updatePlanPrompt": "Your plan details will be updated and {{count}} sessions with {{name}} will be booked. Review the plan details and selected times before confirming.",
+      "planSummary": "Treatment plan to be created",
+      "updatedPlanSummary": "Updated treatment plan details",
+      "selectedSlots": "Selected time slots",
+      "completeTitle": "Booking confirmed!",
+      "completeMessage": "{{count}} sessions booked.",
+      "moreAvailable": "You can still book {{count}} more sessions. What would you like to do next?",
+      "planComplete": "You have booked all sessions in this plan. You can review your schedule in My sessions.",
+      "bookMore": "Book more sessions",
+      "viewAppointments": "View my sessions"
     },
     "reschedule": {
       "action": "Reschedule",
@@ -307,25 +327,30 @@
       "pageEyebrow": "MANAGE YOUR AVAILABILITY",
       "pageTitle": "Publish availability",
       "title": "Publish slots",
-      "subtitle": "Choose a day and a time range; it is split into slots of the length you choose.",
+      "subtitle": "Choose a day and mark the hours you are available. Each session lasts 1 hour.",
       "date": "Date",
-      "startTime": "From",
-      "endTime": "To",
-      "duration": "Length of each session",
-      "minutes": "{{count}} minutes",
       "weekTitle": "My availability · Week",
+      "selectDate": "Select {{date}}",
       "noSlots": "No slots",
-      "previewCount": "{{count}} free slots will be created",
-      "overlap": "Time conflict: you already published {{range}} that day.",
+      "previewCount": "Slots to be published ({{count}})",
       "invalidDate": "Select a valid date.",
       "pastDate": "You cannot publish availability on past dates.",
-      "invalidRange": "The end time must be after the start time.",
-      "noCompleteSlots": "The time range is too short for a complete slot of this duration.",
       "reserved": "Reserved",
       "free": "Free",
       "submit": "Publish",
-      "created": "{{count}} slots published",
-      "goAgenda": "See my schedule"
+      "submitCount": "Publish {{count}} slots",
+      "publishing": "Publishing…",
+      "successTitle": "Availability published!",
+      "successMessage": "These times are now available for patients to book.",
+      "publishAnother": "Publish more slots",
+      "goAgenda": "See that week's schedule",
+      "hoursLabel": "Available hours",
+      "hoursHint": "Tap each hour you want to publish. Leave your breaks, such as lunch, unmarked.",
+      "clearSelection": "Clear selection",
+      "alreadyPublished": "Published",
+      "hourAvailable": "Publish {{time}} for 1 hour",
+      "hourTaken": "{{time}}: you already published this hour",
+      "hourPast": "{{time}}: this hour has already passed"
     }
   },
   "appointments": {
@@ -359,7 +384,6 @@
       "titlePrefix": "Appointment",
       "titleAccent": "history",
       "subtitle": "All your appointments, from newest to oldest.",
-      "patientHistory": "View patient history",
       "patientName": "Patient's full name",
       "search": "Search",
       "showAll": "Show all",
@@ -373,6 +397,36 @@
       "patient": "Patient",
       "session": "Session",
       "status": "Status"
+    },
+    "record": {
+      "eyebrow": "PATIENT RECORD",
+      "since": "First appointment: {{date}}",
+      "completed": "Completed sessions",
+      "upcoming": "Upcoming",
+      "cancelled": "Cancelled",
+      "next": "Next appointment",
+      "noNext": "No pending appointments",
+      "treatments": "Treatments",
+      "progress": "{{completed}} of {{total}} sessions completed",
+      "upcomingCount": "{{count}} upcoming",
+      "lastVisit": "last visit on {{date}}",
+      "open": "Open the record of {{name}}",
+      "viewHistory": "View history",
+      "clinicalTitle": "Clinical history",
+      "noNotes": "No notes yet. Write what you found or what the patient has.",
+      "latestNote": "Latest note:",
+      "noteLabel": "New clinical note",
+      "notePlaceholder": "E.g.: Mild ankle inflammation found; the patient has an MRI.",
+      "saveNote": "Save note",
+      "savingNote": "Saving…",
+      "sessionLabel": "Which session is the note about?",
+      "generalOption": "General note (no session)",
+      "sessionOption": "Session {{number}} of {{total}} · {{date}}",
+      "sessionTag": "Session {{number}} · {{date}}",
+      "generalTag": "General note",
+      "evolution": "Progress",
+      "noEvolution": "No notes",
+      "sessionHint": "Only sessions that already happened are listed; a saved note cannot be edited."
     }
   },
   "agenda": {
@@ -390,6 +444,7 @@
     "free": "Free slot",
     "freeCancelled": "Freed after cancellation",
     "empty": "No slots",
+    "addAvailability": "Add availability",
     "emptyBooked": "No appointments"
   },
   "notifications": {
@@ -411,11 +466,11 @@
   "assistant": {
     "title": "FisioVital assistant",
     "subtitle": "Ask about the cancellation policy or which specialist suits you, or ask it to book or reschedule a session.",
+    "subtitlePhysio": "Ask about the platform's policies or which specialty fits a patient's case.",
     "disclaimer": "The assistant uses artificial intelligence and does not replace a medical consultation. In an emergency call 106.",
     "newConversation": "New conversation",
     "try": "Try:",
-    "you": "You",
-    "name": "Assistant",
+    "minimize": "Minimize",
     "safety": "safety answer",
     "thinking": "The assistant is typing…",
     "placeholder": "Type your message",
@@ -424,7 +479,9 @@
       "policy": "What is the cancellation policy?",
       "specialist": "My lower back hurts when I sit, which specialist do you recommend?",
       "book": "I want to book a session with my physiotherapist",
-      "reschedule": "I want to reschedule my next session"
+      "reschedule": "I want to reschedule my next session",
+      "physioReschedule": "How far in advance can a patient reschedule a session?",
+      "physioReferral": "A patient has lower back pain when sitting, which specialty fits the case?"
     }
   },
   "validation": {

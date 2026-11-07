@@ -72,6 +72,7 @@ Cada servicio del front corresponde a un controller del backend:
 | `core/services/notifications.store.ts` | `NotificationController` | US13 |
 | `core/services/appointments.service.ts` | `AppointmentHistoryController` | US14–US16 |
 | `core/services/assistant.service.ts` | `AssistantController` | US17–US20 |
+| `core/services/clinical-notes.service.ts` | `ClinicalNoteController` | Historia clínica (ficha del paciente) |
 
 Para verlo en vivo, abre la app, presiona **F12 → Network (Red)**, filtra por `api/v1` y navega: cada fila es una
 llamada al backend, con su URL, sus headers (token e idioma) y el JSON de respuesta.
@@ -349,24 +350,48 @@ token y el JSON (ver "Cómo se conecta con el backend").
 
 ## Cuentas de prueba
 
-El backend arranca sin datos. Para crear estas cuentas con sus horarios, planes y citas, corre una vez en
+El backend arranca sin datos. Para crear estas cuentas con sus horarios, planes y citas, corre en
 `fisiovital-web-services` (con el backend encendido):
 
 ```bash
-powershell -ExecutionPolicy Bypass -File scripts\seed-demo.ps1
+powershell -ExecutionPolicy Bypass -File scripts\seed-demo.ps1 -Days 21
 ```
+
+Se puede volver a correr cuando las citas ya pasaron: reutiliza las cuentas y los planes, publica horarios nuevos y
+completa las citas próximas que falten. Las citas que ya pasaron quedan como **realizadas** en el historial
+(US14–US16).
 
 La contraseña de estas cuentas está en ese script del backend. Son datos ficticios solo para desarrollo local (correos `@example.com`).
 
-| Rol | Correo | Qué vas a ver |
-|---|---|---|
-| Paciente | `carlos.mendoza@example.com` | 6 citas con dos fisioterapeutas (Mariana y Jorge) |
-| Paciente | `ana.torres@example.com` | Citas próximas y canceladas en el historial |
-| Paciente | `luis.quispe@example.com` | Una cita reprogramada |
-| Paciente | `sofia.huaman@example.com` | Plan de rehabilitación neurológica de 20 sesiones |
-| Fisioterapeuta | `mariana.rojas@example.com` | Agenda con Carlos y Ana (deportiva) |
-| Fisioterapeuta | `jorge.paredes@example.com` | Agenda con Carlos y Luis (columna y postura) |
-| Fisioterapeuta | `lucia.vargas@example.com` | Agenda con Sofía (neurológica) |
+**Pacientes** (4)
 
-Los horarios se publican desde el día siguiente a la carga: en **Mi agenda** usa "Semana siguiente" si hoy
-aparece vacío.
+| Correo | Planes y fisioterapeutas | Para probar |
+|---|---|---|
+| `carlos.mendoza@example.com` | Esguince de tobillo con Mariana · Cervicalgia con Jorge | Dos planes activos, citas próximas y realizadas (US09–US14) |
+| `ana.torres@example.com` | Tendinopatía rotuliana con Mariana · Manguito rotador con Diego | Citas **canceladas** en el historial (US12) |
+| `luis.quispe@example.com` | Lumbalgia con Jorge (3/sem) · LCA con Diego | Una cita **reprogramada** (US11) |
+| `sofia.huaman@example.com` | Rehabilitación tras ACV con Lucía (20 sesiones) · Dorsalgia con Jorge | Plan largo con muchas citas próximas |
+
+**Fisioterapeutas** (4)
+
+| Correo | Especialidad | Pacientes en su agenda | Para probar |
+|---|---|---|---|
+| `mariana.rojas@example.com` | Deportiva | Carlos, Ana | Agenda (US08) e historial con canceladas (US15) |
+| `jorge.paredes@example.com` | Columna y postura | Carlos, Luis, Sofía | La agenda más llena; buscar paciente (US16) |
+| `lucia.vargas@example.com` | Neurológica | Sofía | Agenda de un solo paciente |
+| `diego.salazar@example.com` | Postquirúrgica | Ana, Luis | Pacientes que también atiende otro fisio: ve sus notas en la historia clínica |
+
+Los cuatro tienen horarios publicados de lunes a sábado durante las próximas 3 semanas, con bloques libres para
+reservar (US06, US10). Las citas empiezan el día siguiente a la carga: en **Mi agenda** usa "Semana siguiente" si
+hoy aparece vacío.
+
+**Historia clínica de demostración.** La API no permite crear citas en el pasado, así que las sesiones ya
+realizadas con su nota de evolución se cargan con SQL, después del seed (también en `fisiovital-web-services`):
+
+```bash
+psql -h localhost -U postgres -d fisiovital -f scripts/seed-history.sql
+```
+
+Agrega a los 8 planes demo sesiones de las semanas pasadas con su nota, más una nota de antecedentes por plan. Para
+verla, entra como fisioterapeuta → **Panel** o **Mi agenda** → **Ver historial** en una cita: la ficha muestra la
+historia clínica y la columna **Evolución** con lo que se anotó en cada sesión.

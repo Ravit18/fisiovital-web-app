@@ -72,9 +72,6 @@ describe('Dashboard', () => {
     expect(compiled.querySelector('a[href="/patient/appointments"]')?.textContent).toContain('home.navSessions');
     expect(compiled.querySelector('a[href="/patient/appointments?view=history"]')?.textContent).toContain('home.navHistory');
     expect(compiled.querySelector('a[href="/specialists"]')).toBeNull();
-    const assistantButton = compiled.querySelector<HTMLAnchorElement>('.assistant-button');
-    expect(assistantButton?.getAttribute('href')).toBe('/patient/assistant');
-    expect(assistantButton?.textContent).toContain('home.assistantButton');
   });
 
   it('loads real plan progress and selects the nearest upcoming session', async () => {
@@ -183,6 +180,10 @@ describe('Dashboard', () => {
     expect(content).toContain('home.physio.reservedSessions');
     expect(content).toContain('Un paciente canceló su sesión.');
     expect(compiled.querySelector('.agenda-slot--cancelled')).toBeTruthy();
+    // The booked session links to the patient's record; the free block does not.
+    const recordLinks = compiled.querySelectorAll('.agenda-slot .record-link');
+    expect(recordLinks).toHaveLength(1);
+    expect(recordLinks[0].getAttribute('href')).toBe('/physiotherapist/patients?patient=Carlos%20Mendoza');
     expect(compiled.querySelector('.assistant-button')).toBeNull();
   });
 
