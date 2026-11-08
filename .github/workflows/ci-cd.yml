@@ -1,0 +1,63 @@
+# Pipeline CI/CD de la Web App: Commit -> Build -> Test -> Deploy.
+# - En cada push o Pull Request a main/develop: instala dependencias, corre las pruebas y compila para producción.
+# - Solo en push a main y si todo pasa: publica la carpeta compilada en Netlify.
+name: CI/CD Web App
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Build y pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar pruebas
+        run: npx ng test --watch=false
+
+      - name: Compilar para producción
+        run: npx ng build --configuration production
+
+      - name: Guardar build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/fisiovital-web-app/browser
+
+  deploy:
+    name: Despliegue en Netlify
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Descargar build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Publicar en Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "::error::Faltan los secretos NETLIFY_AUTH_TOKEN y/o NETLIFY_SITE_ID"
+            exit 1
+          fi
+          npx --yes netlify-cli@17 deploy --prod --dir dist --site "$NETLIFY_SITE_ID" --message "GitHub Actions ${{ github.sha }}"
