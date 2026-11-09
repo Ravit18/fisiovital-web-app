@@ -17,7 +17,51 @@ npm test           # Vitest
 npm run build      # dist/fisiovital-web-app
 ```
 
-La URL del backend está en `src/environments/environment.ts` (`apiBaseUrl`).
+La URL del backend está en `src/environments/environment.ts` (`apiBaseUrl`, local). En producción `ng build` usa
+`src/environments/environment.prod.ts` (backend en Render).
+
+## Despliegue
+
+| Producto | Servicio | URL |
+|---|---|---|
+| Web App (y landing en `home/`) | Netlify | https://fisiovitalupc.netlify.app |
+| Web Services | Render (Docker) | https://fisiovital-web-services.onrender.com/swagger-ui/index.html |
+| Base de datos | Supabase (PostgreSQL) | — |
+
+Pipeline CI/CD en `.github/workflows/ci-cd.yml` (GitHub Actions): **Commit → Build → Test → Deploy**.
+
+- En cada push o Pull Request a `develop` o `main`: `npm ci`, pruebas (`ng test`) y `ng build` de producción.
+- Solo en push a `main` y si todo pasó: publica `dist/fisiovital-web-app/browser` en Netlify.
+- Secretos del repo (Settings → Secrets and variables → Actions): `NETLIFY_AUTH_TOKEN` y `NETLIFY_SITE_ID`.
+- En Netlify los builds automáticos están apagados ("Builds are stopped"): no activarlos, despliega solo Actions.
+- `public/_redirects` hace que las rutas de Angular (`/sign-in`, `/patient/...`) funcionen al recargar.
+
+## Cómo hacer cambios (GitFlow)
+
+```
+feat/mi-cambio ──PR──► develop ──PR──► main ──► se despliega solo en Netlify
+                  (corre pruebas)
+```
+
+1. Partir de `develop` actualizado y crear tu rama:
+   ```bash
+   git switch develop
+   git pull
+   git switch -c feat/nombre-del-cambio
+   ```
+2. Hacer los cambios y probarlos: `npm start` (con el backend local) y `npm test`.
+3. Revisar con `git status` que no aparezcan `node_modules/`, `dist/`, `.angular/` ni `.env`. Luego:
+   ```bash
+   git add .
+   git commit -m "feat: descripción corta"
+   git push -u origin feat/nombre-del-cambio
+   ```
+4. En GitHub, abrir un PR hacia `develop`. Si Actions sale en verde, **Merge**.
+5. Para publicar, abrir un PR de `develop` hacia `main` y hacer **Merge**. En 1–2 min está en Netlify.
+6. Si Actions sale en rojo no se despliega nada (sigue la versión anterior): abrir el run para ver el error.
+
+Si cambia la URL del backend, editar `environment.prod.ts` y, en Render, agregar la URL del front a
+`CORS_ALLOWED_ORIGINS`.
 
 ## Cómo se conecta con el backend
 
