@@ -8,6 +8,11 @@ export interface AssistantReply {
   source: ReplySource;
 }
 
+/** AssistantTranscriptionResponseDTO in the backend. */
+export interface AssistantTranscriptionResponse {
+  transcript: string;
+}
+
 /** One line of the chat as shown in the UI. */
 export interface ChatLine {
   author: 'user' | 'assistant' | 'error';
