@@ -1,0 +1,1 @@
+var e={apiBaseUrl:`https://fisiovital-web-services.onrender.com/api/v1`};export{e as t};
