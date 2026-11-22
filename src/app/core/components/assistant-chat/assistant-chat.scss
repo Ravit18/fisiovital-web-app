@@ -274,6 +274,27 @@
   button:not(:disabled) {
     color: var(--fv-color-forest);
   }
+
+  button.voice-button--recording {
+    color: var(--fv-color-error);
+  }
+}
+
+.panel__voice-status,
+.panel__voice-error,
+.panel__voice-note {
+  margin: 0;
+  padding: 0 14px 8px;
+  font-size: 12px;
+}
+
+.panel__voice-status,
+.panel__voice-note {
+  color: var(--fv-color-text-muted);
+}
+
+.panel__voice-error {
+  color: var(--fv-color-error);
 }
 
 @media (max-width: 760px) {

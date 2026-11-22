@@ -11,6 +11,7 @@
           mat-icon-button
           type="button"
           (click)="newConversation()"
+          [disabled]="sending() || requestingMicrophone() || recording() || transcribing()"
           [attr.aria-label]="'assistant.newConversation' | translate"
           [matTooltip]="'assistant.newConversation' | translate"
         >
@@ -67,13 +68,36 @@
       ></textarea>
       <button
         mat-icon-button
+        type="button"
+        class="voice-button"
+        [class.voice-button--recording]="recording()"
+        [disabled]="sending() || requestingMicrophone() || transcribing()"
+        [attr.aria-label]="(recording() ? 'assistant.voiceStop' : 'assistant.voiceStart') | translate"
+        [attr.aria-pressed]="recording()"
+        [matTooltip]="(recording() ? 'assistant.voiceStop' : 'assistant.voiceStart') | translate"
+        (click)="toggleRecording()"
+      >
+        <mat-icon aria-hidden="true">{{ recording() ? 'stop' : 'mic' }}</mat-icon>
+      </button>
+      <button
+        mat-icon-button
         type="submit"
-        [disabled]="sending() || !draft.trim()"
+        [disabled]="sending() || requestingMicrophone() || recording() || transcribing() || !draft.trim()"
         [attr.aria-label]="'assistant.send' | translate"
       >
         <mat-icon aria-hidden="true">send</mat-icon>
       </button>
     </form>
+    @if (recording()) {
+      <p class="panel__voice-status" role="status">{{ 'assistant.voiceListening' | translate }}</p>
+    }
+    @if (transcribing()) {
+      <p class="panel__voice-status" role="status">{{ 'assistant.voiceTranscribing' | translate }}</p>
+    }
+    @if (voiceError()) {
+      <p class="panel__voice-error" role="alert">{{ voiceError() }}</p>
+    }
+    <p class="panel__voice-note">{{ 'assistant.voicePrivacy' | translate }}</p>
   </section>
 }
 

@@ -6,6 +6,27 @@ import { environment } from '../../../../environments/environment';
 import { AssistantChat } from './assistant-chat';
 
 const assistantUrl = `${environment.apiBaseUrl}/assistant/messages`;
+const transcriptionUrl = `${environment.apiBaseUrl}/assistant/transcriptions`;
+
+class FakeMediaRecorder {
+  readonly mimeType = 'audio/webm';
+  state: RecordingState = 'inactive';
+  ondataavailable: ((event: BlobEvent) => void) | null = null;
+  onstop: ((event: Event) => void) | null = null;
+  onerror: ((event: Event) => void) | null = null;
+
+  constructor(_stream: MediaStream) {}
+
+  start(): void {
+    this.state = 'recording';
+  }
+
+  stop(): void {
+    this.state = 'inactive';
+    this.ondataavailable?.({ data: new Blob(['mock audio'], { type: this.mimeType }) } as BlobEvent);
+    this.onstop?.(new Event('stop'));
+  }
+}
 
 describe('AssistantChat (US17-US20)', () => {
   let http: HttpTestingController;
@@ -76,5 +97,46 @@ describe('AssistantChat (US17-US20)', () => {
 
     const error = (fixture.nativeElement as HTMLElement).querySelector('.bubble--error');
     expect(error?.textContent).toContain('El asistente no está disponible');
+  });
+
+  it('puts the server transcription in the draft without sending it automatically', async () => {
+    const originalRecorder = Object.getOwnPropertyDescriptor(globalThis, 'MediaRecorder');
+    const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, 'mediaDevices');
+    const stopTrack = vi.fn();
+    const stream = { getTracks: () => [{ stop: stopTrack }] };
+    Object.defineProperty(globalThis, 'MediaRecorder', {
+      configurable: true,
+      value: FakeMediaRecorder,
+    });
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockResolvedValue(stream) },
+    });
+
+    try {
+      const fixture = TestBed.createComponent(AssistantChat);
+      openPanel(fixture);
+      const root = fixture.nativeElement as HTMLElement;
+      const microphone = root.querySelector<HTMLButtonElement>('.voice-button')!;
+
+      microphone.click();
+      await fixture.whenStable();
+      microphone.click();
+      fixture.detectChanges();
+
+      http.expectOne(transcriptionUrl).flush({ transcript: 'Quiero reservar una sesión' });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(root.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('Quiero reservar una sesión');
+      expect(root.querySelector('.bubble--user')).toBeNull();
+      http.expectNone(assistantUrl);
+      expect(stopTrack).toHaveBeenCalledOnce();
+    } finally {
+      if (originalRecorder) Object.defineProperty(globalThis, 'MediaRecorder', originalRecorder);
+      else Reflect.deleteProperty(globalThis, 'MediaRecorder');
+      if (originalMediaDevices) Object.defineProperty(navigator, 'mediaDevices', originalMediaDevices);
+      else Reflect.deleteProperty(navigator, 'mediaDevices');
+    }
   });
 });
