@@ -57,6 +57,7 @@ import { AppointmentsService } from '../../../core/services/appointments.service
             >
               {{ 'home.physio.historyNav' | translate }}
             </a>
+            <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/assistant'">{{ 'home.navAssistant' | translate }}</a>
           </nav>
           <div class="dashboard-actions">
             <a

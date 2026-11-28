@@ -20,7 +20,6 @@
     "search": "Buscar fisioterapeuta",
     "plans": "Mis planes",
     "appointments": "Mis citas",
-    "assistant": "Asistente IA",
     "panel": "Panel",
     "agenda": "Mi agenda",
     "availability": "Publicar horarios",
@@ -215,7 +214,8 @@
       "cancelledSlots": "Libres por cancelación",
       "alertsTitle": "Avisos",
       "noAlerts": "No tienes avisos por ahora."
-    }
+    },
+    "navAssistant": "Asistente IA"
   },
   "profiles": {
     "search": {
@@ -256,7 +256,8 @@
       "editSavedIntro": "Modifica los datos del plan. Los cambios se guardarán cuando confirmes la reserva.",
       "editReviewBeforeBooking": "Revisa los cambios del plan. Se guardarán junto con la reserva.",
       "editDetails": "Cambiar datos del plan",
-      "createAndBook": "Crear plan y reservar"
+      "createAndBook": "Crear plan y reservar",
+      "previewHint": "Estos son sus horarios libres. Completa tu plan arriba (o pídeselo al asistente) para reservar uno."
     }
   },
   "treatment": {
@@ -468,9 +469,7 @@
     "subtitle": "Pregúntale por la política de cancelación, qué especialista te conviene, o pídele reservar o reprogramar una sesión.",
     "subtitlePhysio": "Resuelve dudas sobre las políticas de la plataforma o qué especialidad le corresponde a un caso.",
     "disclaimer": "El asistente usa inteligencia artificial y no reemplaza una consulta médica. Ante una emergencia llama al 106.",
-    "newConversation": "Nueva conversación",
     "try": "Prueba con:",
-    "minimize": "Minimizar",
     "safety": "respuesta de seguridad",
     "thinking": "El asistente está escribiendo…",
     "placeholder": "Escribe tu mensaje",
@@ -494,7 +493,37 @@
       "reschedule": "Quiero reprogramar mi próxima sesión",
       "physioReschedule": "¿Con cuánta anticipación puede un paciente reprogramar una sesión?",
       "physioReferral": "Un paciente tiene dolor de espalda baja al estar sentado, ¿qué especialidad le corresponde?"
-    }
+    },
+    "newChat": "Nuevo chat",
+    "history": "Historial de chats",
+    "searchChats": "Buscar en tus chats",
+    "historyError": "No se pudo cargar tu historial.",
+    "historyEmpty": "Aquí aparecerán tus chats. Cada conversación se guarda para que puedas retomarla.",
+    "searchEmpty": "Ningún chat coincide con tu búsqueda.",
+    "groups": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "week": "Últimos 7 días",
+      "older": "Anteriores"
+    },
+    "untitled": "Chat sin título",
+    "deleteChat": "Eliminar el chat «{{title}}»",
+    "deleteTitle": "Eliminar chat",
+    "deleteMessage": "Se borrará este chat y todos sus mensajes. No se puede deshacer.",
+    "deleteConfirm": "Eliminar",
+    "deleted": "Chat eliminado",
+    "notFound": "Este chat ya no existe o no te pertenece.",
+    "greeting": "Hola, {{name}}. ¿En qué te ayudo hoy?",
+    "placeholderLong": "Escribe tu consulta o usa el micrófono",
+    "composerHint": "Enter para enviar · Shift + Enter para un salto de línea. El asistente puede equivocarse.",
+    "choicesLabel": "Opciones para responder",
+    "listen": "Escuchar",
+    "stopListening": "Detener",
+    "preparingVoice": "Preparando voz…",
+    "autoVoice": "Voz",
+    "autoVoiceHint": "Leer cada respuesta nueva con la voz del navegador (gratis). «Escuchar» usa la voz natural de Gemini.",
+    "autoplayBlocked": "Tu navegador bloqueó el audio: vuelve a tocar «Escuchar».",
+    "voiceNotHeard": "No te escuché. Toca el micrófono e inténtalo de nuevo."
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -544,5 +573,16 @@
       "title": "6. Contacto",
       "body": "Si tienes dudas sobre estos términos, escríbenos a soporte@fisiovital.pe."
     }
+  },
+  "voice": {
+    "title": "Asistente por voz",
+    "start": "Hablar con el asistente",
+    "stop": "Terminar y enviar",
+    "silence": "Silenciar",
+    "close": "Cerrar",
+    "listening": "Te escucho…",
+    "thinking": "Pensando…",
+    "speaking": "Respondiendo",
+    "hint": "Prueba: «quiero ver a los doctores» o «muéstrame los cupos de Jorge el jueves»."
   }
 }

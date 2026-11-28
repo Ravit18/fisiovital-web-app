@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -55,7 +55,11 @@ import { SlotsService } from '../../../../core/services/slots.service';
         @if (days().length > 0) {
           <div class="picker__days">
             @for (group of days(); track group.day) {
-              <section class="picker__day">
+              <section
+                class="picker__day"
+                [class.picker__day--focus]="isFocus(group.day)"
+                [attr.data-day]="group.day"
+              >
                 <h3>{{ group.day | date: 'EEE d' : undefined : language.current() }}</h3>
                 <div
                   class="picker__slots"
@@ -118,6 +122,24 @@ import { SlotsService } from '../../../../core/services/slots.service';
       flex: 0 0 clamp(110px, calc((100% - 50px) / 6), 150px);
       min-width: 0;
     }
+    .picker__day--focus {
+      border-radius: 14px;
+      padding: 8px;
+      margin: -8px 0;
+      background: var(--fv-color-primary-softer);
+      box-shadow: inset 0 0 0 2px var(--fv-color-accent);
+      animation: picker-focus 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes picker-focus {
+      from {
+        box-shadow: inset 0 0 0 2px var(--fv-color-accent), 0 0 0 10px #86b66733;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .picker__day--focus {
+        animation: none;
+      }
+    }
     .picker__day h3 {
       margin: 0 0 8px;
       color: var(--fv-color-text);
@@ -144,7 +166,7 @@ import { SlotsService } from '../../../../core/services/slots.service';
     }
   `,
 })
-export class SlotPicker implements OnInit {
+export class SlotPicker {
   private readonly api = inject(SlotsService);
   private readonly translate = inject(TranslateService);
   protected readonly language = inject(LanguageService);
@@ -160,6 +182,9 @@ export class SlotPicker implements OnInit {
   readonly canSelectMore = input(true);
   readonly weeklyLimit = input(7);
   readonly picked = output<Slot>();
+  /** yyyy-MM-dd to open and highlight (the voice assistant sends it: "show me his slots on Friday"). */
+  readonly focusDate = input<string | undefined>(undefined);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly from = signal(startOfToday());
   protected readonly to = computed(() => addDays(this.from(), 6));
@@ -184,8 +209,21 @@ export class SlotPicker implements OnInit {
     return sameWeekCount < this.weeklyLimit();
   }
 
-  ngOnInit(): void {
-    this.reload();
+  constructor() {
+    // First load, and again whenever the requested day changes while the profile stays open.
+    effect(() => {
+      const focus = this.focusDate();
+      untracked(() => {
+        const day = focus && /^\d{4}-\d{2}-\d{2}$/.test(focus) ? fromIsoDate(focus) : null;
+        if (day && day >= startOfToday()) this.from.set(day);
+        this.reload();
+      });
+    });
+  }
+
+  /** group.day is already yyyy-MM-dd (groupByDay). */
+  protected isFocus(day: string): boolean {
+    return !!this.focusDate() && day === this.focusDate();
   }
 
   /** Loads the current week again, e.g. after a slot was booked. */
@@ -198,11 +236,21 @@ export class SlotPicker implements OnInit {
         if (availability.nextAvailableWeek) this.from.set(fromIsoDate(availability.nextAvailableWeek));
         this.availability.set(availability);
         this.loading.set(false);
+        this.scrollToFocus();
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage.set(apiErrorMessage(error) ?? this.translate.instant('errors.load'));
         this.loading.set(false);
       },
+    });
+  }
+
+  private scrollToFocus(): void {
+    const focus = this.focusDate();
+    if (!focus) return;
+    setTimeout(() => {
+      const day = this.host.nativeElement.querySelector<HTMLElement>(`[data-day="${focus}"]`);
+      day?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     });
   }
 

@@ -20,6 +20,7 @@
         >
           {{ 'home.navHistory' | translate }}
         </a>
+        <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/assistant'">{{ 'home.navAssistant' | translate }}</a>
       </nav>
       <div class="dashboard-actions">
         <a
@@ -232,6 +233,7 @@
             }
             <app-slot-picker
               [physiotherapistId]="physio.id"
+              [focusDate]="date()"
               [busy]="saving()"
               [selectedSlotIds]="selectedSlots().map(slot => slot.id)"
               [selectedSlots]="selectedSlots()"
@@ -276,6 +278,16 @@
                 } }}
               </p>
             }
+          </section>
+        } @else if (date() && !planLoading()) {
+          <!-- Voice assistant opened a day (?date=) before the patient has a plan: show that day's slots as a
+               preview; booking needs the plan form above first. -->
+          <section class="availability-card" aria-labelledby="availability-title">
+            <div class="availability-heading">
+              <h2 id="availability-title">{{ 'profiles.availability' | translate }}</h2>
+            </div>
+            <p class="selection-hint">{{ 'profiles.plan.previewHint' | translate }}</p>
+            <app-slot-picker [physiotherapistId]="physio.id" [focusDate]="date()" [selectable]="false" />
           </section>
         }
       </div>
