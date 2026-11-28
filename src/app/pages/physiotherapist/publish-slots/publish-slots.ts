@@ -63,6 +63,7 @@ type HourState = 'available' | 'taken' | 'past';
               {{ 'home.physio.availabilityNav' | translate }}
             </a>
             <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
+            <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/assistant'">{{ 'home.navAssistant' | translate }}</a>
           </nav>
           <div class="dashboard-actions">
             <a

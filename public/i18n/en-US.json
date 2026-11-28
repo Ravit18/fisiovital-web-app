@@ -20,7 +20,6 @@
     "search": "Find a physiotherapist",
     "plans": "My plans",
     "appointments": "My appointments",
-    "assistant": "AI assistant",
     "panel": "Dashboard",
     "agenda": "My schedule",
     "availability": "Publish slots",
@@ -215,7 +214,8 @@
       "cancelledSlots": "Freed after cancellation",
       "alertsTitle": "Notifications",
       "noAlerts": "There are no notifications right now."
-    }
+    },
+    "navAssistant": "AI assistant"
   },
   "profiles": {
     "search": {
@@ -256,7 +256,8 @@
       "editSavedIntro": "Update the plan details. Your changes will be saved when you confirm a booking.",
       "editReviewBeforeBooking": "Review the plan changes. They will be saved with your booking.",
       "editDetails": "Change plan details",
-      "createAndBook": "Create plan and book"
+      "createAndBook": "Create plan and book",
+      "previewHint": "These are the free slots. Fill in your plan above (or ask the assistant) to book one."
     }
   },
   "treatment": {
@@ -468,9 +469,7 @@
     "subtitle": "Ask about the cancellation policy or which specialist suits you, or ask it to book or reschedule a session.",
     "subtitlePhysio": "Ask about the platform's policies or which specialty fits a patient's case.",
     "disclaimer": "The assistant uses artificial intelligence and does not replace a medical consultation. In an emergency call 106.",
-    "newConversation": "New conversation",
     "try": "Try:",
-    "minimize": "Minimize",
     "safety": "safety answer",
     "thinking": "The assistant is typing…",
     "placeholder": "Type your message",
@@ -494,7 +493,37 @@
       "reschedule": "I want to reschedule my next session",
       "physioReschedule": "How far in advance can a patient reschedule a session?",
       "physioReferral": "A patient has lower back pain when sitting, which specialty fits the case?"
-    }
+    },
+    "newChat": "New chat",
+    "history": "Chat history",
+    "searchChats": "Search your chats",
+    "historyError": "Your history could not be loaded.",
+    "historyEmpty": "Your chats will appear here. Every conversation is saved so you can pick it up again.",
+    "searchEmpty": "No chat matches your search.",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "Previous 7 days",
+      "older": "Older"
+    },
+    "untitled": "Untitled chat",
+    "deleteChat": "Delete the chat “{{title}}”",
+    "deleteTitle": "Delete chat",
+    "deleteMessage": "This chat and all its messages will be deleted. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleted": "Chat deleted",
+    "notFound": "This chat no longer exists or is not yours.",
+    "greeting": "Hi, {{name}}. How can I help you today?",
+    "placeholderLong": "Type your question or use the microphone",
+    "composerHint": "Enter to send · Shift + Enter for a new line. The assistant can make mistakes.",
+    "choicesLabel": "Reply options",
+    "listen": "Listen",
+    "stopListening": "Stop",
+    "preparingVoice": "Preparing voice…",
+    "autoVoice": "Voice",
+    "autoVoiceHint": "Read every new answer with the browser voice (free). “Listen” uses Gemini’s natural voice.",
+    "autoplayBlocked": "Your browser blocked the audio: tap “Listen” again.",
+    "voiceNotHeard": "I did not hear you. Tap the microphone and try again."
   },
   "validation": {
     "required": "This field is required",
@@ -544,5 +573,16 @@
       "title": "6. Contact",
       "body": "If you have questions about these terms, write to soporte@fisiovital.pe."
     }
+  },
+  "voice": {
+    "title": "Voice assistant",
+    "start": "Talk to the assistant",
+    "stop": "Finish and send",
+    "silence": "Mute",
+    "close": "Close",
+    "listening": "Listening…",
+    "thinking": "Thinking…",
+    "speaking": "Answering",
+    "hint": "Try: “show me the physiotherapists” or “show me Jorge’s slots on Thursday”."
   }
 }

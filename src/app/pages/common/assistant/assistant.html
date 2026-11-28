@@ -1,0 +1,348 @@
+@if (auth.currentUser(); as user) {
+  <section class="assistant-page" aria-labelledby="assistant-heading">
+    <header class="dashboard-header">
+      <a class="dashboard-brand" [routerLink]="auth.basePath() + '/home'" [attr.aria-label]="'layout.goHome' | translate">
+        <img src="/images/fisiovital-logo.png" alt="" />
+        <span>FisioVital</span>
+      </a>
+      <nav class="dashboard-nav" [attr.aria-label]="'home.navigation' | translate">
+        @if (user.role === 'PHYSIOTHERAPIST') {
+          <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/home'">{{ 'home.physio.panelNav' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/agenda">{{ 'home.physio.agendaNav' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/availability">
+            {{ 'home.physio.availabilityNav' | translate }}
+          </a>
+          <a class="dashboard-nav__link" routerLink="/physiotherapist/patients">{{ 'home.physio.historyNav' | translate }}</a>
+        } @else {
+          <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/home'">{{ 'home.navPanel' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/patient/physiotherapists">{{ 'home.navSpecialists' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/patient/appointments">{{ 'home.navSessions' | translate }}</a>
+          <a class="dashboard-nav__link" routerLink="/patient/appointments" [queryParams]="{ view: 'history' }">
+            {{ 'home.navHistory' | translate }}
+          </a>
+        }
+        <a
+          class="dashboard-nav__link dashboard-nav__link--active"
+          [routerLink]="auth.basePath() + '/assistant'"
+          aria-current="page"
+        >
+          {{ 'home.navAssistant' | translate }}
+        </a>
+      </nav>
+      <div class="dashboard-actions">
+        <a
+          class="notification-indicator"
+          [routerLink]="auth.basePath() + '/notifications'"
+          [attr.aria-label]="'home.notificationsCount' | translate: { count: notifications.unreadCount() }"
+        >
+          <mat-icon aria-hidden="true">notifications</mat-icon>
+          @if (notifications.unreadCount() > 0) {
+            <span class="notification-indicator__count" aria-hidden="true">{{ notifications.unreadCount() }}</span>
+          }
+        </a>
+        <div class="profile">
+          <button
+            class="profile__avatar"
+            type="button"
+            (click)="profileMenuOpen.update((open) => !open)"
+            [attr.aria-label]="'home.profileMenu' | translate: { name: user.fullName }"
+            [attr.aria-expanded]="profileMenuOpen()"
+          >
+            {{ initials(user.fullName) }}
+          </button>
+          @if (profileMenuOpen()) {
+            <button class="profile__sign-out" type="button" (click)="signOut()">
+              {{ 'layout.signOut' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    <div class="workspace" [class.workspace--history-open]="historyOpen()">
+      <aside id="chat-history" class="history" [attr.aria-label]="'assistant.history' | translate">
+        <div class="history__top">
+          <button type="button" class="new-chat" (click)="newChat()" [disabled]="sending()">
+            <mat-icon aria-hidden="true">edit_square</mat-icon>
+            {{ 'assistant.newChat' | translate }}
+          </button>
+          <label class="history__search">
+            <mat-icon aria-hidden="true">search</mat-icon>
+            <span class="visually-hidden">{{ 'assistant.searchChats' | translate }}</span>
+            <input
+              type="search"
+              [placeholder]="'assistant.searchChats' | translate"
+              [ngModel]="query()"
+              (ngModelChange)="query.set($event)"
+            />
+          </label>
+        </div>
+
+        <div class="history__list">
+          @if (historyLoading()) {
+            <div class="history__skeleton" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <p class="visually-hidden" role="status">{{ 'common.loading' | translate }}</p>
+          } @else if (historyError()) {
+            <div class="history__state" role="alert">
+              <p>{{ 'assistant.historyError' | translate }}</p>
+              <button type="button" class="text-button" (click)="loadHistory()">{{ 'common.retry' | translate }}</button>
+            </div>
+          } @else if (conversations().length === 0) {
+            <p class="history__state">{{ 'assistant.historyEmpty' | translate }}</p>
+          } @else if (groups().length === 0) {
+            <p class="history__state">{{ 'assistant.searchEmpty' | translate }}</p>
+          } @else {
+            @for (entry of groups(); track entry.group) {
+              <section class="history__group" [attr.aria-labelledby]="'group-' + entry.group">
+                <h2 [id]="'group-' + entry.group">{{ 'assistant.groups.' + entry.group | translate }}</h2>
+                <ul>
+                  @for (chat of entry.items; track chat.id) {
+                    <li class="chat-item" [class.chat-item--active]="chat.id === activeId()">
+                      <a
+                        class="chat-item__link"
+                        [routerLink]="chatLink(chat.id)"
+                        [attr.aria-current]="chat.id === activeId() ? 'page' : null"
+                        [title]="chat.title"
+                      >
+                        {{ chat.title || ('assistant.untitled' | translate) }}
+                      </a>
+                      <button
+                        type="button"
+                        class="chat-item__delete"
+                        (click)="deleteChat(chat, $event)"
+                        [attr.aria-label]="'assistant.deleteChat' | translate: { title: chat.title }"
+                        [matTooltip]="'assistant.deleteTitle' | translate"
+                      >
+                        <mat-icon aria-hidden="true">delete_outline</mat-icon>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+          }
+        </div>
+
+        <p class="history__note">{{ 'assistant.disclaimer' | translate }}</p>
+      </aside>
+
+      <button
+        type="button"
+        class="history-scrim"
+        tabindex="-1"
+        aria-hidden="true"
+        (click)="historyOpen.set(false)"
+      ></button>
+
+      <div class="thread">
+        <div class="thread__bar">
+          <button
+            type="button"
+            class="icon-button thread__history-toggle"
+            aria-controls="chat-history"
+            [attr.aria-expanded]="historyOpen()"
+            [attr.aria-label]="'assistant.history' | translate"
+            (click)="historyOpen.set(true)"
+          >
+            <mat-icon aria-hidden="true">menu</mat-icon>
+          </button>
+          <h1 id="assistant-heading" class="thread__title">
+            {{ activeId() === null ? ('assistant.newChat' | translate) : activeTitle() || ('assistant.title' | translate) }}
+          </h1>
+          <button
+            type="button"
+            class="voice-toggle"
+            [class.voice-toggle--on]="autoVoice()"
+            [attr.aria-pressed]="autoVoice()"
+            [matTooltip]="'assistant.autoVoiceHint' | translate"
+            (click)="toggleAutoVoice()"
+          >
+            <mat-icon aria-hidden="true">{{ autoVoice() ? 'record_voice_over' : 'voice_over_off' }}</mat-icon>
+            <span>{{ 'assistant.autoVoice' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            class="icon-button thread__new"
+            (click)="newChat()"
+            [disabled]="sending()"
+            [attr.aria-label]="'assistant.newChat' | translate"
+          >
+            <mat-icon aria-hidden="true">edit_square</mat-icon>
+          </button>
+        </div>
+
+        <div #log class="thread__log" role="log" aria-live="polite" [attr.aria-label]="'assistant.title' | translate">
+          <div class="thread__column">
+            @if (threadLoading()) {
+              <div class="thread__skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
+              <p class="visually-hidden" role="status">{{ 'common.loading' | translate }}</p>
+            } @else if (threadError()) {
+              <div class="thread__state" role="alert">
+                <mat-icon aria-hidden="true">forum</mat-icon>
+                <p>{{ threadError() }}</p>
+                <div class="thread__state-actions">
+                  @if (activeId(); as id) {
+                    <button type="button" class="text-button" (click)="loadThread(id)">{{ 'common.retry' | translate }}</button>
+                  }
+                  <button type="button" class="text-button" (click)="newChat()">{{ 'assistant.newChat' | translate }}</button>
+                </div>
+              </div>
+            } @else if (lines().length === 0) {
+              <div class="welcome">
+                <img class="welcome__mark" src="/images/fisiovital-logo.png" alt="" />
+                <h2 class="welcome__title">{{ 'assistant.greeting' | translate: { name: firstName() } }}</h2>
+                <p class="welcome__lead">{{ subtitle() | translate }}</p>
+                <ul class="welcome__suggestions" [attr.aria-label]="'assistant.try' | translate">
+                  @for (key of suggestions(); track key) {
+                    <li>
+                      <button type="button" class="suggestion" (click)="useSuggestion(key)" [disabled]="busy()">
+                        {{ key | translate }}
+                        <mat-icon aria-hidden="true">arrow_outward</mat-icon>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            } @else {
+              @for (line of lines(); track $index) {
+                @switch (line.author) {
+                  @case ('user') {
+                    <div class="message message--user">
+                      <p>{{ line.text }}</p>
+                    </div>
+                  }
+                  @case ('assistant') {
+                    <div class="message message--assistant" [class.message--safety]="line.source === 'SAFETY'">
+                      <span class="message__avatar" aria-hidden="true">
+                        <mat-icon>{{ line.source === 'SAFETY' ? 'health_and_safety' : 'spa' }}</mat-icon>
+                      </span>
+                      <div class="message__body">
+                        @if (line.source === 'SAFETY') {
+                          <span class="message__tag">{{ 'assistant.safety' | translate }}</span>
+                        }
+                        <p>{{ line.text }}</p>
+                        <button
+                          type="button"
+                          class="listen-button"
+                          [class.listen-button--active]="speakingIndex() === $index || loadingSpeechIndex() === $index"
+                          (click)="toggleSpeech($index)"
+                          [attr.aria-label]="(speakingIndex() === $index ? 'assistant.stopListening' : 'assistant.listen') | translate"
+                        >
+                          <mat-icon aria-hidden="true">
+                            {{ loadingSpeechIndex() === $index ? 'hourglass_top' : speakingIndex() === $index ? 'stop_circle' : 'volume_up' }}
+                          </mat-icon>
+                          <span>
+                            {{
+                              (loadingSpeechIndex() === $index
+                                ? 'assistant.preparingVoice'
+                                : speakingIndex() === $index
+                                  ? 'assistant.stopListening'
+                                  : 'assistant.listen'
+                              ) | translate
+                            }}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                  @default {
+                    <div class="message message--error" role="alert">
+                      <mat-icon aria-hidden="true">cloud_off</mat-icon>
+                      <p>{{ line.text }}</p>
+                    </div>
+                  }
+                }
+              }
+              @if (activeChoices().length > 0) {
+                @let view = choiceView();
+                <div class="choices" role="group" [attr.aria-label]="'assistant.choicesLabel' | translate">
+                  @if (view.kind === 'slots') {
+                    <div class="choices__slots">
+                      @for (slot of view.slots; track slot.value) {
+                        <button type="button" class="slot-choice" (click)="choose(slot.value)" [disabled]="busy()">
+                          <span class="slot-choice__day">{{ slot.day }}</span>
+                          <span class="slot-choice__time">{{ slot.time }}</span>
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    @for (choice of view.other; track choice) {
+                      <button
+                        type="button"
+                        class="chip-choice"
+                        [class.chip-choice--primary]="isAffirmative(choice)"
+                        (click)="choose(choice)"
+                        [disabled]="busy()"
+                      >
+                        {{ choice }}
+                      </button>
+                    }
+                  }
+                </div>
+              }
+              @if (sending()) {
+                <div class="message message--assistant">
+                  <span class="message__avatar" aria-hidden="true"><mat-icon>spa</mat-icon></span>
+                  <div class="typing" role="status" [attr.aria-label]="'assistant.thinking' | translate">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="composer-wrap">
+          <form class="composer" [class.composer--recording]="recording()" (ngSubmit)="send()">
+            <textarea
+              #input
+              name="message"
+              rows="1"
+              maxlength="1000"
+              [attr.aria-label]="'assistant.placeholder' | translate"
+              [placeholder]="(recording() ? 'assistant.voiceListening' : 'assistant.placeholderLong') | translate"
+              [(ngModel)]="draft"
+              [disabled]="threadLoading()"
+              (keydown.enter)="onEnter($event)"
+            ></textarea>
+            <div class="composer__actions">
+              <button
+                type="button"
+                class="icon-button voice-button"
+                [class.voice-button--recording]="recording()"
+                [disabled]="sending() || requestingMicrophone() || transcribing() || threadLoading()"
+                [attr.aria-label]="(recording() ? 'assistant.voiceStop' : 'assistant.voiceStart') | translate"
+                [attr.aria-pressed]="recording()"
+                [matTooltip]="(recording() ? 'assistant.voiceStop' : 'assistant.voiceStart') | translate"
+                (click)="toggleRecording()"
+              >
+                <mat-icon aria-hidden="true">{{ recording() ? 'stop' : 'mic' }}</mat-icon>
+              </button>
+              <button
+                type="submit"
+                class="send-button"
+                [disabled]="busy() || threadLoading() || !draft.trim()"
+                [attr.aria-label]="'assistant.send' | translate"
+              >
+                <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+              </button>
+            </div>
+          </form>
+          <div class="composer-status" aria-live="polite">
+            @if (transcribing()) {
+              <p role="status">{{ 'assistant.voiceTranscribing' | translate }}</p>
+            } @else if (autoplayBlocked()) {
+              <p class="composer-status__error" role="status">{{ 'assistant.autoplayBlocked' | translate }}</p>
+            } @else if (voiceError()) {
+              <p class="composer-status__error" role="alert">{{ voiceError() }}</p>
+            } @else {
+              <p>{{ 'assistant.composerHint' | translate }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+}

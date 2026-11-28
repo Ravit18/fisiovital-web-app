@@ -1,0 +1,87 @@
+@if (!hidden()) {
+  @if (open()) {
+    <section
+      id="voice-panel"
+      class="voice-panel"
+      [class]="'voice-panel voice-panel--' + state()"
+      role="dialog"
+      aria-labelledby="voice-title"
+    >
+      <header class="voice-panel__header">
+        <h2 id="voice-title">
+          @switch (state()) {
+            @case ('listening') { {{ 'voice.listening' | translate }} }
+            @case ('thinking') { {{ 'voice.thinking' | translate }} }
+            @case ('speaking') { {{ 'voice.speaking' | translate }} }
+            @default { {{ 'voice.title' | translate }} }
+          }
+        </h2>
+        <button type="button" class="voice-panel__close" (click)="close()" [attr.aria-label]="'voice.close' | translate">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </header>
+
+      <div class="voice-panel__stage" aria-hidden="true">
+        <div class="voice-orb" [style.--level]="level()">
+          <span class="voice-orb__ring voice-orb__ring--outer"></span>
+          <span class="voice-orb__ring voice-orb__ring--inner"></span>
+          <span class="voice-orb__core">
+            @if (state() === 'listening') {
+              <span class="voice-bars">
+                @for (bar of bars(); track $index) {
+                  <span [style.transform]="'scaleY(' + bar + ')'"></span>
+                }
+              </span>
+            } @else if (state() === 'thinking') {
+              <span class="voice-dots"><span></span><span></span><span></span></span>
+            } @else {
+              <mat-icon>spa</mat-icon>
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="voice-panel__text" aria-live="polite">
+        @if (transcript()) {
+          <p class="voice-panel__you">{{ transcript() }}</p>
+        } @else if (state() === 'listening') {
+          <p class="voice-panel__hint">{{ 'voice.hint' | translate }}</p>
+        }
+        @if (reply()) {
+          <p class="voice-panel__reply">{{ reply() }}</p>
+        }
+        @if (error()) {
+          <p class="voice-panel__error" role="alert">{{ error() }}</p>
+        }
+      </div>
+
+      @if (choices().length > 0 && state() !== 'thinking') {
+        <div class="voice-panel__choices" role="group" [attr.aria-label]="'assistant.choicesLabel' | translate">
+          @for (choice of choices(); track choice) {
+            <button type="button" class="voice-chip" (click)="choose(choice)">{{ choice }}</button>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <button
+    type="button"
+    class="voice-fab"
+    [class]="'voice-fab voice-fab--' + state()"
+    [style.--level]="level()"
+    (click)="toggle()"
+    aria-controls="voice-panel"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="
+      (state() === 'listening' ? 'voice.stop' : state() === 'speaking' ? 'voice.silence' : 'voice.start') | translate
+    "
+    [matTooltip]="'voice.start' | translate"
+    [matTooltipDisabled]="state() !== 'idle'"
+    matTooltipPosition="left"
+  >
+    <mat-icon aria-hidden="true">
+      {{ state() === 'listening' ? 'stop' : state() === 'speaking' ? 'volume_off' : state() === 'thinking' ? 'more_horiz' : 'mic' }}
+    </mat-icon>
+  </button>
+}

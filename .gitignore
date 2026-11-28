@@ -1,1 +1,24 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Build output and Angular CLI cache
+dist/
+out-tsc/
+.angular/
+
+# Local secrets and environment
+.env
+.env.*
+!.env.example
+
+# Test coverage and logs
+coverage/
+*.log
+npm-debug.log*
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
