@@ -66,6 +66,8 @@ export class PhysiotherapistProfile implements OnInit {
 
   /** Route parameter :id (withComponentInputBinding). */
   readonly id = input.required<string>();
+  /** ?date=yyyy-MM-dd (voice assistant): the slot picker opens on that day and highlights it. */
+  readonly date = input<string | undefined>(undefined);
   private readonly slotPicker = viewChild(SlotPicker);
 
   protected readonly physio = signal<Physiotherapist | null>(null);

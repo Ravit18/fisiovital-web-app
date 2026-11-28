@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -47,6 +47,7 @@ import { PhysiotherapistsService } from '../../../core/services/physiotherapists
             <a class="dashboard-nav__link" routerLink="/patient/appointments" [queryParams]="{ view: 'history' }">
               {{ 'home.navHistory' | translate }}
             </a>
+            <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/assistant'">{{ 'home.navAssistant' | translate }}</a>
           </nav>
           <div class="dashboard-actions">
             <a
@@ -185,8 +186,14 @@ export class PhysiotherapistSearch {
       ),
   );
 
+  /** ?specialty=DEPORTIVA (voice assistant: "show me the sports physiotherapists"). */
+  readonly specialtyParam = input<string | undefined>(undefined, { alias: 'specialty' });
+
   constructor() {
-    this.search(null);
+    effect(() => {
+      const wanted = this.specialtyParam();
+      untracked(() => this.search(SPECIALTIES.includes(wanted as Specialty) ? (wanted as Specialty) : null));
+    });
   }
 
   protected search(specialty: Specialty | null): void {

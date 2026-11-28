@@ -7,13 +7,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
-import { AssistantChat } from '../../core/components/assistant-chat/assistant-chat';
 import { LanguageSwitcher } from '../../core/components/language-switcher/language-switcher';
+import { VoiceAssistant } from '../../core/components/voice-assistant/voice-assistant';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationsStore } from '../../core/services/notifications.store';
 
 /** Pages that draw their own header (dashboard, lists, profile): the layout hides its toolbar and footer there. */
-const OWN_HEADER = ['/patient/home', '/patient/physiotherapists', '/patient/appointments', '/patient/notifications'];
+const OWN_HEADER = ['/patient/home', '/patient/physiotherapists', '/patient/appointments', '/patient/notifications', '/patient/assistant'];
 
 /** Layout of the patient group: toolbar with its menu, footer and the pages of /patient/... */
 @Component({
@@ -28,7 +28,7 @@ const OWN_HEADER = ['/patient/home', '/patient/physiotherapists', '/patient/appo
     RouterOutlet,
     TranslatePipe,
     LanguageSwitcher,
-    AssistantChat,
+    VoiceAssistant,
   ],
   templateUrl: './patient-layout.html',
   styleUrl: '../../styles/app-layout.scss',

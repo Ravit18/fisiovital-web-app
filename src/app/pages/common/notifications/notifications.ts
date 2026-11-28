@@ -49,6 +49,7 @@ const ICONS = { SESSION_REMINDER: 'alarm', SESSION_RESCHEDULED: 'event_repeat', 
                 {{ 'home.navHistory' | translate }}
               </a>
             }
+            <a class="dashboard-nav__link" [routerLink]="auth.basePath() + '/assistant'">{{ 'home.navAssistant' | translate }}</a>
           </nav>
           <div class="dashboard-actions">
             <a
